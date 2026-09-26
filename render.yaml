@@ -2,14 +2,14 @@
 # Render применяет правила, только если по запрошенному пути нет файла.
 services:
   - type: web
-    name: seo-toolkit
+    name: seotoolkitru
     runtime: static
     buildCommand: npm ci && npm run build
     staticPublishPath: ./dist
     envVars:
       # Домен сайта для canonical, Open Graph и sitemap.xml (без слэша в конце).
       - key: SITE_URL
-        value: https://seo-toolkit-pzj9.onrender.com
+        value: https://seotoolkitru.onrender.com
     headers:
       - path: /assets/*
         name: Cache-Control
