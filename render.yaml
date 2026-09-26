@@ -20,6 +20,15 @@ services:
       - path: /*
         name: Referrer-Policy
         value: strict-origin-when-cross-origin
+      - path: /*
+        name: Strict-Transport-Security
+        value: max-age=31536000
+      - path: /*
+        name: X-Frame-Options
+        value: SAMEORIGIN
+      - path: /*
+        name: Permissions-Policy
+        value: camera=(), microphone=(), geolocation=()
     routes:
     # Render сопоставляет пути без учёта завершающего слэша, поэтому /page/ и /page
     # обрабатываются одинаково: оба варианта отдают /page.html. Не используйте здесь redirect.

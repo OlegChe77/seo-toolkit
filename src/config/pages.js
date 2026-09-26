@@ -15,7 +15,7 @@ export const tools = [
     short: 'Пример сниппета для ПК и смартфона',
     name: 'SERP Preview',
     category: 'meta',
-    icon: 'tool-serp',
+    icon: 'search-document',
     title: 'SERP Preview — предпросмотр сниппета онлайн | SEO Toolkit',
     description:
       'Бесплатный предпросмотр поискового сниппета: введите Title, Description и URL и посмотрите пример отображения на компьютере и смартфоне.',
@@ -28,7 +28,7 @@ export const tools = [
     short: 'Генератор robots.txt с шаблонами',
     name: 'RobotsBuilder',
     category: 'tech',
-    icon: 'tool-robots',
+    icon: 'internet-protected',
     title: 'RobotsBuilder — генератор robots.txt онлайн | SEO Toolkit',
     description:
       'Создайте robots.txt за минуту: группы User-agent, правила Allow и Disallow, Sitemap, готовые шаблоны, проверка ошибок и скачивание файла.',
@@ -41,7 +41,7 @@ export const tools = [
     short: 'Частотность и плотность ключей',
     name: 'TextSEO',
     category: 'content',
-    icon: 'tool-text',
+    icon: 'presentation',
     title: 'TextSEO — SEO-анализ текста и плотность ключей | SEO Toolkit',
     description:
       'Анализ SEO-текста онлайн: слова и символы, частота слов и фраз, плотность ключевых слов, повторы, стоп-слова и экспорт отчёта в CSV.',
@@ -54,7 +54,7 @@ export const tools = [
     short: 'Дерево заголовков H1–H6',
     name: 'HeadingMap',
     category: 'content',
-    icon: 'tool-heading',
+    icon: 'networking',
     title: 'HeadingMap — анализ структуры заголовков H1–H6 | SEO Toolkit',
     description:
       'Вставьте HTML-код или текст и получите дерево заголовков H1–H6: пропущенные уровни, повторяющиеся H1, одинаковые заголовки, экспорт в TXT и CSV.',
@@ -67,7 +67,7 @@ export const tools = [
     short: 'Процент сходства двух текстов',
     name: 'DuplicateText',
     category: 'content',
-    icon: 'tool-duplicate',
+    icon: 'website',
     title: 'DuplicateText — сравнение двух текстов онлайн | SEO Toolkit',
     description:
       'Сравните два текста по словам, фрагментам и предложениям: процент сходства, подсветка совпадений, учёт регистра, пробелов и знаков препинания.',
@@ -80,7 +80,7 @@ export const tools = [
     short: 'Разметка JSON-LD, 8 типов',
     name: 'SchemaBuilder',
     category: 'tech',
-    icon: 'tool-schema',
+    icon: 'programming',
     title: 'SchemaBuilder — генератор JSON-LD Schema.org | SEO Toolkit',
     description:
       'Генератор разметки Schema.org в JSON-LD: Article, Product, Organization, LocalBusiness, WebSite, BreadcrumbList, FAQPage и Event с проверкой JSON.',
@@ -93,7 +93,7 @@ export const tools = [
     short: 'ЧПУ и транслитерация',
     name: 'URLBuilder',
     category: 'tech',
-    icon: 'tool-url',
+    icon: 'share-folder',
     title: 'URLBuilder — генератор ЧПУ и URL-slug | SEO Toolkit',
     description:
       'Преобразуйте заголовки в SEO-friendly URL: транслитерация кириллицы, выбор разделителя, нижний регистр, массовая обработка списка и экспорт в CSV.',
@@ -106,8 +106,8 @@ export const tools = [
     short: 'Длина в символах и пикселях',
     name: 'MetaLength',
     category: 'meta',
-    icon: 'tool-length',
-    title: 'MetaLength — проверка длины Title и Description | SEO Toolkit',
+    icon: 'setting',
+    title: 'MetaLength — длина Title и Description онлайн | SEO Toolkit',
     description:
       'Проверьте длину Title и Description в символах и примерную ширину в пикселях, настройте диапазоны и проверьте список метатегов из CSV.',
     h1: 'MetaLength — длина Title и Description',
@@ -119,8 +119,8 @@ export const tools = [
     short: 'Интент ключевых запросов',
     name: 'IntentFinder',
     category: 'research',
-    icon: 'tool-intent',
-    title: 'IntentFinder — классификация запросов по интенту | SEO Toolkit',
+    icon: 'target',
+    title: 'IntentFinder — определение интента запросов | SEO Toolkit',
     description:
       'Разделите ключевые запросы на информационные, коммерческие, навигационные и транзакционные по редактируемому словарю. Фильтры и экспорт в CSV.',
     h1: 'IntentFinder — классификация запросов по интенту',
@@ -132,7 +132,7 @@ export const tools = [
     short: 'Давность обновления страниц',
     name: 'ContentFresh',
     category: 'research',
-    icon: 'tool-fresh',
+    icon: 'search-time',
     title: 'ContentFresh — анализ актуальности контента | SEO Toolkit',
     description:
       'Загрузите CSV со страницами и датами обновления: сколько дней прошло, фильтры по периодам, собственные пороги и список страниц для обновления.',

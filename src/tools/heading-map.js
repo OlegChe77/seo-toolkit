@@ -6,7 +6,7 @@ import { downloadCsv, downloadFile } from '../core/csv.js';
 import { $, debounce, fmt, h, plural } from '../core/dom.js';
 import { storage } from '../core/storage.js';
 import { toast } from '../core/toast.js';
-import { icon } from '../layout/icons.js';
+import { art, icon } from '../layout/icons.js';
 
 const inputEl = $('#hm-input');
 const detectedEl = $('[data-detected]');
@@ -105,7 +105,7 @@ function render() {
 
   const tree = $('[data-tree]');
   if (!headings.length) {
-    tree.replaceChildren(h('div', { class: 'empty', trustedHtml: icon('tool-heading') }, h('p', { text: 'Здесь появится дерево заголовков H1–H6.' })));
+    tree.replaceChildren(h('div', { class: 'empty', trustedHtml: art('networking', 56) }, h('p', { text: 'Здесь появится дерево заголовков H1–H6.' })));
   } else {
     tree.replaceChildren(
       h(

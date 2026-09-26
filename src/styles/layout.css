@@ -45,8 +45,12 @@
 }
 
 .logo-mark {
-  width: 32px;
-  height: 32px;
+  width: 38px;
+  height: 38px;
+  padding: 2px;
+  border-radius: 11px;
+  background: #fff;
+  box-shadow: inset 0 0 0 1px var(--border);
 }
 
 .main-nav {
@@ -251,60 +255,77 @@
 }
 
 /* ---------- Иконки инструментов ---------- */
+/* Цветные иконки лежат на светлой плитке: тёмный контур читается в обеих темах. */
 .tool-icon {
   display: inline-grid;
   place-items: center;
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
   flex: none;
+  background: var(--tile, #f1f4f9);
 }
 
-.tool-icon .icon {
-  width: 22px;
-  height: 22px;
+.tool-icon .art {
+  width: 36px;
+  height: 36px;
 }
 
 .tool-icon--sm {
-  width: 32px;
-  height: 32px;
-  border-radius: 9px;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
 }
 
-.tool-icon--sm .icon {
-  width: 17px;
-  height: 17px;
+.tool-icon--sm .art {
+  width: 26px;
+  height: 26px;
 }
 
 .tool-icon--lg {
-  width: 56px;
-  height: 56px;
-  border-radius: 14px;
+  width: 68px;
+  height: 68px;
+  border-radius: 18px;
 }
 
-.tool-icon--lg .icon {
-  width: 28px;
-  height: 28px;
+.tool-icon--lg .art {
+  width: 48px;
+  height: 48px;
 }
 
 .cat-meta {
   color: var(--cat-meta);
   background: var(--cat-meta-soft);
+  --tile: #e7eeff;
 }
 
 .cat-content {
   color: var(--cat-content);
   background: var(--cat-content-soft);
+  --tile: #e2f4ee;
 }
 
 .cat-tech {
   color: var(--cat-tech);
   background: var(--cat-tech-soft);
+  --tile: #efe9fc;
 }
 
 .cat-research {
   color: var(--cat-research);
   background: var(--cat-research-soft);
+  --tile: #fdeee2;
+}
+
+.tool-icon.cat-meta,
+.tool-icon.cat-content,
+.tool-icon.cat-tech,
+.tool-icon.cat-research {
+  background: var(--tile);
+}
+
+[data-theme='dark'] .tool-icon {
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
 }
 
 /* ---------- Заголовок страницы инструмента ---------- */
@@ -468,6 +489,10 @@
 /* ---------- Секции ---------- */
 .section {
   padding: 40px 0;
+}
+
+.section--tight {
+  padding-top: 0;
 }
 
 .section-head {
@@ -672,6 +697,41 @@
   background: var(--c);
 }
 
+.art-float {
+  position: absolute;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  border-radius: 20px;
+  background: #fff;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-lg);
+}
+
+.art-float--1 {
+  width: 104px;
+  height: 104px;
+  top: -34px;
+  right: -8px;
+  transform: rotate(6deg);
+}
+
+.art-float--2 {
+  width: 84px;
+  height: 84px;
+  bottom: -18px;
+  right: 56px;
+  transform: rotate(-5deg);
+}
+
+.art-float--3 {
+  width: 84px;
+  height: 84px;
+  top: 238px;
+  left: -52px;
+  transform: rotate(-4deg);
+}
+
 .eyebrow {
   display: inline-flex;
   align-items: center;
@@ -791,11 +851,15 @@
 }
 
 .benefit .tool-icon {
-  width: 40px;
-  height: 40px;
-  margin-bottom: 12px;
-  background: var(--accent-soft);
-  color: var(--accent-text);
+  width: 60px;
+  height: 60px;
+  margin-bottom: 14px;
+  --tile: #fff6dc;
+}
+
+.benefit .tool-icon .art {
+  width: 42px;
+  height: 42px;
 }
 
 .benefit h3 {
@@ -811,6 +875,17 @@
 .not-found {
   padding: 72px 0 40px;
   text-align: center;
+}
+
+.not-found-art {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+.not-found-art .art {
+  width: 112px;
+  height: 112px;
 }
 
 .not-found-code {

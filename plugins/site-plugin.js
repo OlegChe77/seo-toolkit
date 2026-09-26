@@ -2,19 +2,23 @@
 //  • вставляет в каждую страницу метатеги, шапку, хлебные крошки и подвал;
 //  • заменяет {{icon:name}} на inline-SVG;
 //  • в dev/preview открывает страницы по «чистым» URL (/serp-preview) и отдаёт 404.html;
-//  • при сборке переносит HTML из dist/pages в корень dist и создаёт sitemap.xml и robots.txt.
+//  • при сборке переносит HTML из dist/pages в корень dist и создаёт sitemap.xml, robots.txt,
+//    llms.txt, site.webmanifest и файл ключа IndexNow.
 import fs from 'node:fs';
 import path from 'node:path';
 import { allPages, home, notFound, tools } from '../src/config/pages.js';
 import {
+  art,
   icon,
   renderCategoryChips,
   renderFooter,
   renderHead,
   renderHeader,
   renderHero,
+  renderLlms,
   renderRelated,
   renderRobots,
+  renderSeoContent,
   renderSitemap,
   renderToolCards,
 } from '../src/layout/templates.js';
@@ -33,13 +37,15 @@ function renderPage(html, page, site) {
     header: renderHeader(page),
     hero: isTool ? renderHero(page) : '',
     related: isTool ? renderRelated(page) : '',
+    'seo-content': renderSeoContent(page),
     footer: renderFooter(),
     'tool-cards': renderToolCards(),
     'category-chips': renderCategoryChips(),
   };
   return html
     .replace(/<!--@([\w-]+)-->/g, (m, key) => parts[key] ?? m)
-    .replace(/\{\{icon:([\w-]+)\}\}/g, (_, name) => icon(name));
+    .replace(/\{\{icon:([\w-]+)\}\}/g, (_, name) => icon(name))
+    .replace(/\{\{art:([\w-]+)(?::(\d+))?\}\}/g, (_, name, size) => art(name, Number(size) || 40));
 }
 
 // Возвращает id страницы для «чистого» URL или null.
@@ -51,6 +57,40 @@ function resolveCleanPath(pathname) {
   return trimmed === pathname ? { id } : { redirect: trimmed };
 }
 
+// Служебные файлы, которые генерируются из конфигурации сайта.
+function generatedFiles(site) {
+  const files = {
+    'sitemap.xml': ['application/xml', renderSitemap(site, allPages)],
+    'robots.txt': ['text/plain', renderRobots(site)],
+    'llms.txt': ['text/plain', renderLlms(site)],
+    'site.webmanifest': [
+      'application/manifest+json',
+      JSON.stringify(
+        {
+          name: `${site.name} — SEO-инструменты онлайн`,
+          short_name: site.name,
+          description: home.description,
+          lang: site.lang,
+          start_url: '/',
+          scope: '/',
+          display: 'standalone',
+          background_color: '#f6f7f9',
+          theme_color: '#2f5bea',
+          icons: [
+            { src: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+            { src: '/icon-512.png', sizes: '512x512', type: 'image/png' },
+            { src: '/icon-512-maskable.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+          ],
+        },
+        null,
+        2,
+      ),
+    ],
+  };
+  if (site.indexNowKey) files[`${site.indexNowKey}.txt`] = ['text/plain', site.indexNowKey];
+  return files;
+}
+
 export default function sitePlugin(site) {
   let outDir = 'dist';
 
@@ -59,13 +99,10 @@ export default function sitePlugin(site) {
     const [pathname, query = ''] = req.url.split('?');
     const qs = query ? `?${query}` : '';
 
-    if (mode === 'dev' && pathname === '/sitemap.xml') {
-      res.setHeader('Content-Type', 'application/xml; charset=utf-8');
-      return res.end(renderSitemap(site, allPages));
-    }
-    if (mode === 'dev' && pathname === '/robots.txt') {
-      res.setHeader('Content-Type', 'text/plain; charset=utf-8');
-      return res.end(renderRobots(site));
+    const generated = mode === 'dev' && generatedFiles(site)[pathname.slice(1)];
+    if (generated) {
+      res.setHeader('Content-Type', `${generated[0]}; charset=utf-8`);
+      return res.end(generated[1]);
     }
 
     const match = resolveCleanPath(pathname);
@@ -130,8 +167,7 @@ export default function sitePlugin(site) {
         fs.rmSync(pagesDir, { recursive: true, force: true });
       }
       if (fs.existsSync(outDir)) {
-        fs.writeFileSync(path.join(outDir, 'sitemap.xml'), renderSitemap(site, allPages));
-        fs.writeFileSync(path.join(outDir, 'robots.txt'), renderRobots(site));
+        for (const [name, [, body]] of Object.entries(generatedFiles(site))) fs.writeFileSync(path.join(outDir, name), body);
       }
     },
   };

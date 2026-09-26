@@ -14,7 +14,7 @@
 - Светлая и тёмная тема, адаптивная вёрстка для компьютеров, планшетов и смартфонов.
 - Копирование результатов в один клик, экспорт в CSV (UTF-8 для Excel), TXT, JSON и robots.txt.
 - Загрузка CSV в UTF-8 и Windows-1251, обработка больших списков (50 000 запросов — меньше секунды).
-- SEO самого сайта: уникальные Title и Description, один H1, canonical, Open Graph, JSON-LD, sitemap.xml, robots.txt.
+- SEO самого сайта: Title и Description, canonical, Open Graph с картинками, JSON-LD (WebApplication, FAQPage, BreadcrumbList), sitemap.xml, robots.txt, IndexNow.
 
 ## Скриншоты
 
@@ -95,13 +95,48 @@ src/core/              общие модули: DOM, тема, уведомле�
 src/components/        переиспользуемые элементы: сниппет, переключатели, загрузка файлов, сортировка
 src/tools/             логика каждого инструмента (+ schema/types.js, intent/dictionary.js)
 src/styles/            токены и темы, раскладка, компоненты, стили инструментов
-public/                favicon, apple-touch-icon, og-image
+public/                иконки набора (icons/), OG-картинки (og/), favicon, иконки приложения
 docs/screenshots/      скриншоты для README
-scripts/og-image.svg   исходник изображения для соцсетей
+scripts/               извлечение иконок, генерация картинок, IndexNow
 ```
 
 Новый инструмент: добавьте запись в `src/config/pages.js`, файл `pages/<id>.html` и модуль `src/tools/<id>.js`,
 затем правила маршрута в `render.yaml`. Меню, подвал, sitemap и перелинковка обновятся автоматически.
+
+## SEO сайта
+
+**Внутренняя оптимизация (генерируется при сборке):**
+
+- уникальные Title и Description, один H1, canonical, `robots` с `max-image-preview:large`;
+- Open Graph и Twitter Card с отдельной картинкой 1200×630 для каждой страницы (`public/og/`);
+- JSON-LD: `WebSite` и `ItemList` на главной, `WebApplication`, `BreadcrumbList` и `FAQPage` на страницах инструментов;
+- текст об инструменте и блок «Частые вопросы» на каждой странице, перелинковка между инструментами;
+- `sitemap.xml`, `robots.txt` с `Clean-param` для Яндекса, `llms.txt`, `site.webmanifest`, favicon и иконки приложения;
+- заголовки безопасности и долгий кеш для ассетов (`render.yaml`).
+
+**Внешняя оптимизация:**
+
+1. Подтвердите права на сайт в [Google Search Console](https://search.google.com/search-console),
+   [Яндекс Вебмастере](https://webmaster.yandex.ru) и [Bing Webmaster Tools](https://www.bing.com/webmasters):
+   выберите подтверждение метатегом и вставьте код в `verification` в `site.config.js`, затем опубликуйте сайт.
+2. Отправьте `https://seotoolkitru.onrender.com/sitemap.xml` в Search Console и Вебмастер.
+3. После каждой публикации изменений запускайте `npm run indexnow` — адреса уйдут в Яндекс, Bing и другие
+   поисковики с поддержкой IndexNow (ключ задан в `site.config.js`).
+
+## Скрипты
+
+```bash
+npm run images     # OG-картинки, favicon и иконки manifest из SVG (public/)
+npm run indexnow   # отправка адресов сайта по протоколу IndexNow
+node scripts/extract-icons.mjs <набор.eps>   # извлечение иконок из EPS-набора в public/icons
+```
+
+## Иконки
+
+Цветные иконки — набор «SEO Marketing Flat Line Icon Set» (автор rixwan), извлечены из EPS в SVG скриптом
+`scripts/extract-icons.mjs`. Перед коммерческим использованием проверьте условия лицензии набора
+(для бесплатных стоковых лицензий обычно требуется указание автора — оно есть в подвале сайта).
+Мелкие интерфейсные значки (копировать, скачать и т. п.) — собственные монохромные SVG.
 
 ## Данные и приватность
 

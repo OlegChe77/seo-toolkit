@@ -7,7 +7,7 @@ import { $, debounce, fmt, h, lines, plural, fill } from '../core/dom.js';
 import { storage } from '../core/storage.js';
 import { isStopword, normalizeWord } from '../core/text.js';
 import { transliterate } from '../core/translit.js';
-import { icon } from '../layout/icons.js';
+import { art, icon } from '../layout/icons.js';
 
 const el = {
   scheme: $('#ub-scheme'),
@@ -91,7 +91,7 @@ function updateBulk() {
 
   const box = $('[data-bulk-table]');
   if (!rows.length) {
-    box.replaceChildren(h('div', { class: 'empty', trustedHtml: icon('tool-url') }, h('p', { text: 'Результаты появятся здесь после вставки списка.' })));
+    box.replaceChildren(h('div', { class: 'empty', trustedHtml: art('share-folder', 56) }, h('p', { text: 'Результаты появятся здесь после вставки списка.' })));
     return;
   }
   const hasBase = !!el.base.value.trim();

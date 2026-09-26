@@ -7,7 +7,7 @@ import { daysBetween, formatDate, isoDate, parseDate, todayUtc } from '../core/d
 import { $, $$, debounce, fmt, h, plural, fill } from '../core/dom.js';
 import { storage } from '../core/storage.js';
 import { toast } from '../core/toast.js';
-import { icon } from '../layout/icons.js';
+import { art, icon } from '../layout/icons.js';
 
 const DEFAULT_T = [30, 90, 180];
 const PAGE = 100;
@@ -174,7 +174,7 @@ function renderTable() {
   const pager = $('[data-pager]');
   const list = sortedRows(visibleRows());
   if (!list.length) {
-    box.replaceChildren(h('div', { class: 'empty', trustedHtml: icon('tool-fresh') }, h('p', { text: rows.length ? 'Нет страниц в выбранном периоде.' : 'Загрузите CSV или вставьте таблицу, чтобы увидеть отчёт.' })));
+    box.replaceChildren(h('div', { class: 'empty', trustedHtml: art('search-time', 56) }, h('p', { text: rows.length ? 'Нет страниц в выбранном периоде.' : 'Загрузите CSV или вставьте таблицу, чтобы увидеть отчёт.' })));
     pager.replaceChildren();
     return;
   }
