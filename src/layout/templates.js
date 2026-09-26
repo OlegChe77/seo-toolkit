@@ -17,6 +17,23 @@ const jsonLd = (data) =>
 
 const absUrl = (site, path) => (path === '/' ? `${site}/` : `${site}${path}`);
 
+// Код счётчика Яндекс Метрики (как в интерфейсе Метрики, номер берётся из site.config.js).
+const metrikaScript = (id) => `<!-- Yandex.Metrika counter -->
+<script type="text/javascript">
+    (function(m,e,t,r,i,k,a){
+        m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+        m[i].l=1*new Date();
+        for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+    })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=${id}', 'ym');
+
+    ym(${id}, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
+</script>
+<!-- /Yandex.Metrika counter -->`;
+
+const metrikaNoscript = (id) =>
+  `<noscript><div><img src="https://mc.yandex.ru/watch/${id}" style="position:absolute; left:-9999px;" alt="" /></div></noscript>`;
+
 // Тема применяется до отрисовки, чтобы не было вспышки светлой темы.
 const themeBoot = `<script>(function(){try{var t=localStorage.getItem('seotk:theme');if(t)t=JSON.parse(t);if(t!=='dark'&&t!=='light')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.dataset.theme=t}catch(e){document.documentElement.dataset.theme='light'}})()</script>`;
 
@@ -29,6 +46,7 @@ export function renderHead(page, site) {
   const lines = [
     `<meta charset="UTF-8">`,
     `<meta name="viewport" content="width=device-width, initial-scale=1">`,
+    site.metrika ? metrikaScript(site.metrika) : '',
     `<title>${esc(page.title)}</title>`,
     `<meta name="description" content="${esc(page.description)}">`,
     page.noindex
@@ -158,8 +176,8 @@ function navGroups(currentId) {
     .join('');
 }
 
-export function renderHeader(page) {
-  return `<a class="skip-link" href="#main">Перейти к содержимому</a>
+export function renderHeader(page, site = {}) {
+  return `${site.metrika ? metrikaNoscript(site.metrika) : ''}<a class="skip-link" href="#main">Перейти к содержимому</a>
 <header class="site-header">
   <div class="container header-inner">
     <a class="logo" href="/" aria-label="SEO Toolkit — на главную">${logo}<span class="logo-text">SEO Toolkit</span></a>
@@ -261,6 +279,7 @@ export function renderFooter() {
     <div class="footer-about">
       <a class="logo" href="/">${logo}<span class="logo-text">SEO Toolkit</span></a>
       <p>Бесплатные SEO-инструменты, которые работают прямо в браузере. Без регистрации и API-ключей — введённые данные не отправляются на сервер.</p>
+      <p class="footer-note">Для обезличенной статистики посещений используется Яндекс Метрика (cookie). Содержимое полей и результаты инструментов в неё не передаются.</p>
     </div>
     <nav class="footer-nav" aria-label="Все инструменты">${cols}</nav>
   </div>
@@ -269,7 +288,7 @@ export function renderFooter() {
     <span><a href="/">Главная</a> · <a href="/sitemap.xml">Карта сайта</a></span>
   </div>
 </footer>
-<div class="toasts" data-toasts role="status" aria-live="polite"></div>`;
+<div class="toasts ym-hide-content" data-toasts role="status" aria-live="polite"></div>`;
 }
 
 export function renderSitemap(site, pages) {

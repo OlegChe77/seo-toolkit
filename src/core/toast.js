@@ -6,7 +6,7 @@ const ICONS = { success: 'check', error: 'alert', info: 'info' };
 function container() {
   let el = document.querySelector('[data-toasts]');
   if (!el) {
-    el = h('div', { class: 'toasts', 'data-toasts': '', role: 'status', 'aria-live': 'polite' });
+    el = h('div', { class: 'toasts ym-hide-content', 'data-toasts': '', role: 'status', 'aria-live': 'polite' });
     document.body.append(el);
   }
   return el;

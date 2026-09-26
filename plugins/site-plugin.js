@@ -34,7 +34,7 @@ function renderPage(html, page, site) {
   const isTool = tools.includes(page);
   const parts = {
     head: renderHead(page, site),
-    header: renderHeader(page),
+    header: renderHeader(page, site),
     hero: isTool ? renderHero(page) : '',
     related: isTool ? renderRelated(page) : '',
     'seo-content': renderSeoContent(page),
@@ -93,6 +93,7 @@ function generatedFiles(site) {
 
 export default function sitePlugin(site) {
   let outDir = 'dist';
+  let isBuild = false;
 
   const devMiddleware = (mode) => (req, res, next) => {
     if (req.method !== 'GET' && req.method !== 'HEAD') return next();
@@ -139,6 +140,7 @@ export default function sitePlugin(site) {
 
     configResolved(config) {
       outDir = path.resolve(config.root, config.build.outDir);
+      isBuild = config.command === 'build';
     },
 
     transformIndexHtml: {
@@ -146,7 +148,8 @@ export default function sitePlugin(site) {
       handler(html, ctx) {
         const id = path.basename(ctx.filename, '.html');
         const page = pageById.get(id) ?? home;
-        return renderPage(html, page, site);
+        // Счётчик Метрики подключается только в продакшн-сборке, чтобы не учитывать визиты разработки.
+        return renderPage(html, page, { ...site, metrika: isBuild ? site.metrikaId : null });
       },
     },
 
