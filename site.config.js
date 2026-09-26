@@ -10,8 +10,8 @@ export default {
   // Коды подтверждения прав: вставьте значения content из Google Search Console,
   // Яндекс Вебмастера и Bing Webmaster Tools — метатеги появятся на всех страницах.
   verification: {
-    google: '',
-    yandex: '',
+    google: 'rxm1KmsK1Xx9RQs7D-i8IKrDVR_BwP26BMabnQyyerc',
+    yandex: '6d9f1d6d4af59f2e',
     bing: '',
   },
   // Ключ IndexNow (Яндекс, Bing и др.): файл /<ключ>.txt создаётся при сборке,
