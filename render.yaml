@@ -21,6 +21,38 @@ services:
         name: Referrer-Policy
         value: strict-origin-when-cross-origin
     routes:
+    # Render сопоставляет пути без учёта завершающего слэша, поэтому /page/ и /page
+    # обрабатываются одинаково: оба варианта отдают /page.html. Не используйте здесь redirect.
+      - type: rewrite
+        source: /serp-preview/
+        destination: /serp-preview.html
+      - type: rewrite
+        source: /robots-builder/
+        destination: /robots-builder.html
+      - type: rewrite
+        source: /text-seo/
+        destination: /text-seo.html
+      - type: rewrite
+        source: /heading-map/
+        destination: /heading-map.html
+      - type: rewrite
+        source: /duplicate-text/
+        destination: /duplicate-text.html
+      - type: rewrite
+        source: /schema-builder/
+        destination: /schema-builder.html
+      - type: rewrite
+        source: /url-builder/
+        destination: /url-builder.html
+      - type: rewrite
+        source: /meta-length/
+        destination: /meta-length.html
+      - type: rewrite
+        source: /intent-finder/
+        destination: /intent-finder.html
+      - type: rewrite
+        source: /content-fresh/
+        destination: /content-fresh.html
       - type: rewrite
         source: /serp-preview
         destination: /serp-preview.html
