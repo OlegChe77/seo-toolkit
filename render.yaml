@@ -9,7 +9,7 @@ services:
     envVars:
       # Домен сайта для canonical, Open Graph и sitemap.xml (без слэша в конце).
       - key: SITE_URL
-        value: https://seo-toolkit.onrender.com
+        value: https://seo-toolkit-pzj9.onrender.com
     headers:
       - path: /assets/*
         name: Cache-Control
@@ -21,36 +21,6 @@ services:
         name: Referrer-Policy
         value: strict-origin-when-cross-origin
     routes:
-      - type: redirect
-        source: /serp-preview/
-        destination: /serp-preview
-      - type: redirect
-        source: /robots-builder/
-        destination: /robots-builder
-      - type: redirect
-        source: /text-seo/
-        destination: /text-seo
-      - type: redirect
-        source: /heading-map/
-        destination: /heading-map
-      - type: redirect
-        source: /duplicate-text/
-        destination: /duplicate-text
-      - type: redirect
-        source: /schema-builder/
-        destination: /schema-builder
-      - type: redirect
-        source: /url-builder/
-        destination: /url-builder
-      - type: redirect
-        source: /meta-length/
-        destination: /meta-length
-      - type: redirect
-        source: /intent-finder/
-        destination: /intent-finder
-      - type: redirect
-        source: /content-fresh/
-        destination: /content-fresh
       - type: rewrite
         source: /serp-preview
         destination: /serp-preview.html
