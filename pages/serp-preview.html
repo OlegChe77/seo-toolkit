@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <!--@head-->
+  </head>
+  <body>
+    <!--@header-->
+    <main id="main">
+      <!--@hero-->
+      <div class="container tool">
+        <div class="tool-grid">
+          <section class="panel" aria-labelledby="serp-input-title">
+            <div class="panel-head">
+              <h2 id="serp-input-title">Данные страницы</h2>
+              <div class="row">
+                <button type="button" class="btn btn-sm btn-ghost" data-action="example">{{icon:file}}Пример</button>
+                <button type="button" class="btn btn-sm btn-ghost btn-danger" data-action="clear">{{icon:trash}}Очистить</button>
+              </div>
+            </div>
+            <div class="stack">
+              <div class="field">
+                <label for="serp-title">Title</label>
+                <input class="input" id="serp-title" type="text" maxlength="300" autocomplete="off" placeholder="Например: Кроссовки для бега — каталог и цены" />
+                <div class="meter" aria-hidden="true"><div class="meter-fill" data-meter="title"></div></div>
+                <div class="field-meta">
+                  <span data-hint="title">Ориентир: 30–60 символов</span>
+                  <span class="counter" data-counter="title" aria-live="polite">0 симв.</span>
+                </div>
+              </div>
+              <div class="field">
+                <label for="serp-desc">Description</label>
+                <textarea class="textarea" id="serp-desc" rows="4" maxlength="1000" placeholder="Кратко опишите содержание страницы и выгоду для пользователя"></textarea>
+                <div class="meter" aria-hidden="true"><div class="meter-fill" data-meter="description"></div></div>
+                <div class="field-meta">
+                  <span data-hint="description">Ориентир: 70–160 символов</span>
+                  <span class="counter" data-counter="description" aria-live="polite">0 симв.</span>
+                </div>
+              </div>
+              <div class="field">
+                <label for="serp-url">URL страницы</label>
+                <input class="input" id="serp-url" type="text" inputmode="url" autocomplete="off" spellcheck="false" placeholder="https://example.com/catalog/running-shoes" />
+                <div class="field-meta">
+                  <span>Адрес отображается в виде «хлебных крошек»</span>
+                  <span class="counter" data-counter="url">0 симв.</span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel sticky-col" aria-labelledby="serp-preview-title">
+            <div class="panel-head">
+              <h2 id="serp-preview-title">Пример сниппета</h2>
+              <div class="seg" data-device role="group" aria-label="Устройство">
+                <button data-value="desktop">{{icon:monitor}}Компьютер</button>
+                <button data-value="mobile">{{icon:phone}}Смартфон</button>
+              </div>
+            </div>
+            <div class="stack">
+              <div class="snippet-frame" data-frame><div data-snippet></div></div>
+              <p class="hint">
+                Это пример, а не точная копия выдачи: поисковые системы могут сократить или заменить заголовок и описание,
+                а вид сниппета зависит от поисковика и устройства.
+              </p>
+              <ul class="issues" data-issues aria-live="polite"></ul>
+              <div class="row">
+                <button type="button" class="btn btn-primary" data-action="copy-html">{{icon:copy}}Копировать метатеги</button>
+                <button type="button" class="btn" data-action="copy-report">{{icon:file}}Копировать отчёт</button>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <section class="panel help" aria-labelledby="serp-help">
+          <h2 id="serp-help">Как пользоваться</h2>
+          <div class="help-grid">
+            <div>
+              <h3>Шаги</h3>
+              <ol>
+                <li>Введите Title, Description и URL страницы.</li>
+                <li>Переключайтесь между видом для компьютера и смартфона.</li>
+                <li>Исправьте метатеги по подсказкам и скопируйте готовый HTML-код.</li>
+              </ol>
+            </div>
+            <div>
+              <h3>Ориентиры длины</h3>
+              <ul>
+                <li>Title — примерно 30–60 символов и до ~600 px на компьютере.</li>
+                <li>Description — примерно 70–160 символов и до ~920 px.</li>
+                <li>Ширина в пикселях рассчитывается приблизительно по шрифту Arial.</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+      </div>
+      <!--@related-->
+    </main>
+    <!--@footer-->
+    <script type="module" src="/src/tools/serp-preview.js"></script>
+  </body>
+</html>

@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <!--@head-->
+  </head>
+  <body>
+    <!--@header-->
+    <main id="main">
+      <section class="home-hero">
+        <div class="container home-hero-grid">
+          <div>
+            <p class="eyebrow">{{icon:sparkle}}10 инструментов · бесплатно</p>
+            <h1>SEO Toolkit</h1>
+            <p class="lead">
+              Набор SEO-инструментов, которые работают прямо в браузере: сниппеты и метатеги, robots.txt,
+              анализ текста и заголовков, JSON-LD, ЧПУ, интент запросов и актуальность контента.
+            </p>
+            <ul class="trust">
+              <li>{{icon:check}}Без регистрации</li>
+              <li>{{icon:check}}Без API-ключей</li>
+              <li>{{icon:check}}Данные не покидают ваш браузер</li>
+            </ul>
+            <a class="btn btn-primary hero-cta" href="#tools">Выбрать инструмент{{icon:arrow-right}}</a>
+          </div>
+          <div class="hero-art" aria-hidden="true">
+            <div class="art-card art-snippet">
+              <div class="art-site"><span class="art-fav">E</span><span><b>example.com</b><i>https://example.com › blog</i></span></div>
+              <div class="art-title">Как выбрать беговые кроссовки</div>
+              <div class="art-lines"><span></span><span></span></div>
+              <div class="art-meter"><span></span></div>
+              <div class="art-meta"><span>Title · 48 симв.</span><span class="art-ok">в диапазоне</span></div>
+            </div>
+            <div class="art-card art-code"><span class="tk-dir">User-agent</span>: <span class="tk-key">*</span><br /><span class="tk-dir">Disallow</span>: <span class="tk-str">/admin/</span><br /><span class="tk-dir">Sitemap</span>: <span class="tk-str">https://…/sitemap.xml</span></div>
+            <div class="art-card art-bars">
+              <span style="--w: 46%; --c: var(--cat-meta)"></span>
+              <span style="--w: 22%; --c: var(--cat-tech)"></span>
+              <span style="--w: 18%; --c: var(--cat-research)"></span>
+              <span style="--w: 14%; --c: var(--cat-content)"></span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="tools" aria-labelledby="tools-title">
+        <div class="container">
+          <div class="section-head">
+            <h2 id="tools-title">Инструменты</h2>
+          </div>
+          <div class="tools-toolbar">
+            <div class="search-box">
+              {{icon:search}}
+              <label class="visually-hidden" for="tool-search">Поиск по инструментам</label>
+              <input class="input" id="tool-search" type="search" placeholder="Поиск: robots, заголовки, CSV…" autocomplete="off" />
+            </div>
+            <div class="chips" role="group" aria-label="Категории инструментов" data-chips>
+              <!--@category-chips-->
+            </div>
+          </div>
+          <div class="tools-grid" data-tools-grid>
+            <!--@tool-cards-->
+          </div>
+          <div class="empty" data-empty hidden>
+            {{icon:search}}
+            <p>Ничего не найдено. Попробуйте другой запрос или выберите категорию «Все».</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="benefits-title">
+        <div class="container">
+          <div class="section-head">
+            <h2 id="benefits-title">Почему SEO Toolkit</h2>
+          </div>
+          <div class="benefits">
+            <div class="benefit">
+              <span class="tool-icon">{{icon:shield}}</span>
+              <h3>Приватно</h3>
+              <p>Все вычисления выполняются в вашем браузере. Тексты, списки и файлы не отправляются на сервер.</p>
+            </div>
+            <div class="benefit">
+              <span class="tool-icon">{{icon:tag}}</span>
+              <h3>Бесплатно и без регистрации</h3>
+              <p>Никаких аккаунтов, лимитов и платных API. Откройте нужный инструмент и начните работу.</p>
+            </div>
+            <div class="benefit">
+              <span class="tool-icon">{{icon:zap}}</span>
+              <h3>Быстро</h3>
+              <p>Лёгкие страницы без тяжёлых фреймворков. Результат обновляется сразу при вводе данных.</p>
+            </div>
+            <div class="benefit">
+              <span class="tool-icon">{{icon:export}}</span>
+              <h3>Экспорт результатов</h3>
+              <p>Копирование в один клик и выгрузка в CSV (UTF-8 для Excel), TXT, JSON и robots.txt.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+    <!--@footer-->
+    <script type="module" src="/src/tools/home.js"></script>
+  </body>
+</html>

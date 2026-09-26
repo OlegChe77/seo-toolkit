@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <!--@head-->
+  </head>
+  <body>
+    <!--@header-->
+    <main id="main">
+      <section class="not-found">
+        <div class="container">
+          <p class="not-found-code" aria-hidden="true">404</p>
+          <h1>Страница не найдена</h1>
+          <p class="lead">Возможно, адрес введён с ошибкой или страница была перемещена. Выберите нужный инструмент ниже.</p>
+          <a class="btn btn-primary" href="/">{{icon:arrow-left}}На главную</a>
+        </div>
+      </section>
+      <section class="section" aria-labelledby="nf-tools">
+        <div class="container">
+          <div class="section-head">
+            <h2 id="nf-tools">Все инструменты</h2>
+          </div>
+          <div class="tools-grid tools-grid--compact">
+            <!--@tool-cards-->
+          </div>
+        </div>
+      </section>
+    </main>
+    <!--@footer-->
+    <script type="module" src="/src/core/app.js"></script>
+  </body>
+</html>

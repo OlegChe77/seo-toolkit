@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <!--@head-->
+  </head>
+  <body>
+    <!--@header-->
+    <main id="main">
+      <!--@hero-->
+      <div class="container tool">
+        <div class="tool-grid">
+          <section class="panel" aria-labelledby="sb-form-title">
+            <div class="panel-head">
+              <h2 id="sb-form-title">Данные разметки</h2>
+              <button type="button" class="btn btn-sm btn-ghost btn-danger" data-action="reset">{{icon:reset}}Сбросить форму</button>
+            </div>
+            <div class="stack">
+              <div class="field">
+                <label for="sb-type">Тип схемы</label>
+                <select class="select" id="sb-type"></select>
+                <span class="hint">Поля со звёздочкой <span class="req">*</span> обязательны для выбранного типа.</span>
+              </div>
+              <form class="sb-form" data-form novalidate autocomplete="off"></form>
+            </div>
+          </section>
+
+          <section class="panel sticky-col" aria-labelledby="sb-out-title">
+            <div class="panel-head">
+              <h2 id="sb-out-title">JSON-LD</h2>
+              <div class="row">
+                <button type="button" class="btn btn-sm" data-action="copy">{{icon:copy}}Копировать</button>
+                <button type="button" class="btn btn-sm btn-primary" data-action="download">{{icon:download}}Скачать .json</button>
+              </div>
+            </div>
+            <div class="stack">
+              <label class="check"><input type="checkbox" id="sb-wrap" checked />Обернуть в тег &lt;script type="application/ld+json"&gt;</label>
+              <pre class="code" data-output aria-label="Сгенерированный JSON-LD"></pre>
+              <ul class="issues" data-issues aria-live="polite"></ul>
+              <p class="hint">
+                Разметка помогает поисковым системам понять страницу, но не гарантирует появление расширенных результатов.
+                Дополнительно проверить код можно в валидаторе <a href="https://validator.schema.org/" target="_blank" rel="noopener noreferrer">validator.schema.org</a>.
+              </p>
+            </div>
+          </section>
+        </div>
+
+        <section class="panel help" aria-labelledby="sb-help">
+          <h2 id="sb-help">Как пользоваться</h2>
+          <div class="help-grid">
+            <div>
+              <h3>Шаги</h3>
+              <ol>
+                <li>Выберите тип схемы и заполните поля — код обновляется сразу.</li>
+                <li>Исправьте замечания проверки: обязательные поля, формат URL, дат и чисел.</li>
+                <li>Скопируйте код и вставьте его в HTML страницы (в &lt;head&gt; или &lt;body&gt;).</li>
+              </ol>
+            </div>
+            <div>
+              <h3>Важно</h3>
+              <ul>
+                <li>Указывайте только данные, которые есть на странице и соответствуют действительности.</li>
+                <li>Даты — в формате ГГГГ-ММ-ДД, ссылки — полные, с https://.</li>
+                <li>Пустые поля в код не попадают.</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+      </div>
+      <!--@related-->
+    </main>
+    <!--@footer-->
+    <script type="module" src="/src/tools/schema-builder.js"></script>
+  </body>
+</html>

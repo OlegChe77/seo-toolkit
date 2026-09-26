@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <!--@head-->
+  </head>
+  <body>
+    <!--@header-->
+    <main id="main">
+      <!--@hero-->
+      <div class="container tool">
+        <section class="panel" aria-labelledby="ts-input-title">
+          <div class="panel-head">
+            <h2 id="ts-input-title">Текст для анализа</h2>
+            <div class="row">
+              <button type="button" class="btn btn-sm btn-ghost" data-action="example">{{icon:file}}Пример</button>
+              <button type="button" class="btn btn-sm btn-ghost btn-danger" data-action="clear">{{icon:trash}}Очистить</button>
+            </div>
+          </div>
+          <div class="stack">
+            <label class="visually-hidden" for="ts-text">Текст</label>
+            <textarea class="textarea textarea--lg" id="ts-text" placeholder="Вставьте текст статьи или страницы. Анализ выполняется прямо в браузере — текст никуда не отправляется."></textarea>
+            <div class="ts-options">
+              <div class="field">
+                <span class="label" id="ts-ngram-label">Длина фраз</span>
+                <div class="seg" data-ngram role="group" aria-labelledby="ts-ngram-label">
+                  <button data-value="1">1 слово</button>
+                  <button data-value="2">2 слова</button>
+                  <button data-value="3">3 слова</button>
+                  <button data-value="4">4 слова</button>
+                </div>
+              </div>
+              <div class="field">
+                <label for="ts-min">Мин. повторений</label>
+                <select class="select" id="ts-min">
+                  <option value="1">1 и больше</option>
+                  <option value="2" selected>2 и больше</option>
+                  <option value="3">3 и больше</option>
+                  <option value="5">5 и больше</option>
+                </select>
+              </div>
+              <div class="field ts-keys">
+                <label for="ts-keys">Ключевые слова для проверки плотности</label>
+                <input class="input" id="ts-keys" type="text" placeholder="через запятую: беговые кроссовки, амортизация" autocomplete="off" />
+              </div>
+            </div>
+            <div class="options">
+              <label class="check"><input type="checkbox" id="ts-stop" checked />Исключать служебные слова (предлоги, союзы, местоимения)</label>
+              <label class="check"><input type="checkbox" id="ts-stem" />Объединять словоформы (упрощённо)</label>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel" aria-labelledby="ts-stats-title">
+          <div class="panel-head">
+            <h2 id="ts-stats-title">Статистика текста</h2>
+            <div class="row">
+              <button type="button" class="btn btn-sm" data-action="copy">{{icon:copy}}Копировать отчёт</button>
+              <button type="button" class="btn btn-sm btn-primary" data-action="csv">{{icon:download}}Экспорт CSV</button>
+            </div>
+          </div>
+          <div class="stats" data-stats></div>
+        </section>
+
+        <div class="tool-grid">
+          <section class="panel" aria-labelledby="ts-freq-title">
+            <div class="panel-head">
+              <div>
+                <h2 id="ts-freq-title">Частота слов и фраз</h2>
+                <p class="panel-sub">Плотность = повторы × слов во фразе ÷ всего слов × 100%</p>
+              </div>
+              <input class="input input--sm ts-filter" type="search" placeholder="Фильтр" aria-label="Фильтр по таблице" data-filter />
+            </div>
+            <div data-freq></div>
+          </section>
+
+          <div class="stack">
+            <section class="panel" aria-labelledby="ts-keys-title">
+              <div class="panel-head"><h2 id="ts-keys-title">Плотность ключевых слов</h2></div>
+              <div data-keys></div>
+            </section>
+            <section class="panel" aria-labelledby="ts-rep-title">
+              <div class="panel-head">
+                <div>
+                  <h2 id="ts-rep-title">Повторы</h2>
+                  <p class="panel-sub">Слова-дубли подряд и повторы значимых слов в одном предложении</p>
+                </div>
+              </div>
+              <div data-repeats></div>
+            </section>
+          </div>
+        </div>
+
+        <section class="panel help" aria-labelledby="ts-help">
+          <h2 id="ts-help">Как пользоваться</h2>
+          <div class="help-grid">
+            <div>
+              <h3>Что считается</h3>
+              <ul>
+                <li>Слова, уникальные слова, символы с пробелами и без, предложения и абзацы.</li>
+                <li>Частота слов и фраз длиной 1–4 слова и их плотность в тексте.</li>
+                <li>Классическая тошнота — квадратный корень из числа повторов самого частого значимого слова.</li>
+              </ul>
+            </div>
+            <div>
+              <h3>Советы</h3>
+              <ul>
+                <li>Служебные слова исключаются из частотного анализа, но учитываются в общем числе слов.</li>
+                <li>Режим словоформ объединяет слова по упрощённой основе («кроссовки», «кроссовок») и может ошибаться.</li>
+                <li>Нет «правильной» плотности: ориентируйтесь на естественность текста для читателя.</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+      </div>
+      <!--@related-->
+    </main>
+    <!--@footer-->
+    <script type="module" src="/src/tools/text-seo.js"></script>
+  </body>
+</html>

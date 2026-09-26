@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <!--@head-->
+  </head>
+  <body>
+    <!--@header-->
+    <main id="main">
+      <!--@hero-->
+      <div class="container tool">
+        <div class="note note--warn">
+          {{icon:info}}
+          <span>Допустимая длина сниппета зависит от поисковой системы, устройства и конкретного запроса. Ширина в пикселях — приблизительная оценка по шрифту Arial, а диапазоны ниже — ориентиры, которые можно настроить.</span>
+        </div>
+
+        <div class="tool-grid">
+          <section class="panel" aria-labelledby="ml-single-title">
+            <div class="panel-head">
+              <h2 id="ml-single-title">Проверка метатегов</h2>
+              <button type="button" class="btn btn-sm btn-ghost btn-danger" data-action="clear-single">{{icon:trash}}Очистить</button>
+            </div>
+            <div class="stack">
+              <div class="field">
+                <label for="ml-title">Title</label>
+                <input class="input" id="ml-title" type="text" maxlength="400" autocomplete="off" placeholder="Заголовок страницы" />
+                <div class="ml-scale" data-scale="title" aria-hidden="true"></div>
+                <div class="field-meta"><span data-status="title"></span><span class="counter" data-counter="title">0 симв. · ≈0 px</span></div>
+              </div>
+              <div class="field">
+                <label for="ml-desc">Description</label>
+                <textarea class="textarea" id="ml-desc" rows="4" maxlength="1200" placeholder="Описание страницы"></textarea>
+                <div class="ml-scale" data-scale="description" aria-hidden="true"></div>
+                <div class="field-meta"><span data-status="description"></span><span class="counter" data-counter="description">0 симв. · ≈0 px</span></div>
+              </div>
+              <div class="row row--between">
+                <span class="label">Предпросмотр</span>
+                <div class="seg" data-device role="group" aria-label="Устройство">
+                  <button data-value="desktop">{{icon:monitor}}Компьютер</button>
+                  <button data-value="mobile">{{icon:phone}}Смартфон</button>
+                </div>
+              </div>
+              <div class="snippet-frame" data-frame><div data-snippet></div></div>
+            </div>
+          </section>
+
+          <section class="panel" aria-labelledby="ml-ranges-title">
+            <div class="panel-head">
+              <div>
+                <h2 id="ml-ranges-title">Ориентировочные диапазоны</h2>
+                <p class="panel-sub">Сохраняются в браузере и применяются к массовой проверке</p>
+              </div>
+              <button type="button" class="btn btn-sm btn-ghost" data-action="reset-ranges">{{icon:reset}}По умолчанию</button>
+            </div>
+            <div class="stack">
+              <div class="ml-ranges">
+                <span class="ml-ranges-h">Title</span>
+                <div class="field"><label for="r-title-min">Мин. символов</label><input class="input" id="r-title-min" type="number" min="0" max="500" data-range="title.min" /></div>
+                <div class="field"><label for="r-title-max">Макс. символов</label><input class="input" id="r-title-max" type="number" min="1" max="500" data-range="title.max" /></div>
+                <div class="field"><label for="r-title-px">Макс. ширина, px</label><input class="input" id="r-title-px" type="number" min="100" max="3000" data-range="title.px" /></div>
+                <span class="ml-ranges-h">Description</span>
+                <div class="field"><label for="r-desc-min">Мин. символов</label><input class="input" id="r-desc-min" type="number" min="0" max="1000" data-range="description.min" /></div>
+                <div class="field"><label for="r-desc-max">Макс. символов</label><input class="input" id="r-desc-max" type="number" min="1" max="1000" data-range="description.max" /></div>
+                <div class="field"><label for="r-desc-px">Макс. ширина, px</label><input class="input" id="r-desc-px" type="number" min="100" max="5000" data-range="description.px" /></div>
+              </div>
+              <ul class="ml-legend">
+                <li><span class="ml-dot ml-dot--ok"></span>в пределах диапазона</li>
+                <li><span class="ml-dot ml-dot--warn"></span>короче минимума или шире лимита</li>
+                <li><span class="ml-dot ml-dot--bad"></span>длиннее максимума</li>
+              </ul>
+            </div>
+          </section>
+        </div>
+
+        <section class="panel" aria-labelledby="ml-bulk-title">
+          <div class="panel-head">
+            <div>
+              <h2 id="ml-bulk-title">Массовая проверка</h2>
+              <p class="panel-sub">По строке на страницу: «Title | Description», столбцы из Excel (Title, Description или URL, Title, Description) или CSV-файл</p>
+            </div>
+            <div class="row">
+              <button type="button" class="btn btn-sm btn-ghost" data-action="example">{{icon:file}}Пример</button>
+              <button type="button" class="btn btn-sm btn-ghost btn-danger" data-action="clear-bulk">{{icon:trash}}Очистить</button>
+            </div>
+          </div>
+          <div class="stack">
+            <div class="ml-bulk-input">
+              <div class="field">
+                <label class="visually-hidden" for="ml-bulk">Список метатегов</label>
+                <textarea class="textarea textarea--mono" id="ml-bulk" rows="6" spellcheck="false" placeholder="Кроссовки для бега — каталог | Более 300 моделей беговых кроссовок…"></textarea>
+              </div>
+              <label class="dropzone" data-dropzone>
+                {{icon:upload}}
+                <strong>Загрузить CSV</strong>
+                <span class="hint">Столбцы url, title, description · UTF-8 или Windows-1251</span>
+                <input type="file" accept=".csv,.tsv,.txt,text/csv,text/plain" aria-label="Загрузить CSV-файл" />
+              </label>
+            </div>
+            <div class="row row--between">
+              <div class="row">
+                <span class="hint" data-bulk-info></span>
+                <label class="check"><input type="checkbox" id="ml-only-bad" />Только с замечаниями</label>
+              </div>
+              <div class="row">
+                <button type="button" class="btn btn-sm" data-action="copy">{{icon:copy}}Копировать</button>
+                <button type="button" class="btn btn-sm btn-primary" data-action="csv">{{icon:download}}Экспорт CSV</button>
+              </div>
+            </div>
+            <div data-bulk-table></div>
+          </div>
+        </section>
+      </div>
+      <!--@related-->
+    </main>
+    <!--@footer-->
+    <script type="module" src="/src/tools/meta-length.js"></script>
+  </body>
+</html>

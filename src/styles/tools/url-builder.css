@@ -1,0 +1,26 @@
+.ub-settings {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  align-items: end;
+}
+
+.ub-out {
+  display: flex;
+  gap: 8px;
+}
+
+.ub-mono,
+.ub-slug-cell {
+  font-family: var(--mono);
+  font-size: 13.5px;
+}
+
+.ub-out .input {
+  background: var(--surface-2);
+}
+
+.ub-slug-cell {
+  overflow-wrap: anywhere;
+  min-width: 160px;
+}

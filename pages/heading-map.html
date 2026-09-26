@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <!--@head-->
+  </head>
+  <body>
+    <!--@header-->
+    <main id="main">
+      <!--@hero-->
+      <div class="container tool">
+        <div class="tool-grid">
+          <section class="panel" aria-labelledby="hm-input-title">
+            <div class="panel-head">
+              <h2 id="hm-input-title">HTML-код или текст</h2>
+              <div class="row">
+                <button type="button" class="btn btn-sm btn-ghost" data-action="example">{{icon:file}}Пример</button>
+                <button type="button" class="btn btn-sm btn-ghost btn-danger" data-action="clear">{{icon:trash}}Очистить</button>
+              </div>
+            </div>
+            <div class="stack">
+              <div class="row row--between">
+                <div class="seg" data-mode role="group" aria-label="Формат ввода">
+                  <button data-value="auto">Авто</button>
+                  <button data-value="html">HTML</button>
+                  <button data-value="text">Текст</button>
+                </div>
+                <span class="hint" data-detected></span>
+              </div>
+              <label class="visually-hidden" for="hm-input">Исходный код</label>
+              <textarea class="textarea textarea--lg textarea--mono" id="hm-input" spellcheck="false" placeholder="Вставьте HTML-код страницы (Ctrl+U в браузере → скопировать) или текст с заголовками вида «# Заголовок» / «H2: Заголовок»"></textarea>
+              <p class="hint">
+                Код обрабатывается локально и не выполняется: из него только извлекаются заголовки. Загрузка сайтов по URL не
+                используется — вставьте код самостоятельно.
+              </p>
+            </div>
+          </section>
+
+          <div class="stack">
+            <section class="panel" aria-labelledby="hm-sum-title">
+              <div class="panel-head"><h2 id="hm-sum-title">Сводка</h2></div>
+              <div class="stack">
+                <div class="stats hm-stats" data-counts></div>
+                <ul class="issues" data-issues aria-live="polite"></ul>
+              </div>
+            </section>
+          </div>
+        </div>
+
+        <section class="panel" aria-labelledby="hm-tree-title">
+          <div class="panel-head">
+            <h2 id="hm-tree-title">Дерево заголовков</h2>
+            <div class="row">
+              <button type="button" class="btn btn-sm" data-action="copy">{{icon:copy}}Копировать</button>
+              <button type="button" class="btn btn-sm" data-action="txt">{{icon:download}}TXT</button>
+              <button type="button" class="btn btn-sm btn-primary" data-action="csv">{{icon:download}}CSV</button>
+            </div>
+          </div>
+          <div data-tree></div>
+        </section>
+
+        <section class="panel help" aria-labelledby="hm-help">
+          <h2 id="hm-help">Как пользоваться</h2>
+          <div class="help-grid">
+            <div>
+              <h3>Что проверяется</h3>
+              <ul>
+                <li>Наличие и количество H1 на странице.</li>
+                <li>Пропуски уровней вложенности: например, после H2 сразу идёт H4.</li>
+                <li>Одинаковые заголовки и пустые теги заголовков.</li>
+              </ul>
+            </div>
+            <div>
+              <h3>Форматы ввода</h3>
+              <ul>
+                <li>HTML: теги <code>&lt;h1&gt;</code>–<code>&lt;h6&gt;</code> в любом месте кода.</li>
+                <li>Markdown: строки <code># Заголовок</code>, <code>## Подзаголовок</code>.</li>
+                <li>Текст: строки <code>H2: Подзаголовок</code>.</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+      </div>
+      <!--@related-->
+    </main>
+    <!--@footer-->
+    <script type="module" src="/src/tools/heading-map.js"></script>
+  </body>
+</html>

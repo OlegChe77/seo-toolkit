@@ -1,0 +1,66 @@
+.cf-map {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  padding: 14px;
+  border-radius: var(--r);
+  background: var(--surface-2);
+}
+
+.cf-map .select {
+  width: 100%;
+}
+
+.cf-thresholds {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.cf-url {
+  min-width: 220px;
+  max-width: 480px;
+  overflow-wrap: anywhere;
+}
+
+.cf-todo-group + .cf-todo-group {
+  margin-top: 16px;
+}
+
+.cf-todo-group h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 14.5px;
+}
+
+.cf-todo-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+  max-height: 360px;
+  overflow: auto;
+}
+
+.cf-todo-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 7px 10px;
+  border-radius: 8px;
+  background: var(--surface-2);
+  font-size: 14px;
+}
+
+.cf-todo-list .cf-url {
+  min-width: 0;
+}
+
+@media (max-width: 480px) {
+  .cf-thresholds {
+    grid-template-columns: 1fr;
+  }
+}

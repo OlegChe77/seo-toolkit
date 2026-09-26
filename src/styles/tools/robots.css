@@ -1,0 +1,115 @@
+.rb-group {
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  background: var(--bg);
+  padding: 16px;
+  display: grid;
+  gap: 14px;
+}
+
+.rb-group-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.rb-group-title {
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.rb-agents {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.rb-agent {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 30px;
+  padding: 0 4px 0 10px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent-text);
+  font: 600 13px var(--mono);
+}
+
+.rb-agent button {
+  display: inline-grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: inherit;
+}
+
+.rb-agent button:hover {
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
+.rb-agent .icon {
+  width: 14px;
+  height: 14px;
+}
+
+.rb-add-agent {
+  display: flex;
+  gap: 8px;
+}
+
+.rb-add-agent .input {
+  max-width: 260px;
+}
+
+.rb-rules {
+  display: grid;
+  gap: 8px;
+}
+
+.rb-rule,
+.rb-sitemap {
+  display: grid;
+  grid-template-columns: 124px minmax(0, 1fr) 34px;
+  gap: 8px;
+  align-items: center;
+}
+
+.rb-sitemap {
+  grid-template-columns: minmax(0, 1fr) 34px;
+}
+
+.rb-rule .input,
+.rb-sitemap .input {
+  font-family: var(--mono);
+}
+
+.rb-foot {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.rb-delay {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13.5px;
+  color: var(--text-2);
+}
+
+.rb-delay .input {
+  width: 90px;
+}
+
+@media (max-width: 480px) {
+  .rb-rule {
+    grid-template-columns: 104px minmax(0, 1fr) 34px;
+  }
+}

@@ -1,0 +1,128 @@
+.snippet-frame {
+  padding: 20px;
+  border-radius: var(--r);
+  background: #fff;
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+[data-theme='dark'] .snippet-frame {
+  background: #202124;
+}
+
+.snippet-frame--mobile {
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 16px;
+  border-radius: 24px;
+  border-width: 6px;
+  border-color: var(--surface-3);
+}
+
+.snippet {
+  font-family: Arial, 'Helvetica Neue', sans-serif;
+  color: #4d5156;
+  max-width: 600px;
+}
+
+.snippet--desktop {
+  width: 600px;
+}
+
+.snippet-site {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+  min-width: 0;
+}
+
+.snippet-favicon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #f1f3f4;
+  border: 1px solid #dadce0;
+  color: #1a73e8;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.snippet-site-text {
+  display: grid;
+  min-width: 0;
+  line-height: 1.3;
+}
+
+.snippet-site-name {
+  color: #202124;
+  font-size: 14px;
+}
+
+.snippet-crumbs {
+  color: #4d5156;
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.snippet-title {
+  color: #1a0dab;
+  font-size: 20px;
+  line-height: 1.3;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.snippet-desc {
+  font-size: 14px;
+  line-height: 1.58;
+  overflow-wrap: anywhere;
+}
+
+.snippet--mobile .snippet-title {
+  font-size: 18px;
+  line-height: 1.35;
+  white-space: normal;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.snippet--mobile .snippet-desc {
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.is-placeholder {
+  opacity: 0.45;
+}
+
+[data-theme='dark'] .snippet {
+  color: #bdc1c6;
+}
+
+[data-theme='dark'] .snippet-site-name {
+  color: #dadce0;
+}
+
+[data-theme='dark'] .snippet-crumbs {
+  color: #bdc1c6;
+}
+
+[data-theme='dark'] .snippet-title {
+  color: #8ab4f8;
+}
+
+[data-theme='dark'] .snippet-favicon {
+  background: #303134;
+  border-color: #5f6368;
+  color: #8ab4f8;
+}

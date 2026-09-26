@@ -1,0 +1,83 @@
+# Blueprint для Render Static Site.
+# Render применяет правила, только если по запрошенному пути нет файла.
+services:
+  - type: web
+    name: seo-toolkit
+    runtime: static
+    buildCommand: npm ci && npm run build
+    staticPublishPath: ./dist
+    envVars:
+      # Домен сайта для canonical, Open Graph и sitemap.xml (без слэша в конце).
+      - key: SITE_URL
+        value: https://seo-toolkit.onrender.com
+    headers:
+      - path: /assets/*
+        name: Cache-Control
+        value: public, max-age=31536000, immutable
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /*
+        name: Referrer-Policy
+        value: strict-origin-when-cross-origin
+    routes:
+      - type: redirect
+        source: /serp-preview/
+        destination: /serp-preview
+      - type: redirect
+        source: /robots-builder/
+        destination: /robots-builder
+      - type: redirect
+        source: /text-seo/
+        destination: /text-seo
+      - type: redirect
+        source: /heading-map/
+        destination: /heading-map
+      - type: redirect
+        source: /duplicate-text/
+        destination: /duplicate-text
+      - type: redirect
+        source: /schema-builder/
+        destination: /schema-builder
+      - type: redirect
+        source: /url-builder/
+        destination: /url-builder
+      - type: redirect
+        source: /meta-length/
+        destination: /meta-length
+      - type: redirect
+        source: /intent-finder/
+        destination: /intent-finder
+      - type: redirect
+        source: /content-fresh/
+        destination: /content-fresh
+      - type: rewrite
+        source: /serp-preview
+        destination: /serp-preview.html
+      - type: rewrite
+        source: /robots-builder
+        destination: /robots-builder.html
+      - type: rewrite
+        source: /text-seo
+        destination: /text-seo.html
+      - type: rewrite
+        source: /heading-map
+        destination: /heading-map.html
+      - type: rewrite
+        source: /duplicate-text
+        destination: /duplicate-text.html
+      - type: rewrite
+        source: /schema-builder
+        destination: /schema-builder.html
+      - type: rewrite
+        source: /url-builder
+        destination: /url-builder.html
+      - type: rewrite
+        source: /meta-length
+        destination: /meta-length.html
+      - type: rewrite
+        source: /intent-finder
+        destination: /intent-finder.html
+      - type: rewrite
+        source: /content-fresh
+        destination: /content-fresh.html

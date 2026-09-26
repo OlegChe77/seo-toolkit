@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <!--@head-->
+  </head>
+  <body>
+    <!--@header-->
+    <main id="main">
+      <!--@hero-->
+      <div class="container tool">
+        <section class="panel" aria-labelledby="dt-input-title">
+          <div class="panel-head">
+            <h2 id="dt-input-title">Тексты для сравнения</h2>
+            <div class="row">
+              <button type="button" class="btn btn-sm btn-ghost" data-action="example">{{icon:file}}Пример</button>
+              <button type="button" class="btn btn-sm btn-ghost" data-action="swap">{{icon:swap}}Поменять местами</button>
+              <button type="button" class="btn btn-sm btn-ghost btn-danger" data-action="clear">{{icon:trash}}Очистить</button>
+            </div>
+          </div>
+          <div class="stack">
+            <div class="fields-2">
+              <div class="field">
+                <label for="dt-a">Текст A</label>
+                <textarea class="textarea textarea--lg" id="dt-a" placeholder="Вставьте первый текст"></textarea>
+                <div class="field-meta"><span></span><span class="counter" data-count="a">0 слов</span></div>
+              </div>
+              <div class="field">
+                <label for="dt-b">Текст B</label>
+                <textarea class="textarea textarea--lg" id="dt-b" placeholder="Вставьте второй текст"></textarea>
+                <div class="field-meta"><span></span><span class="counter" data-count="b">0 слов</span></div>
+              </div>
+            </div>
+            <div class="dt-controls">
+              <div class="field">
+                <span class="label" id="dt-mode-label">Режим сравнения</span>
+                <div class="seg" data-mode role="group" aria-labelledby="dt-mode-label">
+                  <button data-value="words">По словам</button>
+                  <button data-value="shingles">По фрагментам</button>
+                  <button data-value="sentences">По предложениям</button>
+                </div>
+              </div>
+              <div class="field" data-shingle-field>
+                <label for="dt-n">Длина фрагмента</label>
+                <select class="select" id="dt-n">
+                  <option value="2">2 слова</option>
+                  <option value="3">3 слова</option>
+                  <option value="4" selected>4 слова</option>
+                  <option value="5">5 слов</option>
+                  <option value="6">6 слов</option>
+                  <option value="8">8 слов</option>
+                </select>
+              </div>
+            </div>
+            <div class="options">
+              <label class="check"><input type="checkbox" id="dt-case" checked />Игнорировать регистр</label>
+              <label class="check"><input type="checkbox" id="dt-punct" checked />Игнорировать знаки препинания</label>
+              <label class="check" data-space-label><input type="checkbox" id="dt-space" checked />Игнорировать пробелы</label>
+            </div>
+            <p class="hint" data-mode-hint></p>
+          </div>
+        </section>
+
+        <section class="panel" aria-labelledby="dt-res-title">
+          <div class="panel-head">
+            <h2 id="dt-res-title">Результат</h2>
+            <button type="button" class="btn btn-sm btn-primary" data-action="copy">{{icon:copy}}Копировать отчёт</button>
+          </div>
+          <div class="stack">
+            <div class="stats" data-stats></div>
+            <div class="note">{{icon:info}}<span>Показано вычисляемое текстовое сходство двух фрагментов. Это не проверка на плагиат и не оценка уникальности в интернете.</span></div>
+          </div>
+        </section>
+
+        <div class="tool-grid">
+          <section class="panel" aria-labelledby="dt-a-title">
+            <div class="panel-head"><h2 id="dt-a-title">Текст A — совпадения</h2></div>
+            <div class="dt-view" data-view="a"></div>
+          </section>
+          <section class="panel" aria-labelledby="dt-b-title">
+            <div class="panel-head"><h2 id="dt-b-title">Текст B — совпадения</h2></div>
+            <div class="dt-view" data-view="b"></div>
+          </section>
+        </div>
+
+        <section class="panel" aria-labelledby="dt-frag-title">
+          <div class="panel-head">
+            <h2 id="dt-frag-title">Совпадающие фрагменты</h2>
+            <span class="hint" data-frag-count></span>
+          </div>
+          <div data-fragments></div>
+        </section>
+
+        <section class="panel help" aria-labelledby="dt-help">
+          <h2 id="dt-help">Как считается сходство</h2>
+          <div class="help-grid">
+            <div>
+              <h3>Режимы</h3>
+              <ul>
+                <li><strong>По словам</strong> — доля общих уникальных слов (коэффициент Жаккара).</li>
+                <li><strong>По фрагментам</strong> — сравнение последовательностей из N слов подряд (шинглов).</li>
+                <li><strong>По предложениям</strong> — поиск одинаковых предложений.</li>
+              </ul>
+            </div>
+            <div>
+              <h3>Показатели</h3>
+              <ul>
+                <li>Сходство — пересечение ÷ объединение множеств слов, фрагментов или предложений.</li>
+                <li>Совпадение в A и B — какая часть каждого текста входит в совпадения.</li>
+                <li>Пробелы влияют только на режим «По предложениям».</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+      </div>
+      <!--@related-->
+    </main>
+    <!--@footer-->
+    <script type="module" src="/src/tools/duplicate-text.js"></script>
+  </body>
+</html>

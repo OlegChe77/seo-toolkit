@@ -1,0 +1,60 @@
+.sb-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px 16px;
+}
+
+.sb-form .field--full,
+.sb-section,
+.sb-list {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 560px) {
+  .sb-form {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.sb-section {
+  margin-top: 8px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-3);
+}
+
+.sb-list {
+  display: grid;
+  gap: 12px;
+}
+
+.sb-item {
+  margin: 0;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  background: var(--bg);
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+
+.sb-item-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.sb-item .textarea {
+  min-height: 90px;
+}
+
+.sb-form .textarea {
+  min-height: 90px;
+}

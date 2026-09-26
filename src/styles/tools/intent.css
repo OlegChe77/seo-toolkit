@@ -1,0 +1,106 @@
+.if-bar {
+  display: flex;
+  height: 12px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--surface-3);
+}
+
+.if-bar span {
+  height: 100%;
+  transition: width 0.3s;
+}
+
+.if-summary {
+  display: grid;
+  gap: 6px;
+}
+
+.if-sum-row {
+  display: grid;
+  grid-template-columns: 12px 1fr auto auto;
+  gap: 10px;
+  align-items: center;
+  font-size: 14px;
+}
+
+.if-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
+
+.if-sum-row .num {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.if-sum-row .muted {
+  font-size: 13px;
+  min-width: 48px;
+  text-align: right;
+}
+
+.if-dict-summary {
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.if-dict-summary::-webkit-details-marker {
+  display: none;
+}
+
+.if-dict[open] .if-dict-summary .icon {
+  transform: rotate(180deg);
+}
+
+.if-dict-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+.if-dict-grid .textarea {
+  min-height: 220px;
+  font-family: var(--mono);
+  font-size: 13px;
+}
+
+.if-search {
+  flex: 0 1 260px;
+}
+
+.if-search .input {
+  padding-left: 36px;
+}
+
+.if-cat-select {
+  min-width: 170px;
+  height: 32px;
+  font-size: 13.5px;
+}
+
+.if-markers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.if-markers code {
+  font-size: 12px;
+}
+
+.if-query {
+  min-width: 200px;
+  overflow-wrap: anywhere;
+}
+
+.chips .chip {
+  height: 32px;
+  font-size: 13px;
+  padding: 0 12px;
+}

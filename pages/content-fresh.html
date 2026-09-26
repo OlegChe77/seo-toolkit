@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <!--@head-->
+  </head>
+  <body>
+    <!--@header-->
+    <main id="main">
+      <!--@hero-->
+      <div class="container tool">
+        <div class="tool-grid tool-grid--wide-left">
+          <section class="panel" aria-labelledby="cf-input-title">
+            <div class="panel-head">
+              <div>
+                <h2 id="cf-input-title">Данные страниц</h2>
+                <p class="panel-sub">Столбцы: URL, дата публикации, дата последнего обновления</p>
+              </div>
+              <div class="row">
+                <button type="button" class="btn btn-sm btn-ghost" data-action="example">{{icon:file}}Пример</button>
+                <button type="button" class="btn btn-sm btn-ghost btn-danger" data-action="clear">{{icon:trash}}Очистить данные</button>
+              </div>
+            </div>
+            <div class="stack">
+              <label class="dropzone" data-dropzone>
+                {{icon:upload}}
+                <strong>Загрузите CSV-файл или перетащите его сюда</strong>
+                <span class="hint">Разделитель «,», «;» или табуляция · UTF-8 или Windows-1251</span>
+                <input type="file" accept=".csv,.tsv,.txt,text/csv,text/plain" aria-label="Загрузить CSV-файл" />
+              </label>
+              <div class="field">
+                <label for="cf-input">…или вставьте таблицу вручную (например, из Excel или Google Таблиц)</label>
+                <textarea class="textarea textarea--mono" id="cf-input" rows="7" spellcheck="false" placeholder="url;published;updated&#10;https://example.com/blog/post-1;2024-03-15;2025-01-20&#10;https://example.com/blog/post-2;12.08.2023;"></textarea>
+              </div>
+              <div class="cf-map" data-map hidden>
+                <div class="field"><label for="cf-col-url">Столбец URL</label><select class="select select--sm" id="cf-col-url" data-col="url"></select></div>
+                <div class="field"><label for="cf-col-pub">Дата публикации</label><select class="select select--sm" id="cf-col-pub" data-col="published"></select></div>
+                <div class="field"><label for="cf-col-upd">Дата обновления</label><select class="select select--sm" id="cf-col-upd" data-col="updated"></select></div>
+                <div class="field">
+                  <label for="cf-date-format">Формат дат</label>
+                  <select class="select select--sm" id="cf-date-format">
+                    <option value="auto">Автоопределение</option>
+                    <option value="dmy">ДД.ММ.ГГГГ</option>
+                    <option value="mdy">ММ/ДД/ГГГГ</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel" aria-labelledby="cf-set-title">
+            <div class="panel-head">
+              <h2 id="cf-set-title">Пороги актуальности</h2>
+              <button type="button" class="btn btn-sm btn-ghost" data-action="reset-thresholds">{{icon:reset}}По умолчанию</button>
+            </div>
+            <div class="stack">
+              <div class="cf-thresholds">
+                <div class="field"><label for="cf-t1">Свежие, до (дней)</label><input class="input" id="cf-t1" type="number" min="1" data-threshold="0" /></div>
+                <div class="field"><label for="cf-t2">Нормально, до</label><input class="input" id="cf-t2" type="number" min="2" data-threshold="1" /></div>
+                <div class="field"><label for="cf-t3">Проверить, до</label><input class="input" id="cf-t3" type="number" min="3" data-threshold="2" /></div>
+              </div>
+              <div class="field">
+                <label for="cf-ref">Дата отсчёта</label>
+                <input class="input" id="cf-ref" type="date" />
+                <span class="hint">По умолчанию — сегодня. Если дата обновления пуста, используется дата публикации.</span>
+              </div>
+              <p class="hint" data-threshold-error></p>
+            </div>
+          </section>
+        </div>
+
+        <section class="panel" aria-labelledby="cf-sum-title">
+          <div class="panel-head">
+            <h2 id="cf-sum-title">Сводка</h2>
+            <button type="button" class="btn btn-sm btn-primary" data-action="csv">{{icon:download}}Экспорт отчёта CSV</button>
+          </div>
+          <div class="stats" data-stats></div>
+        </section>
+
+        <section class="panel" aria-labelledby="cf-table-title">
+          <div class="panel-head">
+            <h2 id="cf-table-title">Страницы</h2>
+            <div class="chips" data-filters role="group" aria-label="Фильтр по давности обновления"></div>
+          </div>
+          <div data-table></div>
+          <div class="pager" data-pager></div>
+        </section>
+
+        <section class="panel" aria-labelledby="cf-todo-title">
+          <div class="panel-head">
+            <div>
+              <h2 id="cf-todo-title">Список для проверки и обновления</h2>
+              <p class="panel-sub" data-todo-sub></p>
+            </div>
+            <div class="row">
+              <button type="button" class="btn btn-sm" data-action="copy-todo">{{icon:copy}}Копировать URL</button>
+              <button type="button" class="btn btn-sm" data-action="csv-todo">{{icon:download}}CSV списка</button>
+            </div>
+          </div>
+          <div data-todo></div>
+        </section>
+
+        <section class="panel help" aria-labelledby="cf-help">
+          <h2 id="cf-help">Как пользоваться</h2>
+          <div class="help-grid">
+            <div>
+              <h3>Подготовка данных</h3>
+              <ul>
+                <li>Выгрузите список страниц с датами из CMS, sitemap.xml (lastmod) или таблицы контент-плана.</li>
+                <li>Поддерживаются даты 2025-01-31, 31.01.2025, 01/31/2025, «31 января 2025» и числовые даты Excel.</li>
+                <li>Сайты не загружаются автоматически — используются только ваши данные.</li>
+              </ul>
+            </div>
+            <div>
+              <h3>Как читать отчёт</h3>
+              <ul>
+                <li>Дни считаются от даты последнего обновления до даты отсчёта.</li>
+                <li>Пороги задают периоды: по умолчанию до 30, 30–90, 90–180 и более 180 дней.</li>
+                <li>Давность — повод проверить страницу, а не обязательное требование её переписать.</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+      </div>
+      <!--@related-->
+    </main>
+    <!--@footer-->
+    <script type="module" src="/src/tools/content-fresh.js"></script>
+  </body>
+</html>

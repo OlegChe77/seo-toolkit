@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <!--@head-->
+  </head>
+  <body>
+    <!--@header-->
+    <main id="main">
+      <!--@hero-->
+      <div class="container tool">
+        <div class="tool-grid tool-grid--wide-left">
+          <section class="panel" aria-labelledby="if-input-title">
+            <div class="panel-head">
+              <h2 id="if-input-title">Ключевые запросы</h2>
+              <div class="row">
+                <button type="button" class="btn btn-sm btn-ghost" data-action="example">{{icon:file}}Пример</button>
+                <button type="button" class="btn btn-sm btn-ghost btn-danger" data-action="clear">{{icon:trash}}Очистить</button>
+              </div>
+            </div>
+            <div class="stack">
+              <label class="visually-hidden" for="if-input">Список запросов</label>
+              <textarea class="textarea textarea--lg" id="if-input" spellcheck="false" placeholder="По одному запросу в строке, например:&#10;купить беговые кроссовки&#10;как выбрать кроссовки для бега&#10;лучшие кроссовки 2026&#10;ozon личный кабинет"></textarea>
+              <div class="row row--between">
+                <div class="row">
+                  <span class="hint" data-lines-info></span>
+                  <label class="check"><input type="checkbox" id="if-dedupe" checked />Убрать дубликаты</label>
+                </div>
+                <button type="button" class="btn btn-primary" data-action="run">{{icon:tool-intent}}Классифицировать</button>
+              </div>
+              <p class="hint" data-progress aria-live="polite"></p>
+            </div>
+          </section>
+
+          <section class="panel" aria-labelledby="if-sum-title">
+            <div class="panel-head"><h2 id="if-sum-title">Распределение</h2></div>
+            <div class="stack">
+              <div class="if-bar" data-bar aria-hidden="true"></div>
+              <div class="if-summary" data-summary></div>
+              <p class="hint">
+                Классификация выполняется по локальному словарю и простым правилам и не всегда точна. Запросы без совпадений или с
+                признаками нескольких интентов помечаются как требующие ручной проверки.
+              </p>
+            </div>
+          </section>
+        </div>
+
+        <details class="panel if-dict" data-dict>
+          <summary class="if-dict-summary">
+            <span><strong>Словарь маркеров</strong> <span class="hint">— можно редактировать, сохраняется в браузере</span></span>
+            {{icon:chevron-down}}
+          </summary>
+          <div class="stack" style="margin-top: 16px">
+            <p class="hint">
+              Один маркер в строке. <code>слово</code> — точное совпадение, <code>слово*</code> — начало слова (купи* → купить, куплю),
+              <code>два слова</code> — фраза, маркер с точкой (<code>.ru</code>) ищется как часть запроса.
+            </p>
+            <div class="if-dict-grid" data-dict-fields></div>
+            <div class="row">
+              <button type="button" class="btn btn-primary btn-sm" data-action="save-dict">{{icon:check}}Сохранить и применить</button>
+              <button type="button" class="btn btn-sm btn-ghost" data-action="reset-dict">{{icon:reset}}Вернуть словарь по умолчанию</button>
+            </div>
+          </div>
+        </details>
+
+        <section class="panel" aria-labelledby="if-res-title">
+          <div class="panel-head">
+            <h2 id="if-res-title">Результаты</h2>
+            <div class="row">
+              <button type="button" class="btn btn-sm" data-action="copy">{{icon:copy}}Копировать</button>
+              <button type="button" class="btn btn-sm btn-primary" data-action="csv">{{icon:download}}Экспорт CSV</button>
+            </div>
+          </div>
+          <div class="stack">
+            <div class="row row--between">
+              <div class="chips" data-filters role="group" aria-label="Фильтр по категориям"></div>
+              <div class="search-box if-search">
+                {{icon:search}}
+                <label class="visually-hidden" for="if-search">Поиск по таблице</label>
+                <input class="input input--sm" id="if-search" type="search" placeholder="Поиск по запросам" />
+              </div>
+            </div>
+            <div data-table></div>
+            <div class="pager" data-pager></div>
+          </div>
+        </section>
+
+        <section class="panel help" aria-labelledby="if-help">
+          <h2 id="if-help">Как это работает</h2>
+          <div class="help-grid">
+            <div>
+              <h3>Категории</h3>
+              <ul>
+                <li><strong>Информационные</strong> — пользователь ищет знания: «как», «что такое», «почему».</li>
+                <li><strong>Коммерческие</strong> — изучает варианты перед покупкой: «лучшие», «отзывы», «сравнение».</li>
+                <li><strong>Навигационные</strong> — ищет конкретный сайт или раздел: «вход», «личный кабинет», бренды.</li>
+                <li><strong>Транзакционные</strong> — готов действовать: «купить», «цена», «заказать», «скачать».</li>
+              </ul>
+            </div>
+            <div>
+              <h3>Советы</h3>
+              <ul>
+                <li>Дополните словарь терминами своей ниши и брендами — точность заметно вырастет.</li>
+                <li>Меняйте категорию вручную прямо в таблице: ручные правки помечаются отдельно.</li>
+                <li>Экспорт и копирование учитывают выбранный фильтр и поиск.</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+      </div>
+      <!--@related-->
+    </main>
+    <!--@footer-->
+    <script type="module" src="/src/tools/intent-finder.js"></script>
+  </body>
+</html>

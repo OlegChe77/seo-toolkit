@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <!--@head-->
+  </head>
+  <body>
+    <!--@header-->
+    <main id="main">
+      <!--@hero-->
+      <div class="container tool">
+        <section class="panel" aria-labelledby="ub-settings-title">
+          <div class="panel-head">
+            <h2 id="ub-settings-title">Настройки</h2>
+          </div>
+          <div class="ub-settings">
+            <div class="field">
+              <span class="label" id="ub-sep-label">Разделитель</span>
+              <div class="seg" data-sep role="group" aria-labelledby="ub-sep-label">
+                <button data-value="-">Дефис  -</button>
+                <button data-value="_">Подчёркивание  _</button>
+              </div>
+            </div>
+            <div class="field">
+              <label for="ub-scheme">Транслитерация</label>
+              <select class="select" id="ub-scheme">
+                <option value="url">Для ЧПУ (х → h, щ → sch)</option>
+                <option value="icao">Как в загранпаспорте (х → kh, щ → shch)</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="ub-max">Максимальная длина</label>
+              <select class="select" id="ub-max">
+                <option value="0">Без ограничения</option>
+                <option value="40">40 символов</option>
+                <option value="60">60 символов</option>
+                <option value="80">80 символов</option>
+                <option value="100">100 символов</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="ub-base">Базовый URL (необязательно)</label>
+              <input class="input" id="ub-base" type="text" inputmode="url" spellcheck="false" placeholder="https://example.com/blog/" />
+            </div>
+          </div>
+          <div class="options" style="margin-top: 14px">
+            <label class="check"><input type="checkbox" id="ub-lower" checked />Нижний регистр</label>
+            <label class="check"><input type="checkbox" id="ub-stop" />Удалять служебные слова (и, в, на, the, of…)</label>
+            <label class="check"><input type="checkbox" id="ub-dedupe" checked />Нумеровать повторяющиеся slug в списке</label>
+          </div>
+        </section>
+
+        <section class="panel" aria-labelledby="ub-single-title">
+          <div class="panel-head"><h2 id="ub-single-title">Один заголовок</h2></div>
+          <div class="stack">
+            <div class="field">
+              <label for="ub-title">Заголовок страницы</label>
+              <input class="input" id="ub-title" type="text" autocomplete="off" placeholder="Например: Как выбрать беговые кроссовки в 2026 году" />
+            </div>
+            <div class="field">
+              <label for="ub-slug">URL-slug</label>
+              <div class="ub-out">
+                <input class="input ub-mono" id="ub-slug" type="text" readonly placeholder="kak-vybrat-begovye-krossovki" />
+                <button type="button" class="btn" data-action="copy-slug">{{icon:copy}}Копировать</button>
+              </div>
+              <div class="field-meta"><span data-full-url></span><span class="counter" data-slug-len></span></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel" aria-labelledby="ub-bulk-title">
+          <div class="panel-head">
+            <div>
+              <h2 id="ub-bulk-title">Массовая обработка</h2>
+              <p class="panel-sub">Вставьте список заголовков — по одному в строке</p>
+            </div>
+            <div class="row">
+              <button type="button" class="btn btn-sm btn-ghost" data-action="example">{{icon:file}}Пример</button>
+              <button type="button" class="btn btn-sm btn-ghost btn-danger" data-action="clear">{{icon:trash}}Очистить</button>
+            </div>
+          </div>
+          <div class="stack">
+            <label class="visually-hidden" for="ub-list">Список заголовков</label>
+            <textarea class="textarea" id="ub-list" rows="7" placeholder="Как выбрать беговые кроссовки&#10;Лучшие модели для трейла&#10;Уход за обувью: 7 советов"></textarea>
+            <div class="row row--between">
+              <span class="hint" data-bulk-info></span>
+              <div class="row">
+                <button type="button" class="btn btn-sm" data-action="copy-all">{{icon:copy}}Копировать все</button>
+                <button type="button" class="btn btn-sm btn-primary" data-action="csv">{{icon:download}}Экспорт CSV</button>
+              </div>
+            </div>
+            <div data-bulk-table></div>
+          </div>
+        </section>
+
+        <section class="panel help" aria-labelledby="ub-help">
+          <h2 id="ub-help">Как пользоваться</h2>
+          <div class="help-grid">
+            <div>
+              <h3>Что делает генератор</h3>
+              <ul>
+                <li>Транслитерирует русские, украинские и белорусские буквы в латиницу.</li>
+                <li>Удаляет кавычки, эмодзи и спецсимволы, заменяет пробелы разделителем.</li>
+                <li>Убирает повторяющиеся и крайние разделители, при необходимости обрезает slug по границе слова.</li>
+              </ul>
+            </div>
+            <div>
+              <h3>Рекомендации для ЧПУ</h3>
+              <ul>
+                <li>Используйте дефис: поисковые системы воспринимают его как разделитель слов.</li>
+                <li>Делайте адреса короткими и понятными, без дат, если контент будет обновляться.</li>
+                <li>Меняйте адрес опубликованной страницы только вместе с 301-редиректом.</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+      </div>
+      <!--@related-->
+    </main>
+    <!--@footer-->
+    <script type="module" src="/src/tools/url-builder.js"></script>
+  </body>
+</html>

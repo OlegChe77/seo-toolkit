@@ -1,0 +1,51 @@
+.dt-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-end;
+}
+
+.dt-controls .select {
+  width: 150px;
+}
+
+.dt-view {
+  max-height: 520px;
+  overflow: auto;
+  padding: 14px 16px;
+  border-radius: var(--r);
+  background: var(--surface-2);
+  font-size: 15px;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.dt-view:empty::before {
+  content: 'Здесь появится текст с подсветкой совпадений';
+  color: var(--text-3);
+  font-size: 14px;
+}
+
+.frag-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.frag-list li {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--surface-2);
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+.frag-list .badge {
+  margin-top: 2px;
+}

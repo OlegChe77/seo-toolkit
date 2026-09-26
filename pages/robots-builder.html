@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <!--@head-->
+  </head>
+  <body>
+    <!--@header-->
+    <main id="main">
+      <!--@hero-->
+      <div class="container tool">
+        <div class="tool-grid tool-grid--wide-left">
+          <section class="panel" aria-labelledby="rb-rules-title">
+            <div class="panel-head">
+              <h2 id="rb-rules-title">Правила</h2>
+              <div class="row">
+                <label class="visually-hidden" for="rb-template">Готовый шаблон</label>
+                <select class="select select--sm" id="rb-template">
+                  <option value="">Применить шаблон…</option>
+                  <option value="allow-all">Разрешить всё</option>
+                  <option value="disallow-all">Запретить всё</option>
+                  <option value="service">Закрыть служебные разделы</option>
+                  <option value="wordpress">WordPress</option>
+                  <option value="shop">Интернет-магазин</option>
+                  <option value="ai">Запретить AI-краулеры</option>
+                </select>
+                <button type="button" class="btn btn-sm btn-ghost btn-danger" data-action="reset">{{icon:reset}}Сбросить</button>
+              </div>
+            </div>
+            <div class="stack">
+              <div class="stack" data-groups></div>
+              <div>
+                <button type="button" class="btn" data-action="add-group">{{icon:plus}}Добавить группу User-agent</button>
+              </div>
+              <hr class="divider" />
+              <div class="field">
+                <span class="label" id="rb-sitemap-label">Sitemap</span>
+                <div class="stack rb-sitemaps" data-sitemaps aria-labelledby="rb-sitemap-label"></div>
+                <div>
+                  <button type="button" class="btn btn-sm" data-action="add-sitemap">{{icon:plus}}Добавить Sitemap</button>
+                </div>
+                <span class="hint">Полный адрес карты сайта, например https://example.com/sitemap.xml</span>
+              </div>
+            </div>
+            <datalist id="rb-agents">
+              <option value="*"></option>
+              <option value="Googlebot"></option>
+              <option value="Googlebot-Image"></option>
+              <option value="Googlebot-News"></option>
+              <option value="AdsBot-Google"></option>
+              <option value="Yandex"></option>
+              <option value="YandexBot"></option>
+              <option value="YandexImages"></option>
+              <option value="Bingbot"></option>
+              <option value="DuckDuckBot"></option>
+              <option value="Baiduspider"></option>
+              <option value="Slurp"></option>
+              <option value="Applebot"></option>
+              <option value="GPTBot"></option>
+              <option value="ChatGPT-User"></option>
+              <option value="CCBot"></option>
+              <option value="Google-Extended"></option>
+              <option value="ClaudeBot"></option>
+              <option value="PerplexityBot"></option>
+              <option value="AhrefsBot"></option>
+              <option value="SemrushBot"></option>
+              <option value="MJ12bot"></option>
+            </datalist>
+          </section>
+
+          <section class="panel sticky-col" aria-labelledby="rb-out-title">
+            <div class="panel-head">
+              <h2 id="rb-out-title">robots.txt</h2>
+              <div class="row">
+                <button type="button" class="btn btn-sm" data-action="copy">{{icon:copy}}Копировать</button>
+                <button type="button" class="btn btn-sm btn-primary" data-action="download">{{icon:download}}Скачать</button>
+              </div>
+            </div>
+            <div class="stack">
+              <pre class="code code--wrap" data-output aria-label="Готовый robots.txt"></pre>
+              <h3>Проверка</h3>
+              <ul class="issues" data-issues aria-live="polite"></ul>
+            </div>
+          </section>
+        </div>
+
+        <section class="panel help" aria-labelledby="rb-help">
+          <h2 id="rb-help">Как пользоваться</h2>
+          <div class="help-grid">
+            <div>
+              <h3>Шаги</h3>
+              <ol>
+                <li>Выберите шаблон или настройте группы правил вручную.</li>
+                <li>Для каждой группы укажите роботов (User-agent) и пути Allow / Disallow.</li>
+                <li>Добавьте ссылку на Sitemap, проверьте замечания и скачайте файл.</li>
+                <li>Разместите robots.txt в корне сайта: https://ваш-домен/robots.txt.</li>
+              </ol>
+            </div>
+            <div>
+              <h3>Синтаксис путей</h3>
+              <ul>
+                <li><code>/admin/</code> — раздел и всё, что в нём.</li>
+                <li><code>*</code> — любая последовательность символов: <code>/*?sort=</code>.</li>
+                <li><code>$</code> — конец адреса: <code>/*.pdf$</code>.</li>
+                <li>Пустой <code>Disallow:</code> разрешает всё. robots.txt управляет обходом, но не гарантирует исключение страниц из индекса.</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+      </div>
+      <!--@related-->
+    </main>
+    <!--@footer-->
+    <script type="module" src="/src/tools/robots-builder.js"></script>
+  </body>
+</html>
