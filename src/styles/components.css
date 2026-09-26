@@ -999,3 +999,97 @@ mark {
   font-size: 14.5px;
   line-height: 1.65;
 }
+
+/* ---------- Согласие на cookie ---------- */
+.cookie-banner {
+  position: fixed;
+  z-index: 150;
+  left: 16px;
+  bottom: 16px;
+  width: min(420px, calc(100vw - 32px));
+  padding: 16px 18px;
+  border-radius: var(--r-lg);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  box-shadow: var(--shadow-lg);
+  animation: toast-in 0.25s ease-out;
+}
+
+.cookie-title {
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.cookie-text,
+.cookie-state {
+  font-size: 14px;
+  color: var(--text-2);
+}
+
+.cookie-state {
+  margin-top: 6px;
+  font-weight: 600;
+}
+
+.cookie-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.cookie-actions .btn {
+  flex: 1;
+}
+
+.link-btn {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--text-2);
+  font: inherit;
+  cursor: pointer;
+}
+
+.link-btn:hover {
+  color: var(--accent-text);
+  text-decoration: underline;
+}
+
+@media (max-width: 600px) {
+  .cookie-banner {
+    left: 8px;
+    right: 8px;
+    bottom: 8px;
+    width: auto;
+  }
+}
+
+/* ---------- Текстовые страницы ---------- */
+.prose {
+  max-width: 820px;
+}
+
+.prose h2 {
+  font-size: 1.2rem;
+  margin: 28px 0 10px;
+}
+
+.prose h2:first-child {
+  margin-top: 0;
+}
+
+.prose p,
+.prose li {
+  color: var(--text-2);
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.prose p + p {
+  margin-top: 10px;
+}
+
+.prose ul {
+  margin: 8px 0 10px;
+  padding-left: 20px;
+}

@@ -38,7 +38,7 @@ function renderPage(html, page, site) {
     hero: isTool ? renderHero(page) : '',
     related: isTool ? renderRelated(page) : '',
     'seo-content': renderSeoContent(page),
-    footer: renderFooter(),
+    footer: renderFooter(site),
     'tool-cards': renderToolCards(),
     'category-chips': renderCategoryChips(),
   };

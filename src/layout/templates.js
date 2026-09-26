@@ -18,8 +18,12 @@ const jsonLd = (data) =>
 const absUrl = (site, path) => (path === '/' ? `${site}/` : `${site}${path}`);
 
 // Код счётчика Яндекс Метрики (как в интерфейсе Метрики, номер берётся из site.config.js).
+// Счётчик запускается только после согласия на cookie: сразу, если согласие уже сохранено,
+// или по кнопке «Принять» на плашке (src/core/consent.js вызывает window.seotkLoadMetrika).
 const metrikaScript = (id) => `<!-- Yandex.Metrika counter -->
 <script type="text/javascript">
+  window.seotkLoadMetrika = function () {
+    if (window.ym) return;
     (function(m,e,t,r,i,k,a){
         m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
         m[i].l=1*new Date();
@@ -28,11 +32,10 @@ const metrikaScript = (id) => `<!-- Yandex.Metrika counter -->
     })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=${id}', 'ym');
 
     ym(${id}, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
+  };
+  try { var c = JSON.parse(localStorage.getItem('seotk:cookie-consent')); if (c && c.analytics) window.seotkLoadMetrika(); } catch (e) {}
 </script>
 <!-- /Yandex.Metrika counter -->`;
-
-const metrikaNoscript = (id) =>
-  `<noscript><div><img src="https://mc.yandex.ru/watch/${id}" style="position:absolute; left:-9999px;" alt="" /></div></noscript>`;
 
 // Тема применяется до отрисовки, чтобы не было вспышки светлой темы.
 const themeBoot = `<script>(function(){try{var t=localStorage.getItem('seotk:theme');if(t)t=JSON.parse(t);if(t!=='dark'&&t!=='light')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.dataset.theme=t}catch(e){document.documentElement.dataset.theme='light'}})()</script>`;
@@ -177,7 +180,7 @@ function navGroups(currentId) {
 }
 
 export function renderHeader(page, site = {}) {
-  return `${site.metrika ? metrikaNoscript(site.metrika) : ''}<a class="skip-link" href="#main">Перейти к содержимому</a>
+  return `<a class="skip-link" href="#main">Перейти к содержимому</a>
 <header class="site-header">
   <div class="container header-inner">
     <a class="logo" href="/" aria-label="SEO Toolkit — на главную">${logo}<span class="logo-text">SEO Toolkit</span></a>
@@ -265,7 +268,7 @@ export function renderRelated(page) {
 </section>`;
 }
 
-export function renderFooter() {
+export function renderFooter(site = {}) {
   const cols = categories
     .map(
       (cat) => `<div class="footer-col"><p class="footer-title">${esc(cat.name)}</p><ul>${tools
@@ -279,13 +282,13 @@ export function renderFooter() {
     <div class="footer-about">
       <a class="logo" href="/">${logo}<span class="logo-text">SEO Toolkit</span></a>
       <p>Бесплатные SEO-инструменты, которые работают прямо в браузере. Без регистрации и API-ключей — введённые данные не отправляются на сервер.</p>
-      <p class="footer-note">Для обезличенной статистики посещений используется Яндекс Метрика (cookie). Содержимое полей и результаты инструментов в неё не передаются.</p>
+      <p class="footer-note">Обезличенная статистика посещений собирается Яндекс Метрикой только с вашего согласия. Содержимое полей и результаты инструментов в неё не передаются.</p>
     </div>
     <nav class="footer-nav" aria-label="Все инструменты">${cols}</nav>
   </div>
   <div class="container footer-bottom">
     <span>© ${new Date().getFullYear()} SEO Toolkit · Иконки: набор «SEO Marketing Flat Line», автор rixwan</span>
-    <span><a href="/">Главная</a> · <a href="/sitemap.xml">Карта сайта</a></span>
+    <span><a href="/privacy">Конфиденциальность и cookie</a>${site.metrika ? ' · <button type="button" class="link-btn" data-cookie-settings>Настройки cookie</button>' : ''} · <a href="/sitemap.xml">Карта сайта</a></span>
   </div>
 </footer>
 <div class="toasts ym-hide-content" data-toasts role="status" aria-live="polite"></div>`;

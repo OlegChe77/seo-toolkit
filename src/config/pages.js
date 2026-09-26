@@ -160,6 +160,15 @@ export const notFound = {
   noindex: true,
 };
 
-export const allPages = [home, ...tools, notFound];
+export const privacy = {
+  id: 'privacy',
+  path: '/privacy',
+  title: 'Конфиденциальность и cookie — SEO Toolkit',
+  description: 'Какие данные обрабатывает SEO Toolkit: инструменты работают в браузере, статистика Яндекс Метрики собирается только с согласия.',
+  h1: 'Конфиденциальность и cookie',
+  noindex: true,
+};
+
+export const allPages = [home, ...tools, privacy, notFound];
 
 export const getCategory = (id) => categories.find((c) => c.id === id);

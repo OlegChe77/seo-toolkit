@@ -92,3 +92,9 @@ services:
       - type: rewrite
         source: /content-fresh
         destination: /content-fresh.html
+      - type: rewrite
+        source: /privacy/
+        destination: /privacy.html
+      - type: rewrite
+        source: /privacy
+        destination: /privacy.html
