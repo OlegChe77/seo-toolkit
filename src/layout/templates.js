@@ -282,6 +282,7 @@ export function renderFooter(site = {}) {
     <div class="footer-about">
       <a class="logo" href="/">${logo}<span class="logo-text">SEO Toolkit</span></a>
       <p>Бесплатные SEO-инструменты, которые работают прямо в браузере. Без регистрации и API-ключей — введённые данные не отправляются на сервер.</p>
+      <p class="footer-also">Ещё один наш сервис: <a href="https://rastr.onrender.com/" target="_blank" rel="noopener">Растр</a> — конвертер картинок и документов в браузере.</p>
       <p class="footer-note">Обезличенная статистика посещений собирается Яндекс Метрикой только с вашего согласия. Содержимое полей и результаты инструментов в неё не передаются.</p>
     </div>
     <nav class="footer-nav" aria-label="Все инструменты">${cols}</nav>
