@@ -5,3 +5,6 @@ dist
 .claude/
 # Исходники стокового набора иконок (распространяются только извлечённые SVG)
 seo-marketing-flat-line-icon-set-business-concept-icons-design/
+
+# Материалы и отчёты по продвижению (не публикуются)
+outreach/
