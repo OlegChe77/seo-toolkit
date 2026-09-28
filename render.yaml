@@ -33,6 +33,9 @@ services:
     # Render сопоставляет пути без учёта завершающего слэша, поэтому /page/ и /page
     # обрабатываются одинаково: оба варианта отдают /page.html. Не используйте здесь redirect.
       - type: rewrite
+        source: /keyword-finder/
+        destination: /keyword-finder.html
+      - type: rewrite
         source: /serp-preview/
         destination: /serp-preview.html
       - type: rewrite
@@ -62,6 +65,9 @@ services:
       - type: rewrite
         source: /content-fresh/
         destination: /content-fresh.html
+      - type: rewrite
+        source: /keyword-finder
+        destination: /keyword-finder.html
       - type: rewrite
         source: /serp-preview
         destination: /serp-preview.html

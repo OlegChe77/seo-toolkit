@@ -9,18 +9,21 @@
       <section class="home-hero">
         <div class="container home-hero-grid">
           <div>
-            <p class="eyebrow">{{icon:sparkle}}10 инструментов · бесплатно</p>
+            <p class="eyebrow">{{icon:sparkle}}11 инструментов · бесплатно</p>
             <h1>SEO Toolkit</h1>
             <p class="lead">
-              Набор SEO-инструментов, которые работают прямо в браузере: сниппеты и метатеги, robots.txt,
-              анализ текста и заголовков, JSON-LD, ЧПУ, интент запросов и актуальность контента.
+              Набор SEO-инструментов, которые работают прямо в браузере: подбор ключевых слов с частотностью, сниппеты
+              и метатеги, robots.txt, анализ текста и заголовков, JSON-LD, ЧПУ, интент запросов и актуальность контента.
             </p>
             <ul class="trust">
               <li>{{icon:check}}Без регистрации</li>
               <li>{{icon:check}}Без API-ключей</li>
-              <li>{{icon:check}}Данные не покидают ваш браузер</li>
+              <li>{{icon:check}}Данные не уходят на наш сервер</li>
             </ul>
-            <a class="btn btn-primary hero-cta" href="#tools">Выбрать инструмент{{icon:arrow-right}}</a>
+            <div class="hero-actions hero-cta">
+              <a class="btn btn-primary" href="/keyword-finder">{{icon:search}}Подобрать ключевые слова</a>
+              <a class="btn" href="#tools">Все инструменты{{icon:arrow-right}}</a>
+            </div>
           </div>
           <div class="hero-art" aria-hidden="true">
             <span class="art-float art-float--1">{{art:seo-gear:88}}</span>
@@ -39,6 +42,36 @@
               <span style="--w: 22%; --c: var(--cat-tech)"></span>
               <span style="--w: 18%; --c: var(--cat-research)"></span>
               <span style="--w: 14%; --c: var(--cat-content)"></span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="feature-title">
+        <div class="container">
+          <div class="feature-spot">
+            <div>
+              <p class="eyebrow">{{icon:sparkle}}Главный инструмент</p>
+              <h2 id="feature-title">Keyword Finder — ключевые слова, которые дадут результат быстро</h2>
+              <p class="lead">
+                Введите слово — получите сотни запросов из подсказок Google, YouTube и Bing с примерной частотностью и сложностью.
+                Лучшие ключи отмечены зелёным, а по каждой фразе есть советы: какую страницу сделать и как вывести её в топ.
+              </p>
+              <ul class="trust">
+                <li>{{icon:check}}Частотность без API</li>
+                <li>{{icon:check}}Быстрые ключи — зелёным</li>
+                <li>{{icon:check}}Готовые Title и Description</li>
+              </ul>
+              <a class="btn btn-primary hero-cta" href="/keyword-finder">Подобрать ключевые слова{{icon:arrow-right}}</a>
+            </div>
+            <div class="feature-demo" aria-hidden="true">
+              <div class="feature-demo-search">{{icon:search}}купить диван</div>
+              <ul>
+                <li class="is-green"><span>обивка дивана своими руками</span><b>2 400</b><i>Быстрый</i></li>
+                <li class="is-green"><span>купить диван угловой раскладной</span><b>1 300</b><i>Быстрый</i></li>
+                <li class="is-yellow"><span>купить диван кровать недорого</span><b>5 000</b><i>Средний</i></li>
+                <li class="is-red"><span>купить диван</span><b>120 000</b><i>Дорогой</i></li>
+              </ul>
             </div>
           </div>
         </div>
@@ -78,7 +111,7 @@
             <div class="benefit">
               <span class="tool-icon benefit-icon">{{art:shield:40}}</span>
               <h3>Приватно</h3>
-              <p>Все вычисления выполняются в вашем браузере. Тексты, списки и файлы не отправляются на сервер.</p>
+              <p>Все вычисления выполняются в вашем браузере. Тексты, списки и файлы не отправляются на наш сервер.</p>
             </div>
             <div class="benefit">
               <span class="tool-icon benefit-icon">{{art:laptop:40}}</span>

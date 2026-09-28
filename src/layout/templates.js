@@ -17,6 +17,9 @@ const jsonLd = (data) =>
 
 const absUrl = (site, path) => (path === '/' ? `${site}/` : `${site}${path}`);
 
+// Главный инструмент: крупная карточка первой в сетке, пункт меню, ссылка в шапке и первое место в «Других инструментах».
+const featuredTool = tools.find((t) => t.featured);
+
 // Код счётчика Яндекс Метрики (как в интерфейсе Метрики, номер берётся из site.config.js).
 // Счётчик запускается только после согласия на cookie: сразу, если согласие уже сохранено,
 // или по кнопке «Принять» на плашке (src/core/consent.js вызывает window.seotkLoadMetrika).
@@ -44,7 +47,7 @@ export function renderHead(page, site) {
   const url = absUrl(site.url, page.path);
   const isTool = tools.includes(page);
   const image = `${site.url}${isTool ? `/og/${page.id}.png` : '/og-image.png'}`;
-  const imageAlt = isTool ? `${page.name} — ${page.h1.split(' — ')[1] || page.h1}` : 'SEO Toolkit — 10 бесплатных SEO-инструментов';
+  const imageAlt = isTool ? `${page.name} — ${page.h1.split(' — ')[1] || page.h1}` : `SEO Toolkit — ${tools.length} бесплатных SEO-инструментов`;
   const v = site.verification || {};
   const lines = [
     `<meta charset="UTF-8">`,
@@ -169,9 +172,11 @@ function navGroups(currentId) {
       const items = tools
         .filter((t) => t.category === cat.id)
         .map(
-          (t) => `<li><a class="nav-link${t.id === currentId ? ' is-current' : ''}" href="${t.path}"${
+          (t) => `<li><a class="nav-link${t.id === currentId ? ' is-current' : ''}${t.featured ? ' nav-link--featured' : ''}" href="${t.path}"${
             t.id === currentId ? ' aria-current="page"' : ''
-          }><span class="tool-icon tool-icon--sm cat-${cat.id}">${art(t.icon, 26)}</span><span><span class="nav-link-name">${esc(t.name)}</span><span class="nav-link-desc">${esc(t.short)}</span></span></a></li>`,
+          }><span class="tool-icon tool-icon--sm cat-${cat.id}">${art(t.icon, 26)}</span><span><span class="nav-link-name">${esc(t.name)}${
+            t.featured ? ' <span class="badge-new">главный</span>' : ''
+          }</span><span class="nav-link-desc">${esc(t.short)}</span></span></a></li>`,
         )
         .join('');
       return `<div class="nav-group"><p class="nav-group-title">${esc(cat.name)}</p><ul>${items}</ul></div>`;
@@ -193,6 +198,7 @@ export function renderHeader(page, site = {}) {
         </div>
       </details>
     </nav>
+    ${featuredTool && page.id !== featuredTool.id ? `<a class="header-feature" href="${featuredTool.path}">${icon('search')}<span>Подбор ключей</span></a>` : ''}
     <button class="icon-btn theme-toggle" type="button" data-theme-toggle aria-label="Переключить тему" title="Переключить тему">${icon('moon', 'icon icon-moon')}${icon('sun', 'icon icon-sun')}</button>
   </div>
 </header>`;
@@ -222,12 +228,12 @@ export function renderHero(page) {
 
 export function renderToolCard(tool, headingTag = 'h3') {
   const cat = getCategory(tool.category);
-  return `<article class="tool-card" data-category="${cat.id}" data-search="${esc(
+  return `<article class="tool-card${tool.featured ? ' tool-card--featured' : ''}" data-category="${cat.id}" data-search="${esc(
     `${tool.name} ${tool.h1} ${tool.summary} ${tool.keywords} ${cat.name}`.toLowerCase(),
   )}">
   <div class="tool-card-top">
     <span class="tool-icon cat-${cat.id}">${art(tool.icon, 36)}</span>
-    <span class="tag cat-${cat.id}">${esc(cat.name)}</span>
+    ${tool.featured ? `<span class="tag tag--featured">${icon('sparkle')}Главный инструмент</span>` : `<span class="tag cat-${cat.id}">${esc(cat.name)}</span>`}
   </div>
   <${headingTag} class="tool-card-title"><a href="${tool.path}">${esc(tool.name)}</a></${headingTag}>
   <p class="tool-card-desc">${esc(tool.summary)}</p>
@@ -256,12 +262,14 @@ export function renderRelated(page) {
   const rest = [...tools.slice(idx + 1), ...tools.slice(0, idx)].filter(
     (t) => t.category !== page.category,
   );
-  const picked = [...same, ...rest].slice(0, 4);
+  // Главный инструмент всегда первым: на него ведут ссылки со всех страниц.
+  const lead = featuredTool && featuredTool.id !== page.id ? [featuredTool] : [];
+  const picked = [...lead, ...[...same, ...rest].filter((t) => !lead.includes(t))].slice(0, 4);
   return `<section class="related" aria-labelledby="related-title">
   <div class="container">
     <div class="section-head">
       <h2 id="related-title">Другие инструменты</h2>
-      <a class="link-arrow" href="/#tools">Все 10 инструментов${icon('arrow-right')}</a>
+      <a class="link-arrow" href="/#tools">Все ${tools.length} инструментов${icon('arrow-right')}</a>
     </div>
     <div class="tools-grid tools-grid--compact">${picked.map((t) => renderToolCard(t)).join('\n')}</div>
   </div>
@@ -281,7 +289,7 @@ export function renderFooter(site = {}) {
   <div class="container footer-grid">
     <div class="footer-about">
       <a class="logo" href="/">${logo}<span class="logo-text">SEO Toolkit</span></a>
-      <p>Бесплатные SEO-инструменты, которые работают прямо в браузере. Без регистрации и API-ключей — введённые данные не отправляются на сервер.</p>
+      <p>Бесплатные SEO-инструменты, которые работают прямо в браузере. Без регистрации и API-ключей — введённые данные не отправляются на наш сервер.</p>
       <p class="footer-also">Ещё один наш сервис: <a href="https://rastr.onrender.com/" target="_blank" rel="noopener">Растр</a> — конвертер картинок и документов в браузере.</p>
       <p class="footer-note">Обезличенная статистика посещений собирается Яндекс Метрикой только с вашего согласия. Содержимое полей и результаты инструментов в неё не передаются.</p>
     </div>
@@ -325,7 +333,7 @@ export function renderLlms(site) {
   const list = categories
     .map((c) => `## ${c.name}\n\n${tools.filter((t) => t.category === c.id).map((t) => `- [${t.name}](${site.url}${t.path}): ${t.summary}`).join('\n')}`)
     .join('\n\n');
-  return `# ${site.name}\n\n> ${home.description}\n\nВсе инструменты бесплатные, работают в браузере без регистрации и не отправляют данные на сервер.\n\n${list}\n`;
+  return `# ${site.name}\n\n> ${home.description}\n\nВсе инструменты бесплатные, работают в браузере без регистрации и не отправляют данные на сервер сайта. Главный инструмент — Keyword Finder: подбор ключевых слов с примерной частотностью по подсказкам поисковиков.\n\n${list}\n`;
 }
 
 export { art, icon };

@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <!--@head-->
+  </head>
+  <body>
+    <!--@header-->
+    <main id="main">
+      <!--@hero-->
+      <div class="container tool ym-hide-content ym-disable-keys">
+        <section class="panel" aria-labelledby="kf-input-title">
+          <div class="panel-head">
+            <h2 id="kf-input-title">Ключевые слова</h2>
+            <div class="row">
+              <button type="button" class="btn btn-sm btn-ghost" data-action="example">{{icon:file}}Пример</button>
+              <button type="button" class="btn btn-sm btn-ghost btn-danger" data-action="reset">{{icon:reset}}Сбросить</button>
+            </div>
+          </div>
+          <div class="stack">
+            <div class="field">
+              <label class="label" for="kf-seeds">Слова или фразы — по одной в строке, до 5</label>
+              <textarea class="textarea" id="kf-seeds" rows="3" spellcheck="false" placeholder="купить диван&#10;ремонт холодильника"></textarea>
+            </div>
+            <div class="kf-options">
+              <div class="field">
+                <label class="label" for="kf-lang">Язык</label>
+                <select class="select" id="kf-lang">
+                  <option value="ru">Русский</option>
+                  <option value="en">English</option>
+                </select>
+              </div>
+              <div class="field">
+                <label class="label" for="kf-region">Регион</label>
+                <select class="select" id="kf-region"></select>
+              </div>
+              <fieldset class="field kf-sources">
+                <legend class="label">Источники подсказок</legend>
+                <div class="row">
+                  <label class="check"><input type="checkbox" checked disabled />Google</label>
+                  <label class="check"><input type="checkbox" data-source="youtube" />YouTube</label>
+                  <label class="check"><input type="checkbox" data-source="bing" />Bing</label>
+                </div>
+              </fieldset>
+            </div>
+            <div class="row row--between">
+              <div class="row">
+                <label class="check"><input type="checkbox" id="kf-questions" />Вопросы (как, где, почему…)</label>
+                <label class="check"><input type="checkbox" id="kf-deep" />Глубже — второй уровень</label>
+              </div>
+              <button type="button" class="btn btn-primary" data-action="run">{{icon:search}}Найти ключи</button>
+            </div>
+            <div class="meter kf-progress" data-progress-bar hidden><div class="meter-fill" data-progress-fill></div></div>
+            <p class="hint" data-progress aria-live="polite"></p>
+          </div>
+        </section>
+
+        <section class="panel" aria-labelledby="kf-res-title" data-results hidden>
+          <div class="panel-head">
+            <h2 id="kf-res-title">Результаты</h2>
+            <div class="row">
+              <button type="button" class="btn btn-sm" data-action="copy">{{icon:copy}}Копировать</button>
+              <button type="button" class="btn btn-sm btn-primary" data-action="csv">{{icon:download}}Экспорт CSV</button>
+            </div>
+          </div>
+          <div class="stack">
+            <div class="chips" data-colors role="group" aria-label="Фильтр по потенциалу"></div>
+            <p class="hint kf-legend">
+              <span class="kf-dot kf-dot--green"></span>Быстрые — спрос от 300 в месяц при низкой конкуренции ·
+              <span class="kf-dot kf-dot--yellow"></span>средние — нужно больше времени ·
+              <span class="kf-dot kf-dot--red"></span>дорогие — сильная конкуренция или запрос про чужой сайт.
+              <strong>Нажмите на фразу — появятся советы.</strong>
+            </p>
+            <div class="row row--between">
+              <div class="chips" data-classes role="group" aria-label="Фильтр по частотности"></div>
+              <div class="search-box kf-search">
+                {{icon:search}}
+                <label class="visually-hidden" for="kf-search">Фильтр по словам</label>
+                <input class="input input--sm" id="kf-search" type="search" placeholder="Фильтр по словам" />
+              </div>
+            </div>
+            <div class="kf-results-grid">
+              <div class="kf-table-col">
+                <div data-table></div>
+                <div class="pager" data-pager></div>
+              </div>
+              <aside class="kf-words" aria-labelledby="kf-words-title">
+                <h3 id="kf-words-title">Частые слова</h3>
+                <p class="hint">Сколько найденных фраз содержат слово. Нажмите на слово — таблица отфильтруется.</p>
+                <ol data-words></ol>
+              </aside>
+            </div>
+            <p class="hint" data-meta></p>
+          </div>
+        </section>
+
+        <details class="panel kf-calib" data-calib>
+          <summary class="kf-calib-summary">
+            <span><strong>Точность и калибровка</strong> <span class="badge badge--ok" data-calib-state hidden></span></span>
+            {{icon:chevron-down}}
+          </summary>
+          <div class="stack">
+            <p>
+              Частотность — <strong>оценка</strong>, а не данные поисковика: она считается по тому, насколько высоко фраза стоит в
+              подсказках Google и насколько короткого ввода достаточно, чтобы её увидеть. Ошибка — примерно в 2–5 раз, класс
+              ВЧ/СЧ/НЧ обычно определяется надёжнее.
+            </p>
+            <p>
+              Чтобы подогнать шкалу под вашу нишу, вставьте 10–30 фраз с частотностью из
+              <a href="https://wordstat.yandex.ru" target="_blank" rel="noopener">Вордстата</a> или Keyword Planner — по одной в строке:
+              <code>фраза; 12345</code> (подойдёт и копия таблицы с табуляцией).
+            </p>
+            <label class="visually-hidden" for="kf-calib-rows">Фразы с частотностью</label>
+            <textarea class="textarea textarea--mono" id="kf-calib-rows" rows="6" spellcheck="false" placeholder="купить диван; 450000&#10;диван кровать; 520000"></textarea>
+            <div class="row">
+              <button type="button" class="btn btn-primary btn-sm" data-action="calibrate">{{icon:check}}Откалибровать</button>
+              <button type="button" class="btn btn-sm btn-ghost" data-action="calib-reset">{{icon:reset}}Сбросить калибровку</button>
+            </div>
+            <div data-calib-out></div>
+          </div>
+        </details>
+
+        <section class="panel help" aria-labelledby="kf-help">
+          <h2 id="kf-help">Как это работает</h2>
+          <div class="help-grid">
+            <div>
+              <h3>Цвета</h3>
+              <ul>
+                <li><strong>Быстрые (зелёные)</strong> — спрос от 300 в месяц и сложность до 40: хорошая страница даст результат за 1–3 месяца.</li>
+                <li><strong>Средние (жёлтые)</strong> — нужна сильная страница и немного внешних ссылок, 3–6 месяцев.</li>
+                <li><strong>Дорогие (красные)</strong> — короткие коммерческие запросы, где в топе крупные магазины, или запросы про чужие площадки.</li>
+              </ul>
+            </div>
+            <div>
+              <h3>Частотность и сложность</h3>
+              <ul>
+                <li>Частотность оценивается по подсказкам Google без API. Для точности откалибруйте шкалу по своим данным.</li>
+                <li>Сложность (1–99) — оценка по виду фразы: спрос, намерение, число слов, город. Реальную выдачу проверьте вручную.</li>
+                <li>Фразы отправляются в подсказки Google, YouTube и Bing прямо из браузера, как при наборе в строке поиска.</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+        <!--@seo-content-->
+      </div>
+      <!--@related-->
+    </main>
+    <!--@footer-->
+    <div class="kf-drawer-bg" data-drawer-bg hidden></div>
+    <aside class="kf-drawer ym-hide-content" data-drawer role="dialog" aria-modal="true" aria-labelledby="kf-drawer-title" hidden>
+      <div class="kf-drawer-top">
+        <h2 id="kf-drawer-title" data-drawer-title></h2>
+        <button type="button" class="btn btn-sm btn-ghost btn-icon" data-action="close-drawer" aria-label="Закрыть советы">{{icon:x}}</button>
+      </div>
+      <div class="kf-drawer-body" data-drawer-body></div>
+    </aside>
+    <script type="module" src="/src/tools/keyword-finder.js"></script>
+  </body>
+</html>

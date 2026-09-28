@@ -65,11 +65,11 @@ for (const t of tools) {
 }
 
 // Главная и общая OG-картинка.
-const homeIcons = ['search-document', 'internet-protected', 'presentation', 'networking', 'programming', 'target', 'share-folder', 'search-time', 'setting'];
+const homeIcons = ['seo', 'search-document', 'internet-protected', 'presentation', 'networking', 'programming', 'target', 'share-folder', 'search-time'];
 const grid = homeIcons.map((n, i) => `<rect x="${760 + (i % 3) * 132}" y="${140 + Math.floor(i / 3) * 132}" width="112" height="112" rx="24" fill="#fff" stroke="#e2e5ea" stroke-width="2"/>${place(n, 774 + (i % 3) * 132, 154 + Math.floor(i / 3) * 132, 84)}`).join('');
 const homeBody = `
   <text x="72" y="300" font-family="${FONT}" font-size="88" font-weight="700" fill="#141821" letter-spacing="-2">SEO Toolkit</text>
-  <text x="72" y="364" font-family="${FONT}" font-size="36" fill="#475061">10 бесплатных SEO-инструментов</text>
+  <text x="72" y="364" font-family="${FONT}" font-size="36" fill="#475061">${tools.length} бесплатных SEO-инструментов</text>
   <text x="72" y="410" font-family="${FONT}" font-size="36" fill="#475061">прямо в браузере</text>
   ${grid}`;
 fs.writeFileSync(path.join(pub, 'og-image.png'), png(frame(homeBody), 1200));
