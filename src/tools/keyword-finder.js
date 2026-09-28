@@ -7,7 +7,7 @@ import { $, $$, debounce, fill, fmt, h, lines, plural } from '../core/dom.js';
 import { storage } from '../core/storage.js';
 import { toast } from '../core/toast.js';
 import { buildAdvice } from './keywords/advice.js';
-import { MODEL, REGIONS, SOURCES, calibrate, findKeywords } from './keywords/engine.js';
+import { REGIONS, SOURCES, SUGGEST_API, calibrate, findKeywords, warmUp } from './keywords/engine.js';
 
 const PAGE = 100;
 const CLASSES = ['ВЧ', 'СЧ', 'НЧ', 'микро'];
@@ -33,7 +33,16 @@ let cls = null;
 const sort = { key: 'potential', dir: 'desc' };
 let lastFocus = null;
 
-const calibKey = () => `kf:calib:${langEl.value}:${regionEl.value}`;
+const yandexEl = $('[data-source="yandex"]');
+const selectedSources = () => sourceEls.filter((el) => el.checked && !el.disabled).map((el) => el.dataset.source);
+// Калибровка хранится отдельно для шкалы «только Google» (g) и «Google + Яндекс» (gy).
+const calibKey = (scale = yandexEl.checked && !yandexEl.disabled ? 'gy' : 'g') => `kf:calib:${langEl.value}:${regionEl.value}:${scale}`;
+
+if (!SUGGEST_API) {
+  yandexEl.checked = false;
+  yandexEl.disabled = true;
+  yandexEl.closest('label').title = 'Сервер подсказок Яндекса не настроен';
+}
 
 // ---------- Форма ----------
 regionEl.replaceChildren(...Object.entries(REGIONS).map(([id, r]) => h('option', { value: id, text: r.label })));
@@ -46,21 +55,24 @@ function restoreForm() {
   regionEl.value = REGIONS[f.region] ? f.region : 'ru';
   questionsEl.checked = !!f.questions;
   deepEl.checked = !!f.deep;
-  for (const el of sourceEls) el.checked = (f.sources || []).includes(el.dataset.source);
+  for (const el of sourceEls) if (!el.disabled) el.checked = (f.sources || []).includes(el.dataset.source);
+  // Настройки до появления Яндекса (без v: 2): включаем его по умолчанию для русского.
+  if (f.v !== 2 && !yandexEl.disabled) yandexEl.checked = langEl.value === 'ru';
 }
 
 function saveForm() {
   storage.set('kf:form', {
+    v: 2,
     seeds: seedsEl.value,
     lang: langEl.value,
     region: regionEl.value,
     questions: questionsEl.checked,
     deep: deepEl.checked,
-    sources: sourceEls.filter((el) => el.checked).map((el) => el.dataset.source),
+    sources: selectedSources(),
   });
 }
 
-function setProgress(done, total, stage) {
+function setProgress(done, total, stage, waitingYandex) {
   const bar = $('[data-progress-bar]');
   const text = $('[data-progress]');
   if (!total) {
@@ -70,7 +82,9 @@ function setProgress(done, total, stage) {
   }
   bar.hidden = false;
   $('[data-progress-fill]').style.width = `${Math.round((done / total) * 100)}%`;
-  text.textContent = `${stage === 2 ? 'Второй уровень: ' : ''}получено подсказок ${fmt(done)} из ${fmt(total)}…`;
+  text.textContent = waitingYandex
+    ? 'Жду подсказки Яндекса — если сервер спал, он просыпается до минуты…'
+    : `${stage === 2 ? 'Второй уровень: ' : ''}получено подсказок ${fmt(done)} из ${fmt(total)}…`;
 }
 
 async function run() {
@@ -90,14 +104,16 @@ async function run() {
       seeds,
       lang: langEl.value,
       region: regionEl.value,
-      sources: ['google', ...sourceEls.filter((el) => el.checked).map((el) => el.dataset.source)],
+      sources: ['google', ...selectedSources()],
       questions: questionsEl.checked,
       deep: deepEl.checked,
-      model: { ...MODEL, ...(storage.get(calibKey(), null) || {}) },
+      calibrations: { g: storage.get(calibKey('g'), null), gy: storage.get(calibKey('gy'), null) },
       onProgress: setProgress,
     });
     if (!data.rows.length) {
       toast(data.stats.failures ? 'Поисковики не ответили. Проверьте интернет или блокировщик рекламы и повторите.' : 'Подсказок не нашлось — попробуйте другую фразу', 'error');
+    } else if (data.stats.yandex === 'error') {
+      toast('Яндекс не ответил — частотность посчитана только по Google', 'info', 5000);
     } else {
       toast(`Найдено ${fmt(data.rows.length)} ${plural(data.rows.length, 'фраза', 'фразы', 'фраз')}`);
     }
@@ -215,8 +231,9 @@ function renderAll() {
   renderTable();
   renderWords();
   const s = data.stats;
+  const yandex = { ok: `, к Яндексу: ${fmt(s.yandexRequests)}`, error: ' (Яндекс не ответил — оценка только по Google)' }[s.yandex] || '';
   $('[data-meta]').textContent =
-    `Запросов к подсказкам: ${fmt(s.requests)}${s.failures ? `, без ответа: ${fmt(s.failures)}` : ''}, время: ${String(s.seconds).replace('.', ',')} с. ` +
+    `Запросов к подсказкам: ${fmt(s.requests)}${yandex}${s.failures ? `, без ответа: ${fmt(s.failures)}` : ''}, время: ${String(s.seconds).replace('.', ',')} с. ` +
     (s.calibrated ? 'Шкала откалибрована по вашим данным.' : 'Шкала не откалибрована — цифры ориентировочные.');
 }
 
@@ -275,14 +292,14 @@ async function runCalibration() {
   btn.disabled = true;
   fill(out, h('p', { class: 'hint', text: `Считаю оценки для ${rows.length} ${plural(rows.length, 'фразы', 'фраз', 'фраз')}…` }));
   try {
-    const r = await calibrate(rows, langEl.value, regionEl.value, (d, t) => {
-      out.firstChild.textContent = `Получено подсказок ${fmt(d)} из ${fmt(t)}…`;
+    const r = await calibrate(rows, langEl.value, regionEl.value, ['google', ...selectedSources()], (d, t, waitingYandex) => {
+      out.firstChild.textContent = waitingYandex ? 'Жду подсказки Яндекса…' : `Получено подсказок ${fmt(d)} из ${fmt(t)}…`;
     });
     if (r.error) {
       fill(out, h('p', { class: 'hint', text: r.error }));
       return;
     }
-    storage.set(calibKey(), { a: r.a, b: r.b, spread: r.spread, n: r.n });
+    storage.set(calibKey(r.scale), { a: r.a, b: r.b, spread: r.spread, n: r.n });
     showCalibState();
     const pct = (v) => String(v).replace('.', ',');
     fill(out,
@@ -313,9 +330,11 @@ $('[data-action="example"]').addEventListener('click', () => {
 });
 langEl.addEventListener('change', () => {
   regionEl.value = langEl.value === 'en' ? 'us' : 'ru';
+  if (!yandexEl.disabled) yandexEl.checked = langEl.value === 'ru'; // по-английски у Яндекса мало подсказок
   showCalibState();
 });
 regionEl.addEventListener('change', showCalibState);
+yandexEl.addEventListener('change', showCalibState);
 
 $('[data-colors]').addEventListener('click', (e) => {
   const b = e.target.closest('[data-color]');
@@ -381,3 +400,4 @@ $('[data-action="calib-reset"]').addEventListener('click', () => {
 
 restoreForm();
 showCalibState();
+warmUp(); // будим сервер Яндекса, пока пользователь вводит фразы

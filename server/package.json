@@ -1,0 +1,14 @@
+{
+  "name": "seo-toolkit-suggest-api",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Посредник подсказок Яндекса для Keyword Finder (SEO Toolkit)",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "engines": {
+    "node": ">=20.19"
+  }
+}

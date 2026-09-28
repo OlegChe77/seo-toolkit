@@ -1,6 +1,19 @@
 # Blueprint для Render Static Site.
 # Render применяет правила, только если по запрошенному пути нет файла.
 services:
+  # Посредник подсказок Яндекса для Keyword Finder (server/, без зависимостей).
+  # Бесплатный тариф засыпает после 15 минут простоя; страница будит его заранее запросом /healthz.
+  - type: web
+    name: seotoolkitru-api
+    runtime: node
+    plan: free
+    rootDir: server
+    buildCommand: npm install
+    startCommand: node index.js
+    healthCheckPath: /healthz
+    envVars:
+      - key: ALLOWED_ORIGINS
+        value: https://seotoolkitru.onrender.com
   - type: web
     name: seotoolkitru
     runtime: static

@@ -9,6 +9,9 @@ const site = { ...siteConfig, url: siteUrl };
 export default defineConfig({
   appType: 'mpa',
   plugins: [sitePlugin(site)],
+  define: {
+    __SUGGEST_API__: JSON.stringify(process.env.SUGGEST_API_URL ?? siteConfig.suggestApi ?? ''),
+  },
   build: {
     outDir: 'dist',
     emptyOutDir: true,

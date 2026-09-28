@@ -20,4 +20,7 @@ export default {
   // Ключ IndexNow (Яндекс, Bing и др.): файл /<ключ>.txt создаётся при сборке,
   // отправка адресов — npm run indexnow.
   indexNowKey: 'ece19a454b9d31171fcedb8bc67ec356',
+  // Посредник подсказок Яндекса для Keyword Finder (папка server/, сервис seotoolkitru-api в render.yaml).
+  // Можно переопределить при сборке переменной SUGGEST_API_URL; пустая строка — работать только с Google.
+  suggestApi: 'https://seotoolkitru-api.onrender.com',
 };

@@ -1,6 +1,8 @@
 // Keyword Finder: сбор фраз из подсказок поисковиков и оценка частотности без API.
 //
-// Подсказки запрашиваются прямо из браузера (JSONP) — на сервер сайта ничего не уходит.
+// Подсказки Google, YouTube и Bing запрашиваются прямо из браузера (JSONP). Яндекс так не отдаёт,
+// поэтому его подсказки идут пачкой через наш посредник (server/, адрес — suggestApi в site.config.js).
+// Если посредник недоступен, оценка строится только по Google.
 //
 // Как считается частотность. Подсказки упорядочены по популярности, поэтому соседние списки
 // можно «сшить»: список для «купить дива» и список для «купить диван» содержат общие фразы,
@@ -16,20 +18,27 @@ const mean = (a) => a.reduce((s, x) => s + x, 0) / a.length;
 
 export const normalize = (text) => String(text).toLowerCase().replace(/ё/g, 'е').split(/\s+/).filter(Boolean).join(' ');
 
+// gl — страна для Google, lr — код региона Яндекса.
 export const REGIONS = {
-  ru: { label: 'Россия', gl: 'ru' },
-  by: { label: 'Беларусь', gl: 'by' },
-  kz: { label: 'Казахстан', gl: 'kz' },
-  ua: { label: 'Украина', gl: 'ua' },
-  us: { label: 'США', gl: 'us' },
-  gb: { label: 'Великобритания', gl: 'gb' },
+  ru: { label: 'Россия', gl: 'ru', lr: '225' },
+  msk: { label: 'Москва', gl: 'ru', lr: '213' },
+  spb: { label: 'Санкт-Петербург', gl: 'ru', lr: '2' },
+  by: { label: 'Беларусь', gl: 'by', lr: '149' },
+  kz: { label: 'Казахстан', gl: 'kz', lr: '159' },
+  ua: { label: 'Украина', gl: 'ua', lr: '187' },
+  us: { label: 'США', gl: 'us', lr: '84' },
+  gb: { label: 'Великобритания', gl: 'gb', lr: '102' },
 };
+
+// Адрес посредника подсказок Яндекса подставляется при сборке (vite.config.js).
+export const SUGGEST_API = typeof __SUGGEST_API__ === 'string' ? __SUGGEST_API__.replace(/\/+$/, '') : '';
 
 const google = (q, lang, gl, extra = '') =>
   `https://suggestqueries.google.com/complete/search?client=firefox&hl=${lang}&gl=${gl}&ie=utf-8&oe=utf-8${extra}&q=${encodeURIComponent(q)}`;
 
 export const SOURCES = {
   google: { label: 'Google', url: (q, lang, gl) => google(q, lang, gl), param: 'callback', parse: (d) => d[1] },
+  yandex: { label: 'Яндекс', batch: true },
   youtube: { label: 'YouTube', url: (q, lang, gl) => google(q, lang, gl, '&ds=yt'), param: 'callback', parse: (d) => d[1] },
   bing: {
     label: 'Bing',
@@ -39,9 +48,9 @@ export const SOURCES = {
   },
 };
 
-// Частотность оценивается по Google: у YouTube и Bing мало данных по длинным фразам,
-// они только добавляют новые фразы.
-export const VOLUME_SOURCE = 'google';
+// Частотность оценивается по Google и Яндексу (среднее в логарифмах): у YouTube и Bing мало
+// данных по длинным фразам, они только добавляют новые фразы.
+export const VOLUME_SOURCES = ['google', 'yandex'];
 
 export const ALPHABETS = { ru: 'абвгдежзийклмнопрстуфхцчшщэюя', en: 'abcdefghijklmnopqrstuvwxyz' };
 export const QUESTIONS = {
@@ -146,17 +155,25 @@ function completions(lists) {
 /** Сырые log10-оценки (без калибровки): { source: Map(query → items) } → Map(phrase → log10). */
 export function estimate(allLists, lang, m = MODEL) {
   const lists = Object.fromEntries(Object.entries(allLists).map(([s, l]) => [s, completions(l)]));
-  const vol = lists[VOLUME_SOURCE];
+  const tops = {};
+  const perSource = {};
+  for (const s of VOLUME_SOURCES) {
+    if (!lists[s]?.size) continue;
+    tops[s] = chainTops(lists[s], lang, m);
+    perSource[s] = sourceValues(lists[s], tops[s], m);
+  }
   const out = new Map();
-  if (!vol?.size) return out;
-  const tops = chainTops(vol, lang, m);
-  for (const [x, v] of sourceValues(vol, tops, m)) out.set(x, v);
-  // Фразы только из YouTube/Bing: ниже последнего пункта Google по тому же запросу.
+  const values = Object.values(perSource);
+  for (const x of new Set(values.flatMap((v) => [...v.keys()]))) out.set(x, mean(values.filter((v) => v.has(x)).map((v) => v.get(x))));
+  // Фразы только из YouTube/Bing: ниже последнего пункта Google/Яндекса по тому же запросу.
   for (const [s, byQuery] of Object.entries(lists)) {
-    if (s === VOLUME_SOURCE) continue;
+    if (perSource[s]) continue;
     for (const [q, items] of byQuery) {
-      if (!tops.has(q)) continue;
-      const bound = tops.get(q) - m.gamma * log10(vol.get(q).length + 1) + log10(m.rho);
+      const bounds = Object.keys(tops)
+        .filter((v) => tops[v].has(q))
+        .map((v) => tops[v].get(q) - m.gamma * log10(lists[v].get(q).length + 1) + log10(m.rho));
+      if (!bounds.length) continue;
+      const bound = mean(bounds);
       for (const x of items) if (!out.has(x)) out.set(x, bound);
     }
   }
@@ -274,6 +291,7 @@ function jsonp(url, param, timeout = 8000) {
 }
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const clean = (list) => [...new Set((list || []).filter((x) => typeof x === 'string').map(normalize).filter(Boolean))];
 
 /** Список подсказок (нормализованных, без дублей) или null, если источник не ответил. */
 async function fetchSuggest(source, query, lang, gl, stats) {
@@ -285,8 +303,7 @@ async function fetchSuggest(source, query, lang, gl, stats) {
     for (let attempt = 0; attempt < 2; attempt++) {
       stats.requests++;
       try {
-        const data = await jsonp(src.url(query, lang, gl), src.param);
-        const items = [...new Set((src.parse(data) || []).filter((x) => typeof x === 'string').map(normalize).filter(Boolean))];
+        const items = clean(src.parse(await jsonp(src.url(query, lang, gl), src.param)));
         cache.set(key, items);
         return items;
       } catch {
@@ -298,50 +315,113 @@ async function fetchSuggest(source, query, lang, gl, stats) {
   });
 }
 
-async function fetchPlan(plan, lang, gl, into, stats, onProgress) {
+const YANDEX_BATCH = 400; // как LIMITS.batch в server/proxy.js
+const YANDEX_TIMEOUT = 60000; // бесплатный сервер Render просыпается до минуты
+
+/** Будит посредник заранее, пока пользователь вводит фразы. */
+export function warmUp() {
+  if (SUGGEST_API) fetch(`${SUGGEST_API}/healthz`).catch(() => {});
+}
+
+/** Подсказки Яндекса пачками через посредник: Map(запрос → подсказки). stats.yandex = 'ok' | 'error'. */
+async function fetchYandex(queries, lang, lr, stats) {
+  const out = new Map();
+  const key = (q) => `yandex|${lang}|${lr}|${q}`;
+  const need = queries.filter((q) => (cache.has(key(q)) ? (out.set(q, cache.get(key(q))), false) : true));
+  for (let i = 0; i < need.length && stats.yandex !== 'error'; i += YANDEX_BATCH) {
+    const part = need.slice(i, i + YANDEX_BATCH);
+    try {
+      const res = await fetch(`${SUGGEST_API}/yandex`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ queries: part, lr, lang }),
+        signal: AbortSignal.timeout(YANDEX_TIMEOUT),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const { results } = await res.json();
+      stats.yandexRequests += part.length;
+      for (const q of part) {
+        if (!Array.isArray(results?.[q])) continue;
+        cache.set(key(q), clean(results[q]));
+        out.set(q, cache.get(key(q)));
+      }
+      stats.yandex = 'ok';
+    } catch {
+      stats.yandex = 'error';
+    }
+  }
+  if (!need.length && stats.yandex !== 'error') stats.yandex = 'ok';
+  return out;
+}
+
+/** onProgress(готово, всего, ждём ли Яндекс). */
+async function fetchPlan(plan, lang, region, into, stats, onProgress) {
   const jobs = [];
   for (const [s, queries] of Object.entries(plan)) for (const q of queries) if (!into[s]?.has(q)) jobs.push([s, q]);
+  const yandex = jobs.filter(([s]) => s === 'yandex').map(([, q]) => q);
+  const jsonpJobs = jobs.filter(([s]) => s !== 'yandex');
   let done = 0;
-  await Promise.all(
-    jobs.map(async ([s, q]) => {
-      const items = await fetchSuggest(s, q, lang, gl, stats);
+  let yandexPending = yandex.length > 0;
+  const tick = (n) => onProgress?.((done += n), jobs.length, yandexPending && done >= jsonpJobs.length);
+  await Promise.all([
+    ...jsonpJobs.map(async ([s, q]) => {
+      const items = await fetchSuggest(s, q, lang, region.gl, stats);
       if (items) (into[s] ||= new Map()).set(q, items);
-      onProgress?.(++done, jobs.length);
+      tick(1);
     }),
-  );
+    yandex.length &&
+      fetchYandex(yandex, lang, region.lr, stats).then((res) => {
+        for (const [q, items] of res) (into.yandex ||= new Map()).set(q, items);
+        yandexPending = false;
+        tick(yandex.length);
+      }),
+  ]);
+}
+
+/** Источники для запросов: Google всегда, Яндекс — если выбран и посредник настроен. */
+function usableSources(sources, stats) {
+  const list = [...new Set(['google', ...sources.filter((s) => SOURCES[s])])];
+  if (list.includes('yandex') && !SUGGEST_API) {
+    stats.yandex = 'disabled';
+    return list.filter((s) => s !== 'yandex');
+  }
+  return list;
 }
 
 // ---------- Поиск ----------
 
-export async function findKeywords({ seeds, lang, region, sources, questions, deep, model = MODEL, thresholds = [10000, 1000, 100], onProgress }) {
+/** calibrations: { g?, gy? } — калибровки шкалы для каждого набора источников (см. scaleKey). */
+export async function findKeywords({ seeds, lang, region, sources, questions, deep, calibrations = {}, thresholds = [10000, 1000, 100], onProgress }) {
   const t0 = performance.now();
-  const stats = { requests: 0, failures: 0 };
-  const gl = (REGIONS[region] || REGIONS.ru).gl;
+  const stats = { requests: 0, failures: 0, yandexRequests: 0, yandex: null };
+  const reg = REGIONS[region] || REGIONS.ru;
   seeds = [...new Set(seeds.map(normalize).filter(Boolean))].slice(0, 5);
-  const disc = sources.filter((s) => SOURCES[s]);
-  if (!disc.includes(VOLUME_SOURCE)) disc.unshift(VOLUME_SOURCE);
+  const disc = usableSources(sources, stats);
   const anchors = [...seeds, ...(questions ? seeds.flatMap((s) => QUESTIONS[lang].map((w) => `${w} ${s}`)) : [])];
   const expansions = [...seeds.map((s) => `${s} `), ...seeds.flatMap((s) => [...ALPHABETS[lang]].map((c) => `${s} ${c}`))];
 
   const plan = Object.fromEntries(disc.map((s) => [s, new Set([...anchors, ...expansions])]));
-  for (const a of anchors) for (const p of prefixes(a)) plan[VOLUME_SOURCE].add(p);
+  for (const s of VOLUME_SOURCES) if (plan[s]) for (const a of anchors) for (const p of prefixes(a)) plan[s].add(p);
   const lists = {};
-  await fetchPlan(plan, lang, gl, lists, stats, (d, t) => onProgress?.(d, t, 1));
+  await fetchPlan(plan, lang, reg, lists, stats, (d, t, waiting) => onProgress?.(d, t, 1, waiting));
 
   const seedStems = seeds.map((s) => {
     const st = s.split(' ').filter((w) => !STOPWORDS.has(w)).map(stem);
     return st.length ? st : s.split(' ');
   });
   if (deep) {
-    const raw = estimate(lists, lang, model);
+    const raw = estimate(lists, lang);
     const best = [...raw.keys()]
       .filter((x) => !anchors.includes(x) && relevant(x, seedStems))
       .sort((a, b) => raw.get(b) - raw.get(a))
       .slice(0, DEEP_LIMIT);
     const extra = new Set(best.map((x) => `${x} `));
-    await fetchPlan(Object.fromEntries(disc.map((s) => [s, extra])), lang, gl, lists, stats, (d, t) => onProgress?.(d, t, 2));
+    const deepSources = disc.filter((s) => s !== 'yandex' || stats.yandex !== 'error');
+    await fetchPlan(Object.fromEntries(deepSources.map((s) => [s, extra])), lang, reg, lists, stats, (d, t, waiting) => onProgress?.(d, t, 2, waiting));
   }
 
+  const calibration = calibrations[scaleKey(stats)];
+  const model = { ...MODEL, ...(calibration || {}) };
   const raw = estimate(lists, lang, model);
   const seenIn = new Map();
   for (const [s, byQuery] of Object.entries(lists)) {
@@ -389,18 +469,18 @@ export async function findKeywords({ seeds, lang, region, sources, questions, de
   return {
     rows,
     words,
-    stats: { ...stats, seconds: Math.round((performance.now() - t0) / 100) / 10, calibrated: model.a !== 0 || model.b !== 1 },
+    stats: { ...stats, seconds: Math.round((performance.now() - t0) / 100) / 10, calibrated: !!calibration },
   };
 }
 
 /** Подгонка шкалы под реальные цифры (например, из Вордстата). rows: [{ phrase, volume }]. */
-export async function calibrate(rows, lang, region, onProgress) {
-  const gl = (REGIONS[region] || REGIONS.ru).gl;
-  const stats = { requests: 0, failures: 0 };
+export async function calibrate(rows, lang, region, sources, onProgress) {
+  const stats = { requests: 0, failures: 0, yandexRequests: 0, yandex: null };
   rows = rows.map((r) => ({ phrase: normalize(r.phrase), volume: r.volume })).filter((r) => r.phrase && r.volume > 0).slice(0, 30);
-  const plan = { [VOLUME_SOURCE]: new Set(rows.flatMap((r) => prefixes(r.phrase))) };
+  const chain = new Set(rows.flatMap((r) => prefixes(r.phrase)));
+  const plan = Object.fromEntries(usableSources(sources, stats).filter((s) => VOLUME_SOURCES.includes(s)).map((s) => [s, chain]));
   const lists = {};
-  await fetchPlan(plan, lang, gl, lists, stats, onProgress);
+  await fetchPlan(plan, lang, REGIONS[region] || REGIONS.ru, lists, stats, onProgress);
   const raw = estimate(lists, lang, { ...MODEL });
   const pairs = rows.filter((r) => raw.has(r.phrase)).map((r) => ({ x: raw.get(r.phrase), y: log10(r.volume), ...r }));
   if (pairs.length < 3) return { error: 'Нужно минимум 3 фразы, для которых удалось получить подсказки.' };
@@ -432,5 +512,9 @@ export async function calibrate(rows, lang, region, onProgress) {
     medianErrorAfter: round2(10 ** median(pairs.map((p) => Math.abs(p.y - (a + b * p.x))))),
     rows: pairs.map((p) => ({ phrase: p.phrase, actual: p.volume, before: nice(10 ** p.x), after: nice(10 ** (a + b * p.x)) })),
     missing: rows.filter((r) => !raw.has(r.phrase)).map((r) => r.phrase),
+    scale: scaleKey(stats),
   };
 }
+
+/** Шкала зависит от источников оценки: только Google ('g') или Google + Яндекс ('gy'). */
+export const scaleKey = (stats) => (stats.yandex === 'ok' ? 'gy' : 'g');

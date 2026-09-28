@@ -40,6 +40,16 @@ test('чужие фразы в списке не сшивают списки', (
   assert.ok(raw.get('купить диван эшли') < raw.get('купить диван бу'));
 });
 
+test('оценки Google и Яндекса усредняются, YouTube/Bing только добавляют фразы', () => {
+  const g = lists({ д: ['диван', 'дом'] });
+  const y = lists({ д: ['дом', 'диван'] });
+  const one = estimate({ google: g }, 'ru');
+  const both = estimate({ google: g, yandex: y, bing: lists({ д: ['дача'] }) }, 'ru');
+  const yOnly = estimate({ yandex: y }, 'ru');
+  close(both.get('диван'), (one.get('диван') + yOnly.get('диван')) / 2);
+  assert.ok(both.has('дача') && both.get('дача') < both.get('дом'));
+});
+
 test('уточнение ограничено частотой основы', () => {
   const out = lengthCap(new Map([['купить диван', 5.0], ['купить диван спб', 4.8], ['купить диван москва', 4.5], ['купить диван спб хорошего качества', 4.7], ['купить диваны', 4.9]]));
   const k = Math.log10(M.kappa);

@@ -289,7 +289,7 @@ export function renderFooter(site = {}) {
   <div class="container footer-grid">
     <div class="footer-about">
       <a class="logo" href="/">${logo}<span class="logo-text">SEO Toolkit</span></a>
-      <p>Бесплатные SEO-инструменты, которые работают прямо в браузере. Без регистрации и API-ключей — введённые данные не отправляются на наш сервер.</p>
+      <p>Бесплатные SEO-инструменты, которые работают прямо в браузере. Без регистрации и API-ключей — тексты и файлы обрабатываются на вашем устройстве.</p>
       <p class="footer-also">Ещё один наш сервис: <a href="https://rastr.onrender.com/" target="_blank" rel="noopener">Растр</a> — конвертер картинок и документов в браузере.</p>
       <p class="footer-note">Обезличенная статистика посещений собирается Яндекс Метрикой только с вашего согласия. Содержимое полей и результаты инструментов в неё не передаются.</p>
     </div>
@@ -333,7 +333,7 @@ export function renderLlms(site) {
   const list = categories
     .map((c) => `## ${c.name}\n\n${tools.filter((t) => t.category === c.id).map((t) => `- [${t.name}](${site.url}${t.path}): ${t.summary}`).join('\n')}`)
     .join('\n\n');
-  return `# ${site.name}\n\n> ${home.description}\n\nВсе инструменты бесплатные, работают в браузере без регистрации и не отправляют данные на сервер сайта. Главный инструмент — Keyword Finder: подбор ключевых слов с примерной частотностью по подсказкам поисковиков.\n\n${list}\n`;
+  return `# ${site.name}\n\n> ${home.description}\n\nВсе инструменты бесплатные и работают в браузере без регистрации. Главный инструмент — Keyword Finder: подбор ключевых слов с примерной частотностью по подсказкам Google и Яндекса.\n\n${list}\n`;
 }
 
 export { art, icon };
