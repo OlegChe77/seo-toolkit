@@ -43,80 +43,69 @@ services:
         name: Permissions-Policy
         value: camera=(), microphone=(), geolocation=()
     routes:
+    # Генерируется scripts/render-routes.mjs (npm run routes) — не правьте вручную.
     # Render сопоставляет пути без учёта завершающего слэша, поэтому /page/ и /page
     # обрабатываются одинаково: оба варианта отдают /page.html. Не используйте здесь redirect.
       - type: rewrite
         source: /keyword-finder/
         destination: /keyword-finder.html
       - type: rewrite
+        source: /keyword-finder
+        destination: /keyword-finder.html
+      - type: rewrite
         source: /serp-preview/
+        destination: /serp-preview.html
+      - type: rewrite
+        source: /serp-preview
         destination: /serp-preview.html
       - type: rewrite
         source: /robots-builder/
         destination: /robots-builder.html
       - type: rewrite
+        source: /robots-builder
+        destination: /robots-builder.html
+      - type: rewrite
         source: /text-seo/
+        destination: /text-seo.html
+      - type: rewrite
+        source: /text-seo
         destination: /text-seo.html
       - type: rewrite
         source: /heading-map/
         destination: /heading-map.html
       - type: rewrite
+        source: /heading-map
+        destination: /heading-map.html
+      - type: rewrite
         source: /duplicate-text/
+        destination: /duplicate-text.html
+      - type: rewrite
+        source: /duplicate-text
         destination: /duplicate-text.html
       - type: rewrite
         source: /schema-builder/
         destination: /schema-builder.html
       - type: rewrite
+        source: /schema-builder
+        destination: /schema-builder.html
+      - type: rewrite
         source: /url-builder/
+        destination: /url-builder.html
+      - type: rewrite
+        source: /url-builder
         destination: /url-builder.html
       - type: rewrite
         source: /meta-length/
         destination: /meta-length.html
       - type: rewrite
-        source: /intent-finder/
-        destination: /intent-finder.html
-      - type: rewrite
-        source: /content-fresh/
-        destination: /content-fresh.html
-      - type: rewrite
-        source: /keyword-finder
-        destination: /keyword-finder.html
-      - type: rewrite
-        source: /serp-preview
-        destination: /serp-preview.html
-      - type: rewrite
-        source: /robots-builder
-        destination: /robots-builder.html
-      - type: rewrite
-        source: /text-seo
-        destination: /text-seo.html
-      - type: rewrite
-        source: /heading-map
-        destination: /heading-map.html
-      - type: rewrite
-        source: /duplicate-text
-        destination: /duplicate-text.html
-      - type: rewrite
-        source: /schema-builder
-        destination: /schema-builder.html
-      - type: rewrite
-        source: /url-builder
-        destination: /url-builder.html
-      - type: rewrite
         source: /meta-length
         destination: /meta-length.html
       - type: rewrite
-        source: /intent-finder
+        source: /intent-finder/
         destination: /intent-finder.html
       - type: rewrite
-        source: /content-fresh
-        destination: /content-fresh.html
-      - type: rewrite
-        source: /privacy/
-        destination: /privacy.html
-      - type: rewrite
-        source: /privacy
-        destination: /privacy.html
+        source: /intent-finder
+        destination: /intent-finder.html
       - type: rewrite
         source: /key-cluster/
         destination: /key-cluster.html
@@ -124,14 +113,74 @@ services:
         source: /key-cluster
         destination: /key-cluster.html
       - type: rewrite
+        source: /content-fresh/
+        destination: /content-fresh.html
+      - type: rewrite
+        source: /content-fresh
+        destination: /content-fresh.html
+      - type: rewrite
         source: /guides/
         destination: /guides.html
       - type: rewrite
         source: /guides
         destination: /guides.html
       - type: rewrite
-        source: /guides/:slug/
-        destination: /guides/:slug.html
+        source: /privacy/
+        destination: /privacy.html
       - type: rewrite
-        source: /guides/:slug
-        destination: /guides/:slug.html
+        source: /privacy
+        destination: /privacy.html
+      - type: rewrite
+        source: /guides/semanticheskoe-yadro/
+        destination: /guides/semanticheskoe-yadro.html
+      - type: rewrite
+        source: /guides/semanticheskoe-yadro
+        destination: /guides/semanticheskoe-yadro.html
+      - type: rewrite
+        source: /guides/klasterizaciya-zaprosov/
+        destination: /guides/klasterizaciya-zaprosov.html
+      - type: rewrite
+        source: /guides/klasterizaciya-zaprosov
+        destination: /guides/klasterizaciya-zaprosov.html
+      - type: rewrite
+        source: /guides/intent-zaprosa/
+        destination: /guides/intent-zaprosa.html
+      - type: rewrite
+        source: /guides/intent-zaprosa
+        destination: /guides/intent-zaprosa.html
+      - type: rewrite
+        source: /guides/title-i-description/
+        destination: /guides/title-i-description.html
+      - type: rewrite
+        source: /guides/title-i-description
+        destination: /guides/title-i-description.html
+      - type: rewrite
+        source: /guides/robots-txt/
+        destination: /guides/robots-txt.html
+      - type: rewrite
+        source: /guides/robots-txt
+        destination: /guides/robots-txt.html
+      - type: rewrite
+        source: /guides/mikrorazmetka-json-ld/
+        destination: /guides/mikrorazmetka-json-ld.html
+      - type: rewrite
+        source: /guides/mikrorazmetka-json-ld
+        destination: /guides/mikrorazmetka-json-ld.html
+      - type: rewrite
+        source: /guides/zagolovki-h1-h6/
+        destination: /guides/zagolovki-h1-h6.html
+      - type: rewrite
+        source: /guides/zagolovki-h1-h6
+        destination: /guides/zagolovki-h1-h6.html
+      - type: rewrite
+        source: /guides/chpu/
+        destination: /guides/chpu.html
+      - type: rewrite
+        source: /guides/chpu
+        destination: /guides/chpu.html
+      - type: rewrite
+        source: /guides/aktualizaciya-kontenta/
+        destination: /guides/aktualizaciya-kontenta.html
+      - type: rewrite
+        source: /guides/aktualizaciya-kontenta
+        destination: /guides/aktualizaciya-kontenta.html

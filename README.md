@@ -65,7 +65,7 @@
 Статьи лежат в `content/guides/*.md` (Markdown с заголовком-frontmatter: title, h1, description, summary, date, updated,
 tools, icon, order). При сборке плагин превращает каждую статью в страницу `/guides/<slug>` по шаблону `pages/guide.html`:
 с оглавлением, разметкой `Article`, OG-картинкой (`npm run images`), ссылками на инструменты и записью в sitemap.xml.
-Новый гайд — это один новый `.md`-файл; маршрут `/guides/:slug` в `render.yaml` уже настроен.
+Новый гайд — это новый `.md`-файл; после него выполните `npm run routes`, чтобы добавить правила в `render.yaml`.
 
 ## Запуск
 
