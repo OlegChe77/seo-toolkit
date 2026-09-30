@@ -3,12 +3,13 @@
 // Ключ задаётся в site.config.js (indexNowKey); файл /<ключ>.txt создаётся при сборке.
 import siteConfig from '../site.config.js';
 import { allPages } from '../src/config/pages.js';
+import { loadGuides } from '../plugins/guides.js';
 
 const site = (process.env.SITE_URL || siteConfig.url).replace(/\/+$/, '');
 const key = siteConfig.indexNowKey;
 if (!key) throw new Error('Не задан indexNowKey в site.config.js');
 
-const urlList = allPages.filter((p) => !p.noindex).map((p) => (p.path === '/' ? `${site}/` : `${site}${p.path}`));
+const urlList = [...allPages.filter((p) => !p.noindex), ...loadGuides('.')].map((p) => (p.path === '/' ? `${site}/` : `${site}${p.path}`));
 const body = JSON.stringify({ host: new URL(site).host, key, keyLocation: `${site}/${key}.txt`, urlList });
 
 const keyCheck = await fetch(`${site}/${key}.txt`);
