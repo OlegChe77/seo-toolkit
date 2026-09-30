@@ -371,7 +371,7 @@ export function renderFooter(site = {}) {
     <div class="footer-about">
       <a class="logo" href="/">${logo}<span class="logo-text">SEO Toolkit</span></a>
       <p>Бесплатные SEO-инструменты, которые работают прямо в браузере. Без регистрации и API-ключей — тексты и файлы обрабатываются на вашем устройстве.</p>
-      <p class="footer-also">Ещё один наш сервис: <a href="https://rastr.onrender.com/" target="_blank" rel="noopener">Растр</a> — конвертер картинок и документов в браузере.</p>
+      <p class="footer-also">Другие наши сервисы: <a href="https://rastr.onrender.com/" target="_blank" rel="noopener">Растр</a> — конвертер картинок и документов в браузере; <a href="https://ytkombain.onrender.com/" target="_blank" rel="noopener">YouTube Комбайн</a> — бесплатные инструменты для YouTube.</p>
       <p class="footer-note">Обезличенная статистика посещений собирается Яндекс Метрикой только с вашего согласия. Содержимое полей и результаты инструментов в неё не передаются.</p>
     </div>
     <nav class="footer-nav" aria-label="Все инструменты и гайды">${cols}${guideCol}</nav>
