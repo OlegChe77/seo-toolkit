@@ -1,4 +1,5 @@
 import '../core/app.js';
+import { initShare } from '../core/share.js';
 import '../styles/tools/schema.css';
 import { copyText } from '../core/clipboard.js';
 import { downloadFile } from '../core/csv.js';
@@ -279,3 +280,34 @@ $('[data-action="download"]').addEventListener('click', () => {
 
 renderForm();
 update();
+
+// Значения из ссылки принимаются только для полей выбранного типа.
+function sanitizeValues(def, raw = {}) {
+  const out = defaults(def);
+  for (const f of def.fields) {
+    if (!f.key || !(f.key in raw)) continue;
+    if (f.type === 'list') {
+      if (!Array.isArray(raw[f.key])) continue;
+      out[f.key] = raw[f.key].map((item) => Object.fromEntries(f.fields.map((sub) => [sub.key, String(item?.[sub.key] ?? '')])));
+      if (!out[f.key].length) out[f.key] = [{}];
+    } else {
+      out[f.key] = String(raw[f.key] ?? '');
+    }
+  }
+  return out;
+}
+
+initShare({
+  tool: 'schema-builder',
+  getState: () => ({ t: state.type, v: values(), w: wrapEl.checked }),
+  setState: (d) => {
+    const def = SCHEMA_TYPES.find((t) => t.id === d.t);
+    if (!def) throw new Error('Неизвестный тип схемы');
+    state.type = def.id;
+    state.values[def.id] = sanitizeValues(def, d.v);
+    typeEl.value = def.id;
+    wrapEl.checked = d.w !== false;
+    renderForm();
+    update();
+  },
+});

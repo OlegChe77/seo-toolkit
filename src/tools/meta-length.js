@@ -1,4 +1,5 @@
 import '../core/app.js';
+import { initShare } from '../core/share.js';
 import '../styles/tools/meta-length.css';
 import { initDropzone, initSegmented } from '../components/controls.js';
 import { renderSnippet } from '../components/snippet.js';
@@ -199,7 +200,7 @@ descEl.addEventListener('input', updateSingle);
 bulkEl.addEventListener('input', updateBulkDebounced);
 onlyBadEl.addEventListener('change', updateBulk);
 
-initSegmented($('[data-device]'), (v) => {
+const deviceSeg = initSegmented($('[data-device]'), (v) => {
   device = v;
   storage.set('meta:device', v);
   updateSingle();
@@ -243,3 +244,26 @@ $('[data-action="copy"]').addEventListener('click', () => {
 fillRanges();
 updateSingle();
 updateBulk();
+
+const validRange = (r) => r && ['min', 'max', 'px'].every((k) => Number.isFinite(Number(r[k])) && Number(r[k]) >= 0);
+
+initShare({
+  tool: 'meta-length',
+  getState: () => (titleEl.value || descEl.value || bulkEl.value.trim() ? { t: titleEl.value, d: descEl.value, b: bulkEl.value, r: ranges, m: device } : null),
+  setState: (d) => {
+    titleEl.value = String(d.t || '');
+    descEl.value = String(d.d || '');
+    bulkEl.value = String(d.b || '');
+    if (validRange(d.r?.title) && validRange(d.r?.description)) {
+      const num = (r) => ({ min: Number(r.min), max: Number(r.max), px: Number(r.px) });
+      ranges = { title: num(d.r.title), description: num(d.r.description) };
+      fillRanges();
+    }
+    if (d.m === 'mobile' || d.m === 'desktop') {
+      device = d.m;
+      deviceSeg.set(d.m, false);
+    }
+    updateSingle();
+    updateBulk();
+  },
+});

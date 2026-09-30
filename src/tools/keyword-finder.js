@@ -4,10 +4,14 @@ import { initSortHeaders } from '../components/controls.js';
 import { copyText } from '../core/clipboard.js';
 import { downloadCsv, toTsv } from '../core/csv.js';
 import { $, $$, debounce, fill, fmt, h, lines, plural } from '../core/dom.js';
+import { sendTo } from '../core/handoff.js';
+import { initShare } from '../core/share.js';
 import { storage } from '../core/storage.js';
 import { toast } from '../core/toast.js';
 import { buildAdvice } from './keywords/advice.js';
-import { REGIONS, SOURCES, SUGGEST_API, calibrate, findKeywords, warmUp } from './keywords/engine.js';
+import { FROM_KEYWORD_FINDER } from './cluster/cluster.js';
+import { REGIONS, SOURCES, SUGGEST_API, calibrate, contentStems, findKeywords, warmUp } from './keywords/engine.js';
+import { analyze } from './keywords/intent.js';
 
 const PAGE = 100;
 const CLASSES = ['ВЧ', 'СЧ', 'НЧ', 'микро'];
@@ -398,6 +402,63 @@ $('[data-action="calib-reset"]').addEventListener('click', () => {
   fill($('[data-calib-out]'), h('p', { class: 'hint', text: 'Калибровка сброшена.' }));
 });
 
+// ---------- Передача в следующий инструмент ----------
+function passRows() {
+  const rows = data ? visibleRows() : [];
+  if (!rows.length) toast('Нет фраз для передачи — сбросьте фильтры или выполните поиск', 'error');
+  return rows;
+}
+
+$('[data-action="to-intent"]').addEventListener('click', () => {
+  const rows = passRows();
+  if (rows.length) sendTo('intent-finder', { from: 'keyword-finder', items: rows.map((r) => ({ query: r.phrase, volume: r.volume })) }, 'handoff_intent');
+});
+$('[data-action="to-cluster"]').addEventListener('click', () => {
+  const rows = passRows();
+  if (rows.length) {
+    sendTo('key-cluster', { from: 'keyword-finder', items: rows.map((r) => ({ query: r.phrase, volume: r.volume, intent: FROM_KEYWORD_FINDER[r.intent] || '' })) }, 'handoff_cluster');
+  }
+});
+
+// ---------- Ссылка на результат ----------
+// В ссылку попадает текущая выборка (с учётом фильтров) в компактном виде;
+// признаки интента пересчитываются при открытии.
+function unpackRow([phrase, volume, low, high, rowCls, src, seed, difficulty, rowColor, potential]) {
+  const stems = contentStems(phrase);
+  return {
+    phrase, volume, low, high, cls: rowCls, sources: src ? src.split(',') : [], words: phrase.split(' ').length, seed: !!seed, stems,
+    ...analyze(phrase, volume, stems.length), difficulty, color: rowColor, potential,
+  };
+}
+
 restoreForm();
 showCalibState();
+initShare({
+  tool: 'keyword-finder',
+  getState: () => {
+    if (!data?.rows.length) return null;
+    const rows = visibleRows();
+    const s = data.stats;
+    return {
+      f: { seeds: seedsEl.value, lang: langEl.value, region: regionEl.value },
+      r: rows.map((r) => [r.phrase, r.volume, r.low, r.high, r.cls, r.sources.join(','), r.seed ? 1 : 0, r.difficulty, r.color, r.potential]),
+      w: data.words.map((w) => [w.word, w.count, w.volume]),
+      st: { requests: s.requests, yandexRequests: s.yandexRequests, failures: s.failures, seconds: s.seconds, calibrated: s.calibrated, yandex: s.yandex },
+    };
+  },
+  setState: (d) => {
+    seedsEl.value = d.f?.seeds || '';
+    if (d.f?.lang) langEl.value = d.f.lang;
+    if (REGIONS[d.f?.region]) regionEl.value = d.f.region;
+    data = {
+      rows: (d.r || []).map(unpackRow),
+      words: (d.w || []).map(([word, count, volume]) => ({ word, count, volume })),
+      stats: { requests: 0, yandexRequests: 0, failures: 0, seconds: 0, ...(d.st || {}) },
+    };
+    page = 0;
+    color = cls = null;
+    renderAll();
+  },
+});
+
 warmUp(); // будим сервер Яндекса, пока пользователь вводит фразы

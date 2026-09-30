@@ -1,6 +1,7 @@
 // Общая инициализация каждой страницы: стили, тема, меню.
 import '../styles/main.css';
 import { initConsent } from './consent.js';
+import { initGoalLinks } from './goals.js';
 import { storage } from './storage.js';
 
 function initTheme() {
@@ -43,3 +44,4 @@ function initNav() {
 initTheme();
 initNav();
 initConsent();
+initGoalLinks();

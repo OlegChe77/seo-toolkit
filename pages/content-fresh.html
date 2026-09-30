@@ -71,7 +71,10 @@
         <section class="panel" aria-labelledby="cf-sum-title">
           <div class="panel-head">
             <h2 id="cf-sum-title">Сводка</h2>
-            <button type="button" class="btn btn-sm btn-primary" data-action="csv">{{icon:download}}Экспорт отчёта CSV</button>
+            <div class="row">
+              <button type="button" class="btn btn-sm" data-action="share">{{icon:share}}Поделиться</button>
+              <button type="button" class="btn btn-sm btn-primary" data-action="csv">{{icon:download}}Экспорт отчёта CSV</button>
+            </div>
           </div>
           <div class="stats" data-stats></div>
         </section>

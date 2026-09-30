@@ -1,4 +1,5 @@
 import '../core/app.js';
+import { initShare } from '../core/share.js';
 import '../styles/tools/text-seo.css';
 import { initSegmented } from '../components/controls.js';
 import { copyText } from '../core/clipboard.js';
@@ -272,7 +273,7 @@ filterEl.addEventListener('input', debounce(() => {
   renderFreq();
 }, 150));
 for (const el of [minEl, stopEl, stemEl]) el.addEventListener('change', run);
-initSegmented($('[data-ngram]'), (v) => {
+const ngramSeg = initSegmented($('[data-ngram]'), (v) => {
   ngram = v;
   run();
 }, ngram);
@@ -325,3 +326,20 @@ $('[data-action="copy"]').addEventListener('click', () => {
 });
 
 run();
+
+initShare({
+  tool: 'text-seo',
+  getState: () => (textEl.value.trim() ? { x: textEl.value, k: keysEl.value, n: ngram, m: minEl.value, s: stopEl.checked, st: stemEl.checked } : null),
+  setState: (d) => {
+    textEl.value = String(d.x || '');
+    keysEl.value = String(d.k || '');
+    if (['1', '2', '3', '5'].includes(String(d.m))) minEl.value = String(d.m);
+    stopEl.checked = d.s !== false;
+    stemEl.checked = !!d.st;
+    if (['1', '2', '3', '4'].includes(String(d.n))) {
+      ngram = String(d.n);
+      ngramSeg.set(ngram, false);
+    }
+    run();
+  },
+});

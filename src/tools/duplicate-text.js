@@ -1,4 +1,5 @@
 import '../core/app.js';
+import { initShare } from '../core/share.js';
 import '../styles/tools/duplicate.css';
 import { initSegmented } from '../components/controls.js';
 import { copyText } from '../core/clipboard.js';
@@ -229,7 +230,7 @@ const runDebounced = debounce(run, 250);
 aEl.addEventListener('input', runDebounced);
 bEl.addEventListener('input', runDebounced);
 for (const el of [nEl, caseEl, punctEl, spaceEl]) el.addEventListener('change', run);
-initSegmented($('[data-mode]'), (v) => {
+const modeSeg = initSegmented($('[data-mode]'), (v) => {
   mode = v;
   run();
 }, mode);
@@ -273,3 +274,21 @@ $('[data-action="copy"]').addEventListener('click', () => {
 });
 
 run();
+
+initShare({
+  tool: 'duplicate-text',
+  getState: () => (last ? { a: aEl.value, b: bEl.value, m: mode, n: nEl.value, c: caseEl.checked, p: punctEl.checked, s: spaceEl.checked } : null),
+  setState: (d) => {
+    aEl.value = String(d.a || '');
+    bEl.value = String(d.b || '');
+    if (['words', 'shingles', 'sentences'].includes(d.m)) {
+      mode = d.m;
+      modeSeg.set(d.m, false);
+    }
+    if ([...nEl.options].some((o) => o.value === String(d.n))) nEl.value = String(d.n);
+    caseEl.checked = d.c !== false;
+    punctEl.checked = d.p !== false;
+    spaceEl.checked = d.s !== false;
+    run();
+  },
+});

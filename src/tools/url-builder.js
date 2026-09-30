@@ -1,4 +1,5 @@
 import '../core/app.js';
+import { initShare } from '../core/share.js';
 import '../styles/tools/url-builder.css';
 import { initSegmented } from '../components/controls.js';
 import { copyText } from '../core/clipboard.js';
@@ -134,7 +135,7 @@ el.title.addEventListener('input', updateSingle);
 el.list.addEventListener('input', debounce(updateBulk, 200));
 el.base.addEventListener('input', debounce(updateAll, 200));
 for (const k of ['scheme', 'max', 'lower', 'stop', 'dedupe']) el[k].addEventListener('change', updateAll);
-initSegmented($('[data-sep]'), (v) => {
+const sepSeg = initSegmented($('[data-sep]'), (v) => {
   sep = v;
   updateAll();
 }, sep);
@@ -176,3 +177,27 @@ $('[data-action="example"]').addEventListener('click', () => {
 });
 
 updateAll();
+
+const hasOption = (select, value) => [...select.options].some((o) => o.value === String(value));
+
+initShare({
+  tool: 'url-builder',
+  getState: () =>
+    el.title.value.trim() || el.list.value.trim()
+      ? { t: el.title.value, l: el.list.value, o: { sep, scheme: el.scheme.value, max: el.max.value, base: el.base.value, lower: el.lower.checked, stop: el.stop.checked, dedupe: el.dedupe.checked } }
+      : null,
+  setState: (d) => {
+    const o = d.o || {};
+    el.title.value = String(d.t || '');
+    el.list.value = String(d.l || '');
+    if (o.sep === '-' || o.sep === '_') {
+      sep = o.sep;
+      sepSeg.set(sep, false);
+    }
+    if (hasOption(el.scheme, o.scheme)) el.scheme.value = o.scheme;
+    if (hasOption(el.max, o.max)) el.max.value = String(o.max);
+    el.base.value = String(o.base || '');
+    for (const k of ['lower', 'stop', 'dedupe']) if (typeof o[k] === 'boolean') el[k].checked = o[k];
+    updateAll();
+  },
+});

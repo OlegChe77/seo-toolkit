@@ -6,6 +6,7 @@ import path from 'node:path';
 import { Resvg } from '@resvg/resvg-js';
 import siteConfig from '../site.config.js';
 import { categories, tools } from '../src/config/pages.js';
+import { loadGuides } from '../plugins/guides.js';
 
 const pub = path.resolve('public');
 const FONT = "'Segoe UI', Arial, sans-serif";
@@ -64,6 +65,26 @@ for (const t of tools) {
   fs.writeFileSync(path.join(pub, 'og', `${t.id}.png`), png(frame(body, color), 1200));
 }
 
+// Гайды: заголовок статьи, время чтения и иконка темы.
+fs.mkdirSync(path.join(pub, 'og', 'guides'), { recursive: true });
+for (const g of loadGuides(path.resolve('.'))) {
+  const titleLines = wrap(g.h1, 23).slice(0, 3);
+  const all = wrap(g.summary, 44);
+  const max = titleLines.length > 2 ? 2 : 3;
+  const lines = all.slice(0, max);
+  if (all.length > max) lines[max - 1] = `${lines[max - 1].replace(/[\s,.:;—-]+$/, '')}…`;
+  const titleY = 302;
+  const body = `
+  <rect x="72" y="168" width="150" height="44" rx="22" fill="#fff6dc"/>
+  <text x="92" y="197" font-family="${FONT}" font-size="21" font-weight="600" fill="#a45a00">Гайд · ${g.minutes} мин</text>
+  ${titleLines.map((l, i) => `<text x="72" y="${titleY + i * 62}" font-family="${FONT}" font-size="54" font-weight="700" fill="#141821" letter-spacing="-1">${esc(l)}</text>`).join('')}
+  ${lines.map((l, i) => `<text x="72" y="${titleY + (titleLines.length - 1) * 62 + 56 + i * 38}" font-family="${FONT}" font-size="26" fill="#475061">${esc(l)}</text>`).join('')}
+  <rect x="820" y="160" width="310" height="310" rx="48" fill="#fff" stroke="#e2e5ea" stroke-width="2"/>
+  <rect x="842" y="182" width="266" height="266" rx="36" fill="#fff6dc"/>
+  ${place(g.icon, 870, 210, 210)}`;
+  fs.writeFileSync(path.join(pub, 'og', 'guides', `${g.slug}.png`), png(frame(body, '#f0a93b'), 1200));
+}
+
 // Главная и общая OG-картинка.
 const homeIcons = ['seo', 'search-document', 'internet-protected', 'presentation', 'networking', 'programming', 'target', 'share-folder', 'search-time'];
 const grid = homeIcons.map((n, i) => `<rect x="${760 + (i % 3) * 132}" y="${140 + Math.floor(i / 3) * 132}" width="112" height="112" rx="24" fill="#fff" stroke="#e2e5ea" stroke-width="2"/>${place(n, 774 + (i % 3) * 132, 154 + Math.floor(i / 3) * 132, 84)}`).join('');
@@ -101,4 +122,4 @@ sizes.forEach((buf, i) => {
   offset += buf.length;
 });
 fs.writeFileSync(path.join(pub, 'favicon.ico'), Buffer.concat([header, ...sizes]));
-console.log(`Готово: ${tools.length} OG-картинок, og-image.png, favicon и иконки manifest`);
+console.log(`Готово: ${tools.length} OG-картинок инструментов, OG-картинки гайдов, og-image.png, favicon и иконки manifest`);

@@ -8,6 +8,7 @@
     <main id="main">
       <!--@hero-->
       <div class="container tool ym-hide-content ym-disable-keys">
+        <!--@chain-->
         <section class="panel" aria-labelledby="kf-input-title">
           <div class="panel-head">
             <h2 id="kf-input-title">Ключевые слова</h2>
@@ -59,9 +60,16 @@
           <div class="panel-head">
             <h2 id="kf-res-title">Результаты</h2>
             <div class="row">
+              <button type="button" class="btn btn-sm" data-action="share" title="Ссылка на текущую выборку — данные хранятся в самой ссылке">{{icon:share}}Поделиться</button>
               <button type="button" class="btn btn-sm" data-action="copy">{{icon:copy}}Копировать</button>
               <button type="button" class="btn btn-sm btn-primary" data-action="csv">{{icon:download}}Экспорт CSV</button>
             </div>
+          </div>
+          <div class="next-step">
+            <span class="next-step-label">Дальше:</span>
+            <button type="button" class="btn btn-sm" data-action="to-intent">Определить интент в IntentFinder{{icon:arrow-right}}</button>
+            <button type="button" class="btn btn-sm" data-action="to-cluster">Разбить на кластеры в KeyCluster{{icon:arrow-right}}</button>
+            <span class="hint">Передаются фразы с учётом выбранных фильтров</span>
           </div>
           <div class="stack">
             <div class="chips" data-colors role="group" aria-label="Фильтр по потенциалу"></div>

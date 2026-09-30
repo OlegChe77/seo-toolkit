@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <!--@head-->
+  </head>
+  <body>
+    <!--@header-->
+    <main id="main">
+      <!--@hero-->
+      <div class="container tool ym-hide-content ym-disable-keys">
+        <!--@chain-->
+        <section class="panel" aria-labelledby="kc-input-title">
+          <div class="panel-head">
+            <div>
+              <h2 id="kc-input-title">Запросы</h2>
+              <p class="panel-sub">По одному в строке. Частотность и интент — через Tab или «;», если они есть</p>
+            </div>
+            <div class="row">
+              <button type="button" class="btn btn-sm btn-ghost" data-action="example">{{icon:file}}Пример</button>
+              <button type="button" class="btn btn-sm btn-ghost btn-danger" data-action="clear">{{icon:trash}}Очистить</button>
+            </div>
+          </div>
+          <div class="stack">
+            <label class="visually-hidden" for="kc-input">Список запросов</label>
+            <textarea class="textarea textarea--lg textarea--mono" id="kc-input" spellcheck="false" placeholder="купить диван;12000&#10;угловой диван;8000&#10;купить угловой диван недорого;900&#10;диван кровать;15000"></textarea>
+            <div class="kc-options">
+              <div class="field">
+                <span class="label" id="kc-strength-label">Сила группировки</span>
+                <div class="seg" data-strength role="group" aria-labelledby="kc-strength-label">
+                  <button data-value="soft">Мягкая</button>
+                  <button data-value="medium">Средняя</button>
+                  <button data-value="strict">Строгая</button>
+                </div>
+              </div>
+              <label class="check" data-split-label><input type="checkbox" id="kc-split" />Не смешивать интенты</label>
+              <div class="kc-run">
+                <span class="hint" data-lines-info></span>
+                <button type="button" class="btn btn-primary" data-action="run">{{icon:layers}}Кластеризовать</button>
+              </div>
+            </div>
+            <p class="hint" data-strength-hint></p>
+          </div>
+        </section>
+
+        <section class="panel" aria-labelledby="kc-res-title" data-results hidden>
+          <div class="panel-head">
+            <h2 id="kc-res-title">Кластеры</h2>
+            <div class="row">
+              <button type="button" class="btn btn-sm" data-action="share">{{icon:share}}Поделиться</button>
+              <button type="button" class="btn btn-sm" data-action="copy">{{icon:copy}}Копировать</button>
+              <button type="button" class="btn btn-sm btn-primary" data-action="csv">{{icon:download}}Экспорт CSV</button>
+            </div>
+          </div>
+          <div class="stack">
+            <div class="stats" data-stats></div>
+            <div class="row row--between">
+              <div class="search-box kc-search">
+                {{icon:search}}
+                <label class="visually-hidden" for="kc-search">Поиск по запросам</label>
+                <input class="input input--sm" id="kc-search" type="search" placeholder="Поиск по запросам" />
+              </div>
+              <div class="row">
+                <label class="hint" for="kc-sort">Сортировка</label>
+                <select class="select select--sm" id="kc-sort">
+                  <option value="volume">по частотности</option>
+                  <option value="size">по числу запросов</option>
+                  <option value="name">по алфавиту</option>
+                </select>
+                <label class="check"><input type="checkbox" id="kc-singles" checked />Одиночные запросы</label>
+              </div>
+            </div>
+            <div class="kc-list" data-clusters></div>
+            <div class="more-row" data-more></div>
+          </div>
+        </section>
+
+        <section class="panel help" aria-labelledby="kc-help">
+          <h2 id="kc-help">Как пользоваться</h2>
+          <div class="help-grid">
+            <div>
+              <h3>Шаги</h3>
+              <ol>
+                <li>Вставьте запросы или передайте их из Keyword Finder и IntentFinder кнопкой «В KeyCluster».</li>
+                <li>Выберите силу группировки и нажмите «Кластеризовать».</li>
+                <li>Каждый кластер — кандидат в отдельную страницу: главный запрос — в Title и H1, остальные — в текст и подзаголовки.</li>
+              </ol>
+            </div>
+            <div>
+              <h3>Как это работает</h3>
+              <ul>
+                <li>Запросы сравниваются по значимым словам без предлогов и союзов, словоформы объединяются упрощённо.</li>
+                <li>Главный запрос кластера — самый частотный из группы, если частотность указана.</li>
+                <li>Сравнение по словам не видит поисковую выдачу: синонимы («диван» и «софа») попадут в разные кластеры.</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+        <!--@seo-content-->
+      </div>
+      <!--@related-->
+    </main>
+    <!--@footer-->
+    <script type="module" src="/src/tools/key-cluster.js"></script>
+  </body>
+</html>

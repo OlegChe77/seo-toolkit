@@ -8,6 +8,7 @@
     <main id="main">
       <!--@hero-->
       <div class="container tool ym-hide-content ym-disable-keys">
+        <!--@chain-->
         <div class="tool-grid tool-grid--wide-left">
           <section class="panel" aria-labelledby="if-input-title">
             <div class="panel-head">
@@ -66,9 +67,15 @@
           <div class="panel-head">
             <h2 id="if-res-title">Результаты</h2>
             <div class="row">
+              <button type="button" class="btn btn-sm" data-action="share" title="Ссылка на результат — данные хранятся в самой ссылке">{{icon:share}}Поделиться</button>
               <button type="button" class="btn btn-sm" data-action="copy">{{icon:copy}}Копировать</button>
               <button type="button" class="btn btn-sm btn-primary" data-action="csv">{{icon:download}}Экспорт CSV</button>
             </div>
+          </div>
+          <div class="next-step" data-next hidden>
+            <span class="next-step-label">Дальше:</span>
+            <button type="button" class="btn btn-sm" data-action="to-cluster">Разбить на кластеры в KeyCluster{{icon:arrow-right}}</button>
+            <span class="hint">Передаются запросы с учётом фильтра и поиска, вместе с интентом</span>
           </div>
           <div class="stack">
             <div class="row row--between">

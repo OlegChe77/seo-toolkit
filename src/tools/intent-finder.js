@@ -3,6 +3,8 @@ import '../styles/tools/intent.css';
 import { copyText } from '../core/clipboard.js';
 import { downloadCsv, toTsv } from '../core/csv.js';
 import { $, debounce, fmt, fmtPct, h, lines, plural, processInChunks, fill } from '../core/dom.js';
+import { receive, sendTo } from '../core/handoff.js';
+import { initShare } from '../core/share.js';
 import { storage } from '../core/storage.js';
 import { toast } from '../core/toast.js';
 import { CATEGORIES, DEFAULT_DICTIONARY, DICTIONARY_KEYS, classify, compileDictionary } from './intent/dictionary.js';
@@ -20,6 +22,8 @@ let rows = [];
 let filter = 'all';
 let page = 0;
 let running = false;
+// Частотность запросов, переданных из Keyword Finder: уходит дальше в KeyCluster.
+let volumes = new Map();
 
 // ---------- Словарь ----------
 function renderDictionary() {
@@ -196,6 +200,7 @@ function renderTable() {
 function renderAll() {
   renderSummary();
   renderTable();
+  $('[data-next]').hidden = !rows.length;
 }
 
 function exportRows() {
@@ -250,6 +255,7 @@ $('[data-pager]').addEventListener('click', (e) => {
 $('[data-action="clear"]').addEventListener('click', () => {
   inputEl.value = '';
   rows = [];
+  volumes = new Map();
   searchEl.value = '';
   filter = 'all';
   $('[data-lines-info]').textContent = '';
@@ -285,5 +291,48 @@ $('[data-action="copy"]').addEventListener('click', () => {
   copyText(toTsv(data), `Скопировано строк: ${fmt(data.length - 1)}`);
 });
 
+$('[data-action="to-cluster"]').addEventListener('click', () => {
+  const list = visibleRows();
+  if (!list.length) return toast('Нет запросов для передачи — измените фильтр или поиск', 'error');
+  sendTo(
+    'key-cluster',
+    {
+      from: 'intent-finder',
+      items: list.map((r) => ({ query: r.query, volume: volumes.get(r.query) || 0, intent: r.category === 'review' ? '' : r.category })),
+    },
+    'handoff_cluster',
+  );
+});
+
 renderDictionary();
 renderAll();
+
+// Запросы, переданные из Keyword Finder.
+const passed = receive('intent-finder');
+if (passed?.items?.length) {
+  volumes = new Map(passed.items.filter((it) => it.volume).map((it) => [it.query, it.volume]));
+  inputEl.value = passed.items.map((it) => it.query).join('\n');
+  inputEl.dispatchEvent(new Event('input'));
+  run();
+}
+
+// Ссылка на результат: запросы с категориями (ручные правки сохраняются) и частотностью.
+initShare({
+  tool: 'intent-finder',
+  getState: () => (rows.length ? { r: rows.map((r) => [r.query, r.category, r.manual ? 1 : 0, volumes.get(r.query) || 0]) } : null),
+  setState: async (d) => {
+    const shared = d.r || [];
+    volumes = new Map(shared.filter((x) => x[3]).map((x) => [x[0], x[3]]));
+    inputEl.value = shared.map((x) => x[0]).join('\n');
+    inputEl.dispatchEvent(new Event('input'));
+    dedupeEl.checked = false;
+    await run();
+    rows.forEach((row, i) => {
+      const [, category, manual] = shared[i] || [];
+      if (!category || !catName[category]) return;
+      row.category = category;
+      row.manual = !!manual || category !== row.auto;
+    });
+    renderAll();
+  },
+});

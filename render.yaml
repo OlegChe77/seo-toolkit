@@ -117,3 +117,21 @@ services:
       - type: rewrite
         source: /privacy
         destination: /privacy.html
+      - type: rewrite
+        source: /key-cluster/
+        destination: /key-cluster.html
+      - type: rewrite
+        source: /key-cluster
+        destination: /key-cluster.html
+      - type: rewrite
+        source: /guides/
+        destination: /guides.html
+      - type: rewrite
+        source: /guides
+        destination: /guides.html
+      - type: rewrite
+        source: /guides/:slug/
+        destination: /guides/:slug.html
+      - type: rewrite
+        source: /guides/:slug
+        destination: /guides/:slug.html

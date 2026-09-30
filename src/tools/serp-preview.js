@@ -1,4 +1,5 @@
 import '../core/app.js';
+import { initShare } from '../core/share.js';
 import { initSegmented } from '../components/controls.js';
 import { parseDisplayUrl, renderSnippet, SNIPPET_LIMITS } from '../components/snippet.js';
 import { copyText } from '../core/clipboard.js';
@@ -93,7 +94,7 @@ function update() {
 
 for (const el of Object.values(inputs)) el.addEventListener('input', update);
 
-initSegmented(
+const deviceSeg = initSegmented(
   $('[data-device]'),
   (value) => {
     device = value;
@@ -150,3 +151,18 @@ $('[data-action="copy-report"]').addEventListener('click', () => {
 });
 
 update();
+
+initShare({
+  tool: 'serp-preview',
+  getState: () => {
+    const [t, d, u] = [inputs.title.value, inputs.description.value, inputs.url.value];
+    return t || d || u ? { t, d, u, m: device } : null;
+  },
+  setState: (s) => {
+    inputs.title.value = String(s.t || '');
+    inputs.description.value = String(s.d || '');
+    inputs.url.value = String(s.u || '');
+    if (s.m === 'mobile' || s.m === 'desktop') deviceSeg.set(s.m);
+    update();
+  },
+});

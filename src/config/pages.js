@@ -143,6 +143,19 @@ export const tools = [
     keywords: 'интент запросы семантика ключевые слова кластеризация коммерческие информационные',
   },
   {
+    id: 'key-cluster',
+    short: 'Кластеризация семантики',
+    name: 'KeyCluster',
+    category: 'research',
+    icon: 'cloud-setting',
+    title: 'KeyCluster — кластеризация запросов онлайн | SEO Toolkit',
+    description:
+      'Бесплатная кластеризация семантического ядра в браузере: группы запросов по общим словам, суммарная частотность, интент и экспорт в CSV.',
+    h1: 'KeyCluster — кластеризация семантического ядра',
+    summary: 'Разбивает список запросов на группы по общим словам: одна группа — одна страница сайта.',
+    keywords: 'кластеризация кластеризатор семантика семантическое ядро группировка запросов ключевые слова кластеры',
+  },
+  {
     id: 'content-fresh',
     short: 'Давность обновления страниц',
     name: 'ContentFresh',
@@ -160,7 +173,7 @@ export const tools = [
 export const home = {
   id: 'index',
   path: '/',
-  title: 'SEO Toolkit — 11 бесплатных SEO-инструментов онлайн',
+  title: `SEO Toolkit — ${tools.length} бесплатных SEO-инструментов онлайн`,
   description:
     'Бесплатные SEO-инструменты в браузере: подбор ключевых слов с частотностью, предпросмотр сниппета, robots.txt, анализ текста, JSON-LD, ЧПУ и другое.',
   h1: 'SEO Toolkit',
@@ -170,7 +183,7 @@ export const notFound = {
   id: '404',
   path: '/404',
   title: 'Страница не найдена — SEO Toolkit',
-  description: 'Такой страницы нет. Перейдите на главную SEO Toolkit или выберите один из 11 SEO-инструментов.',
+  description: `Такой страницы нет. Перейдите на главную SEO Toolkit или выберите один из ${tools.length} SEO-инструментов.`,
   h1: 'Страница не найдена',
   noindex: true,
 };
@@ -184,6 +197,22 @@ export const privacy = {
   noindex: true,
 };
 
-export const allPages = [home, ...tools, privacy, notFound];
+export const guidesIndex = {
+  id: 'guides',
+  path: '/guides',
+  title: 'Гайды по SEO — пошаговые руководства | SEO Toolkit',
+  description:
+    'Практические руководства по SEO: как собрать и кластеризовать семантическое ядро, настроить robots.txt, написать Title и Description, добавить микроразметку.',
+  h1: 'Гайды по SEO',
+};
+
+export const allPages = [home, ...tools, guidesIndex, privacy, notFound];
+
+// Шаблон статьи-гайда: собирается как отдельная страница и размножается плагином
+// по файлам content/guides/*.md (в sitemap и маршруты не входит).
+export const guideTemplate = { id: 'guide', path: null, noindex: true };
+
+// Цепочка сбора семантики: шаги показываются над инструментами и связаны кнопками передачи.
+export const chain = ['keyword-finder', 'intent-finder', 'key-cluster'];
 
 export const getCategory = (id) => categories.find((c) => c.id === id);

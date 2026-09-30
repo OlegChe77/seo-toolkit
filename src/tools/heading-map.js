@@ -1,4 +1,5 @@
 import '../core/app.js';
+import { initShare } from '../core/share.js';
 import '../styles/tools/heading-map.css';
 import { initSegmented } from '../components/controls.js';
 import { copyText } from '../core/clipboard.js';
@@ -130,7 +131,7 @@ function render() {
 const toTxt = () => headings.map((x) => `${'  '.repeat(x.level - 1)}H${x.level} ${x.text || '(пустой)'}`).join('\n');
 
 inputEl.addEventListener('input', debounce(render, 200));
-initSegmented($('[data-mode]'), (v) => {
+const modeSeg = initSegmented($('[data-mode]'), (v) => {
   mode = v;
   render();
 }, mode);
@@ -173,3 +174,15 @@ $('[data-action="csv"]').addEventListener('click', () => {
 });
 
 render();
+
+// В ссылку попадает только структура заголовков (не весь HTML-код страницы).
+initShare({
+  tool: 'heading-map',
+  getState: () => (headings.length ? { h: headings.map((x) => [x.level, x.text]) } : null),
+  setState: (d) => {
+    inputEl.value = (d.h || []).map(([level, text]) => `${'#'.repeat(Math.min(6, Math.max(1, Number(level) || 1)))} ${String(text || '')}`).join('\n');
+    mode = 'text';
+    modeSeg.set('text', false);
+    render();
+  },
+});

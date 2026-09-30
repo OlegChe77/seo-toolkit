@@ -1093,3 +1093,159 @@ mark {
   margin: 8px 0 10px;
   padding-left: 20px;
 }
+
+/* ---------- Цепочка сбора семантики ---------- */
+.chain {
+  margin-bottom: 4px;
+}
+
+.chain ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.chain a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  background: var(--surface);
+  color: var(--text);
+  text-decoration: none;
+}
+
+.chain a:hover {
+  border-color: var(--border-strong);
+}
+
+.chain-num {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--surface-3);
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.chain small {
+  display: block;
+  color: var(--text-3);
+  font-size: 12.5px;
+}
+
+.chain b {
+  font-size: 14px;
+}
+
+.chain .is-current a {
+  border-color: var(--accent);
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+.chain .is-current .chain-num {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+@media (max-width: 640px) {
+  .chain ol {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- Следующий шаг цепочки ---------- */
+.next-step {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 10px;
+  margin: -4px 0 16px;
+  padding: 10px 12px;
+  border-radius: var(--r);
+  background: var(--accent-soft);
+}
+
+.next-step-label {
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.next-step .btn {
+  background: var(--surface);
+}
+
+/* ---------- Текст гайдов ---------- */
+.prose h3 {
+  font-size: 1.05rem;
+  margin: 22px 0 8px;
+}
+
+.prose ol {
+  margin: 8px 0 10px;
+  padding-left: 22px;
+}
+
+.prose li + li {
+  margin-top: 4px;
+}
+
+.prose ul + p,
+.prose ol + p,
+.prose p + ul,
+.prose p + ol,
+.prose .table-wrap + p,
+.prose pre + p {
+  margin-top: 10px;
+}
+
+.prose strong {
+  color: var(--text);
+}
+
+.prose blockquote {
+  margin: 16px 0;
+  padding: 12px 16px;
+  border-left: 3px solid var(--accent);
+  border-radius: 0 var(--r) var(--r) 0;
+  background: var(--accent-soft);
+}
+
+.prose blockquote p {
+  color: var(--text);
+}
+
+.prose pre {
+  margin: 12px 0;
+  padding: 14px 16px;
+  border-radius: var(--r);
+  border: 1px solid var(--border);
+  background: var(--code-bg);
+  overflow: auto;
+  font: 13.5px/1.6 var(--mono);
+}
+
+.prose pre code {
+  padding: 0;
+  border: 0;
+  background: none;
+}
+
+.prose .table-wrap {
+  margin: 12px 0;
+}
+
+.prose hr {
+  margin: 24px 0;
+  border: 0;
+  border-top: 1px solid var(--border);
+}

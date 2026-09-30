@@ -1,4 +1,5 @@
 import '../core/app.js';
+import { initShare } from '../core/share.js';
 import '../styles/tools/content-fresh.css';
 import { compareValues, initDropzone, initSortHeaders } from '../components/controls.js';
 import { copyText } from '../core/clipboard.js';
@@ -387,3 +388,24 @@ $('[data-action="example"]').addEventListener('click', () => {
 
 fillThresholds();
 loadText(inputEl.value);
+
+initShare({
+  tool: 'content-fresh',
+  getState: () => (inputEl.value.trim() ? { x: inputEl.value, t: thresholds, r: refEl.value, f: formatEl.value, m: mapping } : null),
+  setState: (d) => {
+    inputEl.value = String(d.x || '');
+    if (Array.isArray(d.t) && d.t.length === 3 && d.t.every((n) => Number.isInteger(n) && n > 0) && d.t[0] < d.t[1] && d.t[1] < d.t[2]) {
+      thresholds = d.t;
+      fillThresholds();
+    }
+    refEl.value = /^\d{4}-\d{2}-\d{2}$/.test(d.r || '') ? d.r : '';
+    if (['auto', 'dmy', 'mdy'].includes(d.f)) formatEl.value = d.f;
+    loadText(inputEl.value);
+    const col = (v) => (Number.isInteger(v) ? v : -1);
+    if (d.m && Number.isInteger(d.m.url)) {
+      mapping = { url: d.m.url, published: col(d.m.published), updated: col(d.m.updated) };
+      fillMapping();
+      compute();
+    }
+  },
+});

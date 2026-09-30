@@ -1,4 +1,5 @@
 import '../core/app.js';
+import { initShare } from '../core/share.js';
 import '../styles/tools/robots.css';
 import { copyText } from '../core/clipboard.js';
 import { downloadFile } from '../core/csv.js';
@@ -412,3 +413,20 @@ $('#rb-template').addEventListener('change', (e) => {
 });
 
 renderAll();
+
+initShare({
+  tool: 'robots-builder',
+  getState: () => ({ g: state.groups, s: state.sitemaps }),
+  setState: (d) => {
+    if (!Array.isArray(d.g)) throw new Error('Некорректные данные');
+    state = {
+      groups: d.g.map((g) => ({
+        agents: (g.agents || []).map(String),
+        rules: (g.rules || []).map((r) => ({ type: r.type === 'Allow' ? 'Allow' : 'Disallow', path: String(r.path || '') })),
+        crawlDelay: String(g.crawlDelay || ''),
+      })),
+      sitemaps: Array.isArray(d.s) && d.s.length ? d.s.map(String) : [''],
+    };
+    renderAll();
+  },
+});

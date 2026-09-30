@@ -1,7 +1,7 @@
 // HTML-шаблоны общих частей сайта. Выполняются при сборке (Vite-плагин),
 // поэтому меню, хлебные крошки и метатеги попадают в статический HTML.
 import { content } from '../config/content.js';
-import { categories, getCategory, home, tools } from '../config/pages.js';
+import { categories, chain, getCategory, home, tools } from '../config/pages.js';
 import { art, icon, logo } from './icons.js';
 
 const esc = (s) =>
@@ -23,8 +23,10 @@ const featuredTool = tools.find((t) => t.featured);
 // Код счётчика Яндекс Метрики (как в интерфейсе Метрики, номер берётся из site.config.js).
 // Счётчик запускается только после согласия на cookie: сразу, если согласие уже сохранено,
 // или по кнопке «Принять» на плашке (src/core/consent.js вызывает window.seotkLoadMetrika).
+// В url передаётся адрес без части после #: там лежат данные из ссылок «Поделиться».
 const metrikaScript = (id) => `<!-- Yandex.Metrika counter -->
 <script type="text/javascript">
+  window.seotkMetrikaId = ${id};
   window.seotkLoadMetrika = function () {
     if (window.ym) return;
     (function(m,e,t,r,i,k,a){
@@ -34,7 +36,7 @@ const metrikaScript = (id) => `<!-- Yandex.Metrika counter -->
         k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
     })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=${id}', 'ym');
 
-    ym(${id}, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
+    ym(${id}, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href.split('#')[0], accurateTrackBounce:true, trackLinks:true});
   };
   try { var c = JSON.parse(localStorage.getItem('seotk:cookie-consent')); if (c && c.analytics) window.seotkLoadMetrika(); } catch (e) {}
 </script>
@@ -46,8 +48,9 @@ const themeBoot = `<script>(function(){try{var t=localStorage.getItem('seotk:the
 export function renderHead(page, site) {
   const url = absUrl(site.url, page.path);
   const isTool = tools.includes(page);
-  const image = `${site.url}${isTool ? `/og/${page.id}.png` : '/og-image.png'}`;
-  const imageAlt = isTool ? `${page.name} — ${page.h1.split(' — ')[1] || page.h1}` : `SEO Toolkit — ${tools.length} бесплатных SEO-инструментов`;
+  const isGuide = page.kind === 'guide';
+  const image = `${site.url}${page.image || (isTool ? `/og/${page.id}.png` : '/og-image.png')}`;
+  const imageAlt = isGuide ? page.h1 : isTool ? `${page.name} — ${page.h1.split(' — ')[1] || page.h1}` : `SEO Toolkit — ${tools.length} бесплатных SEO-инструментов`;
   const v = site.verification || {};
   const lines = [
     `<meta charset="UTF-8">`,
@@ -61,7 +64,8 @@ export function renderHead(page, site) {
     v.google ? `<meta name="google-site-verification" content="${esc(v.google)}">` : '',
     v.yandex ? `<meta name="yandex-verification" content="${esc(v.yandex)}">` : '',
     v.bing ? `<meta name="msvalidate.01" content="${esc(v.bing)}">` : '',
-    `<meta property="og:type" content="website">`,
+    `<meta property="og:type" content="${isGuide ? 'article' : 'website'}">`,
+    isGuide ? `<meta property="article:published_time" content="${page.date}">\n<meta property="article:modified_time" content="${page.updated}">` : '',
     `<meta property="og:site_name" content="${esc(site.name)}">`,
     `<meta property="og:locale" content="${esc(site.locale)}">`,
     `<meta property="og:title" content="${esc(page.title)}">`,
@@ -99,8 +103,51 @@ function faqEntity(id) {
   };
 }
 
+const organization = (site) => ({ '@type': 'Organization', '@id': `${site.url}/#org`, name: site.name, url: `${site.url}/`, logo: `${site.url}/icon-512.png` });
+
 function structuredData(page, site, url, image) {
   const website = { '@type': 'WebSite', '@id': `${site.url}/#website`, name: site.name, url: `${site.url}/`, inLanguage: site.lang, description: home.description };
+  const crumbs = (...items) => ({
+    '@type': 'BreadcrumbList',
+    itemListElement: [{ name: 'Главная', item: `${site.url}/` }, ...items].map((x, i) => ({ '@type': 'ListItem', position: i + 1, ...x })),
+  });
+  if (page.kind === 'guide') {
+    return [
+      {
+        '@type': 'Article',
+        '@id': `${url}#article`,
+        headline: page.h1,
+        description: page.description,
+        image,
+        datePublished: page.date,
+        dateModified: page.updated,
+        inLanguage: site.lang,
+        mainEntityOfPage: url,
+        author: organization(site),
+        publisher: organization(site),
+        about: page.tools.map((id) => tools.find((t) => t.id === id)).filter(Boolean).map((t) => ({ '@type': 'WebApplication', name: t.name, url: absUrl(site.url, t.path) })),
+      },
+      crumbs({ name: 'Гайды', item: `${site.url}/guides` }, { name: page.h1, item: url }),
+    ];
+  }
+  if (page.id === 'guides') {
+    return [
+      {
+        '@type': 'CollectionPage',
+        '@id': `${url}#page`,
+        name: page.h1,
+        description: page.description,
+        url,
+        inLanguage: site.lang,
+        isPartOf: { '@id': `${site.url}/#website` },
+        mainEntity: {
+          '@type': 'ItemList',
+          itemListElement: (site.guides || []).map((g, i) => ({ '@type': 'ListItem', position: i + 1, name: g.h1, url: absUrl(site.url, g.path) })),
+        },
+      },
+      crumbs({ name: 'Гайды', item: url }),
+    ];
+  }
   if (page.id === 'index') {
     const faq = faqEntity('index');
     return [
@@ -194,14 +241,30 @@ export function renderHeader(page, site = {}) {
         <summary class="nav-summary">${icon('menu', 'icon nav-icon-menu')}<span>Инструменты</span>${icon('chevron-down', 'icon nav-icon-chevron')}</summary>
         <div class="nav-panel">
           <div class="nav-panel-inner">${navGroups(page.id)}</div>
-          <div class="nav-panel-footer"><a href="/">${icon('home')}Главная</a><a href="/#tools">Все инструменты${icon('arrow-right')}</a></div>
+          <div class="nav-panel-footer"><a href="/">${icon('home')}Главная</a><a href="/guides">${icon('book')}Гайды по SEO</a><a href="/#tools">Все инструменты${icon('arrow-right')}</a></div>
         </div>
       </details>
     </nav>
+    <a class="header-link${page.kind === 'guide' || page.id === 'guides' ? ' is-current' : ''}" href="/guides">${icon('book')}<span>Гайды</span></a>
     ${featuredTool && page.id !== featuredTool.id ? `<a class="header-feature" href="${featuredTool.path}">${icon('search')}<span>Подбор ключей</span></a>` : ''}
     <button class="icon-btn theme-toggle" type="button" data-theme-toggle aria-label="Переключить тему" title="Переключить тему">${icon('moon', 'icon icon-moon')}${icon('sun', 'icon icon-sun')}</button>
   </div>
 </header>`;
+}
+
+const CHAIN_STEPS = { 'keyword-finder': 'Подбор ключей', 'intent-finder': 'Интент запросов', 'key-cluster': 'Кластеры и страницы' };
+
+/** Шаги сбора семантики над Keyword Finder, IntentFinder и KeyCluster. */
+export function renderChain(page) {
+  if (!chain.includes(page.id)) return '';
+  const items = chain
+    .map((id, i) => {
+      const t = tools.find((x) => x.id === id);
+      const current = id === page.id;
+      return `<li${current ? ' class="is-current"' : ''}><a href="${t.path}"${current ? ' aria-current="step"' : ''}><span class="chain-num">${i + 1}</span><span><b>${esc(t.name)}</b><small>${esc(CHAIN_STEPS[id])}</small></span></a></li>`;
+    })
+    .join('');
+  return `<nav class="chain" aria-label="Сбор семантики по шагам"><ol>${items}</ol></nav>`;
 }
 
 export function renderHero(page) {
@@ -256,7 +319,7 @@ export function renderCategoryChips() {
   ].join('');
 }
 
-export function renderRelated(page) {
+export function renderRelated(page, site = {}) {
   const same = tools.filter((t) => t.category === page.category && t.id !== page.id);
   const idx = tools.findIndex((t) => t.id === page.id);
   const rest = [...tools.slice(idx + 1), ...tools.slice(0, idx)].filter(
@@ -272,8 +335,19 @@ export function renderRelated(page) {
       <a class="link-arrow" href="/#tools">Все ${tools.length} инструментов${icon('arrow-right')}</a>
     </div>
     <div class="tools-grid tools-grid--compact">${picked.map((t) => renderToolCard(t)).join('\n')}</div>
+    ${renderToolGuides(page, site.guides)}
   </div>
 </section>`;
+}
+
+/** Ссылки на гайды, в которых используется инструмент. */
+function renderToolGuides(page, guides = []) {
+  const list = guides.filter((g) => g.tools.includes(page.id)).slice(0, 4);
+  if (!list.length) return '';
+  return `<div class="tool-guides">
+      <h3>${icon('book')}Гайды по теме</h3>
+      <ul>${list.map((g) => `<li><a href="${g.path}">${esc(g.h1)}</a><span class="muted"> · ${g.minutes} мин</span></li>`).join('')}</ul>
+    </div>`;
 }
 
 export function renderFooter(site = {}) {
@@ -285,6 +359,13 @@ export function renderFooter(site = {}) {
         .join('')}</ul></div>`,
     )
     .join('');
+  const guides = site.guides || [];
+  const guideCol = guides.length
+    ? `<div class="footer-col"><p class="footer-title"><a href="/guides">Гайды</a></p><ul>${guides
+        .slice(0, 6)
+        .map((g) => `<li><a href="${g.path}">${esc(g.navTitle || g.h1)}</a></li>`)
+        .join('')}</ul></div>`
+    : '';
   return `<footer class="site-footer">
   <div class="container footer-grid">
     <div class="footer-about">
@@ -293,7 +374,7 @@ export function renderFooter(site = {}) {
       <p class="footer-also">Ещё один наш сервис: <a href="https://rastr.onrender.com/" target="_blank" rel="noopener">Растр</a> — конвертер картинок и документов в браузере.</p>
       <p class="footer-note">Обезличенная статистика посещений собирается Яндекс Метрикой только с вашего согласия. Содержимое полей и результаты инструментов в неё не передаются.</p>
     </div>
-    <nav class="footer-nav" aria-label="Все инструменты">${cols}</nav>
+    <nav class="footer-nav" aria-label="Все инструменты и гайды">${cols}${guideCol}</nav>
   </div>
   <div class="container footer-bottom">
     <span>© ${new Date().getFullYear()} SEO Toolkit · Иконки: набор «SEO Marketing Flat Line», автор rixwan</span>
@@ -307,10 +388,10 @@ export function renderSitemap(site, pages) {
   const date = new Date().toISOString().slice(0, 10);
   const urls = pages
     .filter((p) => !p.noindex)
-    .map(
-      (p) =>
-        `  <url>\n    <loc>${esc(absUrl(site.url, p.path))}</loc>\n    <lastmod>${date}</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>${p.id === 'index' ? '1.0' : '0.8'}</priority>\n  </url>`,
-    )
+    .map((p) => {
+      const priority = p.id === 'index' ? '1.0' : p.kind === 'guide' ? '0.6' : p.id === 'guides' ? '0.7' : '0.8';
+      return `  <url>\n    <loc>${esc(absUrl(site.url, p.path))}</loc>\n    <lastmod>${p.updated || date}</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>${priority}</priority>\n  </url>`;
+    })
     .join('\n');
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`;
 }
@@ -333,7 +414,8 @@ export function renderLlms(site) {
   const list = categories
     .map((c) => `## ${c.name}\n\n${tools.filter((t) => t.category === c.id).map((t) => `- [${t.name}](${site.url}${t.path}): ${t.summary}`).join('\n')}`)
     .join('\n\n');
-  return `# ${site.name}\n\n> ${home.description}\n\nВсе инструменты бесплатные и работают в браузере без регистрации. Главный инструмент — Keyword Finder: подбор ключевых слов с примерной частотностью по подсказкам Google и Яндекса.\n\n${list}\n`;
+  const guides = (site.guides || []).map((g) => `- [${g.h1}](${site.url}${g.path}): ${g.summary}`).join('\n');
+  return `# ${site.name}\n\n> ${home.description}\n\nВсе инструменты бесплатные и работают в браузере без регистрации. Главный инструмент — Keyword Finder: подбор ключевых слов с примерной частотностью по подсказкам Google и Яндекса.\n\n${list}\n${guides ? `\n## Гайды\n\n${guides}\n` : ''}`;
 }
 
 export { art, icon };
