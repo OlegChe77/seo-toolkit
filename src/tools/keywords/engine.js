@@ -316,12 +316,7 @@ async function fetchSuggest(source, query, lang, gl, stats) {
 }
 
 const YANDEX_BATCH = 400; // как LIMITS.batch в server/proxy.js
-const YANDEX_TIMEOUT = 60000; // бесплатный сервер Render просыпается до минуты
-
-/** Будит посредник заранее, пока пользователь вводит фразы. */
-export function warmUp() {
-  if (SUGGEST_API) fetch(`${SUGGEST_API}/healthz`).catch(() => {});
-}
+const YANDEX_TIMEOUT = 60000; // бесплатный сервер Render просыпается до минуты (заранее его будит core/wake.js)
 
 /** Подсказки Яндекса пачками через посредник: Map(запрос → подсказки). stats.yandex = 'ok' | 'error'. */
 async function fetchYandex(queries, lang, lr, stats) {

@@ -103,8 +103,14 @@ npm test           # тесты Keyword Finder и сервера подсказ�
 без зависимостей). Если сервисы созданы через Blueprint, Render создаст его сам после пуша; иначе: New → Web Service →
 этот репозиторий, Root Directory `server`, Build `npm install`, Start `node index.js`, Instance Type Free,
 переменная `ALLOWED_ORIGINS=https://seotoolkitru.onrender.com`. Адрес сервиса укажите в `site.config.js` → `suggestApi`
-(или переменной `SUGGEST_API_URL` при сборке сайта). Бесплатный сервис засыпает после 15 минут простоя; страница Keyword
-Finder будит его запросом `/healthz` при открытии, а если он не ответил — считает частотность только по Google.
+(или переменной `SUGGEST_API_URL` при сборке сайта). Бесплатный сервис засыпает после 15 минут простоя, поэтому:
+- с 07:00 до 01:00 по Москве его каждые 5 минут будит GitHub Actions (`.github/workflows/keep-api-awake.yml`;
+  не круглосуточно — у бесплатных сервисов Render общий лимит 750 часов в месяц);
+- любая страница сайта будит его запросом `/healthz` при открытии, чтобы к переходу в Keyword Finder он уже проснулся;
+- если сервер так и не ответил, Keyword Finder считает частотность только по Google.
+
+GitHub отключает расписание в публичном репозитории после 60 дней без коммитов — тогда включите его снова
+на вкладке Actions.
 
 Локально: `node server/index.js` (порт 8787) и сборка сайта с `SUGGEST_API_URL=http://localhost:8787`.
 

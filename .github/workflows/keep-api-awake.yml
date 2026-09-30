@@ -1,0 +1,25 @@
+# Не даёт уснуть серверу подсказок Яндекса (seotoolkitru-api): бесплатный сервис Render засыпает
+# после 15 минут без запросов и потом просыпается до минуты.
+#
+# Будим каждые 5 минут с 07:00 до 01:00 по Москве (04:00–21:59 UTC), а не круглосуточно: у всех
+# бесплатных сервисов рабочего пространства Render общий лимит 750 часов в месяц, и круглые сутки
+# одного сервиса (до 744 ч) оставили бы без часов остальные. Ночью сервер будят сами страницы сайта.
+# GitHub запускает расписание с задержкой в несколько минут — поэтому интервал 5, а не 14 минут.
+name: Keep API awake
+
+on:
+  schedule:
+    - cron: '2-59/5 4-21 * * *'
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Ping /healthz
+        run: |
+          curl -fsS --retry 3 --retry-delay 10 --max-time 90 https://seotoolkitru-api.onrender.com/healthz \
+            || echo "::warning::seotoolkitru-api не ответил"

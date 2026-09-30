@@ -3,6 +3,7 @@ import '../styles/main.css';
 import { initConsent } from './consent.js';
 import { initGoalLinks } from './goals.js';
 import { storage } from './storage.js';
+import { wakeSuggestApi } from './wake.js';
 
 function initTheme() {
   const btn = document.querySelector('[data-theme-toggle]');
@@ -45,3 +46,4 @@ initTheme();
 initNav();
 initConsent();
 initGoalLinks();
+wakeSuggestApi();

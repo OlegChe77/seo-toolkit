@@ -10,7 +10,7 @@ import { storage } from '../core/storage.js';
 import { toast } from '../core/toast.js';
 import { buildAdvice } from './keywords/advice.js';
 import { FROM_KEYWORD_FINDER } from './cluster/cluster.js';
-import { REGIONS, SOURCES, SUGGEST_API, calibrate, contentStems, findKeywords, warmUp } from './keywords/engine.js';
+import { REGIONS, SOURCES, SUGGEST_API, calibrate, contentStems, findKeywords } from './keywords/engine.js';
 import { analyze } from './keywords/intent.js';
 
 const PAGE = 100;
@@ -460,5 +460,3 @@ initShare({
     renderAll();
   },
 });
-
-warmUp(); // будим сервер Яндекса, пока пользователь вводит фразы
