@@ -92,7 +92,7 @@ const pill = (r) => `<span class="kf-pill kf-pill--${r.color}">${h(r.phrase)} ·
 /** HTML панели советов (все значения экранированы). */
 export function buildAdvice(row, rows) {
   const { ext, variants } = neighbours(row, rows);
-  const head = `<div class="kf-adv-head"><span class="kf-pot kf-pot--${row.color}">${LABEL[row.color]}</span>
+  const head = `<div class="kf-adv-head">${row.gold ? '<span class="kf-pot kf-pot--gold">★ Золотая фраза</span>' : ''}<span class="kf-pot kf-pot--${row.color}">${LABEL[row.color]}</span>
     <span>≈ ${fmt(row.volume)} в месяц · сложность ${row.difficulty}/99 · срок до топа: ${TERM[row.color]}</span></div>`;
 
   if (row.intent === 'nav') {
@@ -111,7 +111,8 @@ export function buildAdvice(row, rows) {
 
   const m = meta(row);
   const words = coWords(row, rows, ext);
-  const verdict = {
+  const gold = row.gold ? 'Золотая фраза: короткая, с заметным спросом и низкой конкуренцией — лучшее сочетание показателей в этой подборке. ' : '';
+  const verdict = gold + {
     green: `Хороший спрос при низкой конкуренции — берите в работу первой. Достаточно одной качественной страницы, первые переходы возможны через ${TERM.green}.`,
     yellow: 'Рабочий запрос, но конкуренция заметная: нужна сильная страница и немного внешних ссылок. Хорошо идёт в паре с зелёными уточнениями на той же странице.',
     red: 'В топе крупные магазины и агрегаторы: понадобятся месяцы работы и бюджет на ссылки. Быстрее получить трафик рекламой (Яндекс Директ, Google Ads), а в SEO заходить через уточнения.',

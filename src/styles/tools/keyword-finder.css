@@ -257,6 +257,351 @@ button.kf-pot:hover {
   font-size: 12px;
 }
 
+/* ---------- Выбор фраз ---------- */
+.kf-table td {
+  vertical-align: middle;
+}
+
+.kf-table .kf-sel {
+  width: 1%;
+  padding: 0;
+}
+
+.kf-sel-hit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 8px 10px 12px;
+  cursor: pointer;
+}
+
+.kf-check {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.kf-row.is-selected {
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+}
+
+.kf-selbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 12px;
+  min-height: 36px;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.kf-selbar .hint {
+  margin: 0;
+}
+
+/* ---------- Золотые фразы ---------- */
+:root {
+  --gold-1: #fff6d2;
+  --gold-2: #ffe07a;
+  --gold-shine: #fffbe8;
+  --gold-edge: #d39b00;
+  --gold-text: #5a3b00;
+  --gold-pulse: rgba(255, 196, 0, 0.28);
+  --gold-glow: rgba(245, 183, 0, 0.45);
+  --gold-pill: rgba(255, 255, 255, 0.65);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --gold-1: rgba(255, 196, 40, 0.1);
+    --gold-2: rgba(255, 196, 40, 0.27);
+    --gold-shine: rgba(255, 226, 130, 0.42);
+    --gold-edge: #e2ad2f;
+    --gold-text: #ffd96b;
+    --gold-pulse: rgba(255, 200, 40, 0.16);
+    --gold-glow: rgba(255, 196, 40, 0.38);
+    --gold-pill: rgba(0, 0, 0, 0.25);
+  }
+}
+
+:root[data-theme='dark'] {
+  --gold-1: rgba(255, 196, 40, 0.1);
+  --gold-2: rgba(255, 196, 40, 0.27);
+  --gold-shine: rgba(255, 226, 130, 0.42);
+  --gold-edge: #e2ad2f;
+  --gold-text: #ffd96b;
+  --gold-pulse: rgba(255, 200, 40, 0.16);
+  --gold-glow: rgba(255, 196, 40, 0.38);
+  --gold-pill: rgba(0, 0, 0, 0.25);
+}
+
+/* Строка таблицы: вся в золоте, крупнее остальных, с переливом и пульсацией */
+.kf-row.kf-row--gold,
+.kf-row.kf-row--gold:hover {
+  background: linear-gradient(100deg, var(--gold-1) 0%, var(--gold-2) 25%, var(--gold-shine) 50%, var(--gold-2) 75%, var(--gold-1) 100%);
+  background-size: 300% 100%;
+  animation: kf-gold-shine 4s linear infinite;
+  color: var(--gold-text);
+  font-size: 15.5px;
+  font-weight: 600;
+}
+
+.kf-row--gold td {
+  padding-top: 15px;
+  padding-bottom: 15px;
+  border-bottom-color: color-mix(in srgb, var(--gold-edge) 45%, transparent);
+  animation: kf-gold-pulse 1.8s ease-in-out infinite;
+}
+
+.table tbody tr.kf-row--gold:hover td {
+  background: transparent;
+}
+
+.kf-table .kf-row--gold td:first-child {
+  border-left: 6px solid var(--gold-edge);
+}
+
+.kf-row--gold .kf-check {
+  accent-color: var(--gold-edge);
+}
+
+.kf-c-gold,
+.kf-phrase.kf-c-gold {
+  color: var(--gold-text);
+}
+
+.kf-phrase.kf-c-gold {
+  font-size: 1.15em;
+  font-weight: 800;
+}
+
+.kf-gold-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.kf-crown {
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 32% 30%, #fff8d6, #f5b700 58%, #b97f00);
+  color: #fff;
+  font-size: 14px;
+  line-height: 1;
+  text-shadow: 0 1px 1px rgba(110, 70, 0, 0.7);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.6), 0 0 12px var(--gold-glow);
+  animation: kf-gold-twinkle 1.8s ease-in-out infinite;
+}
+
+.kf-pot--gold {
+  color: #3d2800;
+  background: linear-gradient(135deg, #ffe88f, #f5b700 55%, #ffd34d);
+  box-shadow: inset 0 0 0 1px #d39b00, 0 2px 10px var(--gold-glow);
+}
+
+.kf-star {
+  margin-right: 4px;
+  color: #e0a800;
+}
+
+.chip.chip--gold {
+  border-color: var(--gold-edge);
+  background: var(--gold-1);
+  color: var(--gold-text);
+  font-weight: 700;
+}
+
+.chip.chip--gold.is-active {
+  background: linear-gradient(135deg, #ffe88f, #f5b700);
+  border-color: #d39b00;
+  color: #3d2800;
+}
+
+.chip--gold.is-active .kf-star {
+  color: inherit;
+}
+
+/* Блок над таблицей */
+.kf-gold {
+  position: relative;
+  overflow: hidden;
+  padding: 16px 18px;
+  border: 1.5px solid var(--gold-edge);
+  border-radius: var(--r);
+  background: linear-gradient(120deg, var(--gold-1), var(--gold-2) 45%, var(--gold-1));
+  color: var(--gold-text);
+  animation: kf-gold-glow 2.4s ease-in-out infinite;
+}
+
+.kf-gold::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 35%, rgba(255, 255, 255, 0.45) 50%, transparent 65%);
+  transform: translateX(-100%);
+  animation: kf-gold-sweep 4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.kf-gold.is-empty {
+  padding: 10px 14px;
+  border: 1px dashed var(--border);
+  background: none;
+  color: inherit;
+  animation: none;
+}
+
+.kf-gold.is-empty::after {
+  display: none;
+}
+
+.kf-gold.is-empty .hint {
+  margin: 0;
+}
+
+.kf-gold-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.kf-gold-medal {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 32% 30%, #fff8d6, #f5b700 55%, #b97f00);
+  color: #fff;
+  font-size: 24px;
+  line-height: 1;
+  text-shadow: 0 1px 2px rgba(110, 70, 0, 0.7);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.5), 0 4px 14px var(--gold-glow);
+  animation: kf-gold-twinkle 1.8s ease-in-out infinite;
+}
+
+.kf-gold h3 {
+  margin: 0 0 4px;
+  font-size: 1.15rem;
+  color: var(--gold-text);
+}
+
+.kf-gold p {
+  margin: 0;
+  font-size: 14px;
+}
+
+.kf-gold-list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 14px 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kf-gold-pill {
+  all: unset;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 6px 12px;
+  border: 1px solid var(--gold-edge);
+  border-radius: 999px;
+  background: var(--gold-pill);
+  color: var(--gold-text);
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.kf-gold-pill span {
+  font-size: 12.5px;
+  font-weight: 500;
+  opacity: 0.8;
+}
+
+.kf-gold-pill:hover {
+  box-shadow: 0 0 0 2px var(--gold-glow);
+}
+
+.kf-gold-pill:focus-visible {
+  outline: 2px solid var(--gold-edge);
+  outline-offset: 2px;
+}
+
+.kf-gold .btn {
+  position: relative;
+  z-index: 1;
+}
+
+.kf-gold-btn {
+  border-color: #d39b00;
+  background: linear-gradient(135deg, #ffe88f, #f5b700);
+  color: #3d2800;
+  font-weight: 700;
+}
+
+.kf-gold-btn:hover {
+  background: linear-gradient(135deg, #fff0b0, #ffc31f);
+}
+
+@keyframes kf-gold-shine {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: 0 0;
+  }
+}
+
+@keyframes kf-gold-pulse {
+  0%,
+  100% {
+    box-shadow: inset 0 0 0 999px transparent;
+  }
+  50% {
+    box-shadow: inset 0 0 0 999px var(--gold-pulse);
+  }
+}
+
+@keyframes kf-gold-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+  50% {
+    box-shadow: 0 0 0 3px var(--gold-glow), 0 0 22px var(--gold-glow);
+  }
+}
+
+@keyframes kf-gold-sweep {
+  0% {
+    transform: translateX(-100%);
+  }
+  60%,
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes kf-gold-twinkle {
+  0%,
+  100% {
+    transform: scale(1) rotate(0);
+  }
+  50% {
+    transform: scale(1.15) rotate(-8deg);
+  }
+}
+
 .kf-calib-summary {
   list-style: none;
   display: flex;

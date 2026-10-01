@@ -12,5 +12,6 @@ export function wakeSuggestApi() {
   } catch {
     // sessionStorage недоступен — просто будим при каждом открытии страницы
   }
-  fetch(`${API}/healthz`, { cache: 'no-store' }).catch(() => {});
+  // no-cors: ответ не нужен, а запрос с адресов не из ALLOWED_ORIGINS (локальная сборка) не сыплет ошибками CORS.
+  fetch(`${API}/healthz`, { mode: 'no-cors', cache: 'no-store' }).catch(() => {});
 }

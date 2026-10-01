@@ -19,6 +19,13 @@ const COLORS = { green: 'Быстрые', yellow: 'Средние', red: 'Дор
 const POT = { green: 'Быстрый', yellow: 'Средний', red: 'Дорогой' };
 const RANK = { green: 2, yellow: 1, red: 0 };
 
+// «Золотая» фраза — все показатели сразу в лучшей зоне: быстрый потенциал (сложность до 40 при спросе
+// от 300 в месяц, значит класс не ниже НЧ и запрос не про чужую площадку) и не больше трёх слов.
+// Это оценка Keyword Finder, а не обещание позиций.
+const GOLD_MAX_WORDS = 3;
+const isGold = (r) => r.color === 'green' && r.words <= GOLD_MAX_WORDS;
+const rank = (r) => (r.gold ? 3 : RANK[r.color]);
+
 const seedsEl = $('#kf-seeds');
 const langEl = $('#kf-lang');
 const regionEl = $('#kf-region');
@@ -34,6 +41,7 @@ let running = false;
 let page = 0;
 let color = null;
 let cls = null;
+const selected = new Set(); // фразы, отмеченные галочками
 const sort = { key: 'potential', dir: 'desc' };
 let lastFocus = null;
 
@@ -104,7 +112,7 @@ async function run() {
   const btn = $('[data-action="run"]');
   btn.disabled = true;
   try {
-    data = await findKeywords({
+    setData(await findKeywords({
       seeds,
       lang: langEl.value,
       region: regionEl.value,
@@ -113,7 +121,7 @@ async function run() {
       deep: deepEl.checked,
       calibrations: { g: storage.get(calibKey('g'), null), gy: storage.get(calibKey('gy'), null) },
       onProgress: setProgress,
-    });
+    }));
     if (!data.rows.length) {
       toast(data.stats.failures ? 'Поисковики не ответили. Проверьте интернет или блокировщик рекламы и повторите.' : 'Подсказок не нашлось — попробуйте другую фразу', 'error');
     } else if (data.stats.yandex === 'error') {
@@ -121,8 +129,6 @@ async function run() {
     } else {
       toast(`Найдено ${fmt(data.rows.length)} ${plural(data.rows.length, 'фраза', 'фразы', 'фраз')}`);
     }
-    page = 0;
-    color = cls = null;
     searchEl.value = '';
     renderAll();
   } finally {
@@ -132,9 +138,19 @@ async function run() {
   }
 }
 
+/** Новые результаты: отмечаем золотые фразы, сбрасываем фильтры и выбор. */
+function setData(d) {
+  data = d;
+  for (const r of data.rows) r.gold = isGold(r);
+  selected.clear();
+  page = 0;
+  color = cls = null;
+}
+
 function reset() {
   closeAdvice();
   data = null;
+  selected.clear();
   seedsEl.value = searchEl.value = '';
   questionsEl.checked = deepEl.checked = false;
   color = cls = null;
@@ -144,24 +160,34 @@ function reset() {
 }
 
 // ---------- Таблица ----------
-function visibleRows() {
-  const terms = searchEl.value.toLowerCase().split(/\s+/).filter(Boolean);
-  const list = data.rows.filter((r) => (!color || r.color === color) && (!cls || r.cls === cls) && terms.every((t) => r.phrase.includes(t)));
+function sortRows(list) {
   const cmp = {
     phrase: (a, b) => a.phrase.localeCompare(b.phrase, 'ru'),
-    // Сначала зелёные, потом жёлтые, потом красные; внутри — по потенциалу.
-    potential: (a, b) => RANK[a.color] - RANK[b.color] || a.potential - b.potential,
+    // Сначала золотые (короткие — выше), потом зелёные, жёлтые, красные; внутри — по потенциалу.
+    potential: (a, b) => rank(a) - rank(b) || (a.gold && b.gold ? b.words - a.words : 0) || a.potential - b.potential,
   }[sort.key] || ((a, b) => a[sort.key] - b[sort.key]);
   const dir = sort.dir === 'asc' ? 1 : -1;
   return list.sort((a, b) => cmp(a, b) * dir);
 }
+
+function visibleRows() {
+  const terms = searchEl.value.toLowerCase().split(/\s+/).filter(Boolean);
+  const byColor = (r) => !color || (color === 'gold' ? r.gold : r.color === color);
+  return sortRows(data.rows.filter((r) => byColor(r) && (!cls || r.cls === cls) && terms.every((t) => r.phrase.includes(t))));
+}
+
+/** Фразы для копирования, CSV, ссылки и передачи: отмеченные галочками, а если таких нет — все по фильтру. */
+const actionRows = () => (selected.size ? sortRows(data.rows.filter((r) => selected.has(r.phrase))) : visibleRows());
 
 const chip = (active, dataset, ...children) =>
   h('button', { type: 'button', class: `chip${active ? ' is-active' : ''}`, 'aria-pressed': String(active), dataset }, ...children);
 
 function renderFilters() {
   const count = (fn) => data.rows.filter(fn).length;
-  fill($('[data-colors]'), ...Object.entries(COLORS).map(([c, label]) =>
+  const gold = chip(color === 'gold', { color: 'gold' }, h('span', { class: 'kf-star', 'aria-hidden': 'true', text: '★' }), 'Золотые',
+    h('span', { class: 'chip-count', text: fmt(count((r) => r.gold)) }));
+  gold.classList.add('chip--gold');
+  fill($('[data-colors]'), gold, ...Object.entries(COLORS).map(([c, label]) =>
     chip(color === c, { color: c }, h('span', { class: `kf-dot kf-dot--${c}` }), label, h('span', { class: 'chip-count', text: fmt(count((r) => r.color === c)) })),
   ));
   fill($('[data-classes]'),
@@ -184,10 +210,12 @@ function renderTable() {
   const pages = Math.ceil(list.length / PAGE);
   page = Math.min(page, pages - 1);
   const slice = list.slice(page * PAGE, page * PAGE + PAGE);
+  const check = (label, attrs) => h('label', { class: 'kf-sel-hit' }, h('input', { type: 'checkbox', class: 'kf-check', 'aria-label': label, ...attrs }));
   const thead = h(
     'thead',
     {},
     h('tr', {},
+      h('th', { class: 'kf-sel' }, check('Выбрать все фразы по фильтру', { dataset: { selectAll: '' }, title: 'Выбрать все фразы по фильтру' })),
       h('th', {}, sortButton('phrase', 'Фраза', 'asc')),
       h('th', {}, sortButton('potential', 'Потенциал')),
       h('th', { class: 'num' }, sortButton('volume', '≈ в месяц')),
@@ -201,15 +229,23 @@ function renderTable() {
     renderTable();
   });
   fill(box, h('div', { class: 'table-wrap' }, h('table', { class: 'table kf-table' }, thead, h('tbody', {}, slice.map((r) =>
-    h('tr', { class: `kf-row kf-row--${r.color}${r.seed ? ' is-seed' : ''}`, dataset: { phrase: r.phrase } },
-      h('td', {}, h('button', { type: 'button', class: `kf-phrase kf-c-${r.color}`, title: 'Советы по фразе', text: r.phrase })),
-      h('td', {}, h('button', { type: 'button', class: `kf-pot kf-pot--${r.color}`, title: 'Советы по фразе', text: POT[r.color] })),
+    h('tr', { class: `kf-row kf-row--${r.gold ? 'gold' : r.color}${r.seed ? ' is-seed' : ''}${selected.has(r.phrase) ? ' is-selected' : ''}`, dataset: { phrase: r.phrase } },
+      h('td', { class: 'kf-sel' }, check(`Выбрать «${r.phrase}»`, { checked: selected.has(r.phrase) })),
+      h('td', {}, r.gold
+        ? h('span', { class: 'kf-gold-name' },
+            h('span', { class: 'kf-crown', 'aria-hidden': 'true', text: '★' }),
+            h('button', { type: 'button', class: 'kf-phrase kf-c-gold', title: 'Советы по фразе', text: r.phrase }))
+        : h('button', { type: 'button', class: `kf-phrase kf-c-${r.color}`, title: 'Советы по фразе', text: r.phrase })),
+      h('td', {}, r.gold
+        ? h('button', { type: 'button', class: 'kf-pot kf-pot--gold', title: 'Золотая фраза: все показатели в лучшей зоне. Нажмите — появятся советы', text: '★ Золотая' })
+        : h('button', { type: 'button', class: `kf-pot kf-pot--${r.color}`, title: 'Советы по фразе', text: POT[r.color] })),
       h('td', { class: 'num' }, fmt(r.volume), h('small', { class: 'kf-range', text: `${fmt(r.low)}–${fmt(r.high)}` })),
       h('td', { class: 'num', text: r.difficulty }),
       h('td', {}, h('span', { class: `kf-cls kf-cls--${r.cls === 'микро' ? 'micro' : r.cls}`, text: r.cls })),
       h('td', { class: 'kf-src', text: r.sources.map((s) => SOURCES[s]?.label || s).join(', ') }),
     ),
   )))));
+  syncSelectAll();
   fill(pager,
     h('span', { text: `Показаны ${fmt(page * PAGE + 1)}–${fmt(page * PAGE + slice.length)} из ${fmt(list.length)}` }),
     pages > 1
@@ -228,11 +264,81 @@ function renderWords() {
   ));
 }
 
+// ---------- Выбор фраз ----------
+/** Галочка в шапке: отмечена, если выбраны все фразы по фильтру, и «частично» — если некоторые. */
+function syncSelectAll() {
+  const all = $('[data-select-all]');
+  if (!all) return;
+  const list = visibleRows();
+  const n = list.filter((r) => selected.has(r.phrase)).length;
+  all.checked = n > 0 && n === list.length;
+  all.indeterminate = n > 0 && n < list.length;
+}
+
+function renderSelection() {
+  const n = selected.size;
+  fill($('[data-selbar]'),
+    n
+      ? [
+          h('strong', { text: `Выбрано: ${fmt(n)} ${plural(n, 'фраза', 'фразы', 'фраз')}` }),
+          h('span', { class: 'hint', text: 'Копирование, CSV, ссылка и передача возьмут только их.' }),
+          h('button', { type: 'button', class: 'btn btn-sm btn-ghost', dataset: { action: 'clear-selection' }, text: 'Снять выбор' }),
+        ]
+      : h('span', { class: 'hint', text: 'Отметьте галочками нужные фразы — скопируете, скачаете или передадите только их.' }),
+  );
+  for (const el of $$('[data-sel-count]')) el.textContent = n ? ` (${fmt(n)})` : '';
+  $('[data-pass-hint]').textContent = n ? `Передаются выбранные фразы: ${fmt(n)}` : 'Передаются фразы с учётом выбранных фильтров';
+}
+
+function toggleRows(rows, on) {
+  for (const r of rows) on ? selected.add(r.phrase) : selected.delete(r.phrase);
+  // Галочки и подсветку на текущей странице меняем на месте, чтобы не терять фокус.
+  const phrases = new Set(rows.map((r) => r.phrase));
+  for (const tr of $$('tr[data-phrase]', $('[data-table]'))) {
+    if (!phrases.has(tr.dataset.phrase)) continue;
+    tr.classList.toggle('is-selected', on);
+    tr.querySelector('.kf-check').checked = on;
+  }
+  syncSelectAll();
+  renderSelection();
+}
+
+// ---------- Золотые фразы ----------
+function renderGold() {
+  const golds = data.rows.filter((r) => r.gold).sort((a, b) => a.words - b.words || b.potential - a.potential);
+  const box = $('[data-gold]');
+  box.classList.toggle('is-empty', !golds.length);
+  if (!golds.length) {
+    fill(box, h('p', { class: 'hint', text: 'Золотых фраз не нашлось: среди фраз до трёх слов нет быстрых. Попробуйте более короткую или общую фразу.' }));
+    return;
+  }
+  const shown = golds.slice(0, 12);
+  fill(box,
+    h('div', { class: 'kf-gold-head' },
+      h('span', { class: 'kf-gold-medal', 'aria-hidden': 'true', text: '★' }),
+      h('div', {},
+        h('h3', { text: `Золотые фразы: ${fmt(golds.length)}` }),
+        h('p', { text: 'Все показатели сразу в лучшей зоне: быстрый потенциал, спрос от 300 в месяц, сложность до 40, не больше трёх слов. Начните с них — это оценка Keyword Finder, а не гарантия позиций.' }),
+      ),
+    ),
+    h('ul', { class: 'kf-gold-list' }, shown.map((r) =>
+      h('li', {}, h('button', { type: 'button', class: 'kf-gold-pill', dataset: { goldPhrase: r.phrase }, title: 'Советы по фразе' },
+        r.phrase, h('span', { text: `≈ ${fmt(r.volume)} · ${r.difficulty}/99` }))),
+    ), golds.length > shown.length ? h('li', { class: 'hint', text: `и ещё ${fmt(golds.length - shown.length)}` }) : null),
+    h('div', { class: 'row' },
+      h('button', { type: 'button', class: 'btn btn-sm kf-gold-btn', dataset: { action: 'select-gold' }, text: 'Выбрать все золотые' }),
+      h('button', { type: 'button', class: 'btn btn-sm btn-ghost', dataset: { action: 'only-gold' }, text: color === 'gold' ? 'Показать все фразы' : 'Показать только золотые' }),
+    ),
+  );
+}
+
 function renderAll() {
   $('[data-results]').hidden = !data;
   if (!data) return;
+  renderGold();
   renderFilters();
   renderTable();
+  renderSelection();
   renderWords();
   const s = data.stats;
   const yandex = { ok: `, к Яндексу: ${fmt(s.yandexRequests)}`, error: ' (Яндекс не ответил — оценка только по Google)' }[s.yandex] || '';
@@ -243,8 +349,8 @@ function renderAll() {
 
 function exportRows() {
   return [
-    ['Фраза', 'Потенциал', 'Частотность (оценка)', 'От', 'До', 'Сложность', 'Класс', 'Источники'],
-    ...visibleRows().map((r) => [r.phrase, POT[r.color], r.volume, r.low, r.high, r.difficulty, r.cls, r.sources.map((s) => SOURCES[s]?.label || s).join(', ')]),
+    ['Фраза', 'Золотая', 'Потенциал', 'Частотность (оценка)', 'От', 'До', 'Сложность', 'Класс', 'Источники'],
+    ...actionRows().map((r) => [r.phrase, r.gold ? 'да' : '', POT[r.color], r.volume, r.low, r.high, r.difficulty, r.cls, r.sources.map((s) => SOURCES[s]?.label || s).join(', ')]),
   ];
 }
 
@@ -253,7 +359,7 @@ function openAdvice(phrase) {
   const row = data?.rows.find((r) => r.phrase === phrase);
   if (!row) return;
   lastFocus = document.activeElement;
-  fill($('[data-drawer-title]'), h('span', { class: `kf-c-${row.color}`, text: row.phrase }));
+  fill($('[data-drawer-title]'), h('span', { class: `kf-c-${row.gold ? 'gold' : row.color}`, text: row.phrase }));
   $('[data-drawer-body]').innerHTML = buildAdvice(row, data.rows); // все значения экранированы в buildAdvice
   drawer.hidden = drawerBg.hidden = false;
   drawer.scrollTop = 0;
@@ -345,6 +451,7 @@ $('[data-colors]').addEventListener('click', (e) => {
   if (!b) return;
   color = color === b.dataset.color ? null : b.dataset.color;
   page = 0;
+  renderGold();
   renderFilters();
   renderTable();
 });
@@ -368,9 +475,34 @@ $('[data-words]').addEventListener('click', (e) => {
   renderTable();
 });
 $('[data-table]').addEventListener('click', (e) => {
-  if (e.target.closest('.th-sort')) return;
+  if (e.target.closest('.th-sort, .kf-sel')) return;
   const tr = e.target.closest('tr[data-phrase]');
   if (tr) openAdvice(tr.dataset.phrase);
+});
+$('[data-table]').addEventListener('change', (e) => {
+  const box = e.target.closest('.kf-check');
+  if (!box) return;
+  if ('selectAll' in box.dataset) toggleRows(visibleRows(), box.checked);
+  else toggleRows(data.rows.filter((r) => r.phrase === box.closest('tr').dataset.phrase), box.checked);
+});
+$('[data-selbar]').addEventListener('click', (e) => {
+  if (e.target.closest('[data-action="clear-selection"]')) toggleRows(data.rows, false);
+});
+$('[data-gold]').addEventListener('click', (e) => {
+  const pill = e.target.closest('[data-gold-phrase]');
+  if (pill) return openAdvice(pill.dataset.goldPhrase);
+  const action = e.target.closest('[data-action]')?.dataset.action;
+  if (action === 'select-gold') {
+    const golds = data.rows.filter((r) => r.gold);
+    toggleRows(golds, true);
+    toast(`Выбрано золотых фраз: ${fmt(golds.length)}`);
+  } else if (action === 'only-gold') {
+    color = color === 'gold' ? null : 'gold';
+    page = 0;
+    renderGold();
+    renderFilters();
+    renderTable();
+  }
 });
 $('[data-pager]').addEventListener('click', (e) => {
   const btn = e.target.closest('[data-page]');
@@ -404,7 +536,7 @@ $('[data-action="calib-reset"]').addEventListener('click', () => {
 
 // ---------- Передача в следующий инструмент ----------
 function passRows() {
-  const rows = data ? visibleRows() : [];
+  const rows = data ? actionRows() : [];
   if (!rows.length) toast('Нет фраз для передачи — сбросьте фильтры или выполните поиск', 'error');
   return rows;
 }
@@ -421,7 +553,7 @@ $('[data-action="to-cluster"]').addEventListener('click', () => {
 });
 
 // ---------- Ссылка на результат ----------
-// В ссылку попадает текущая выборка (с учётом фильтров) в компактном виде;
+// В ссылку попадают выбранные фразы (или все по фильтру) в компактном виде;
 // признаки интента пересчитываются при открытии.
 function unpackRow([phrase, volume, low, high, rowCls, src, seed, difficulty, rowColor, potential]) {
   const stems = contentStems(phrase);
@@ -437,7 +569,7 @@ initShare({
   tool: 'keyword-finder',
   getState: () => {
     if (!data?.rows.length) return null;
-    const rows = visibleRows();
+    const rows = actionRows();
     const s = data.stats;
     return {
       f: { seeds: seedsEl.value, lang: langEl.value, region: regionEl.value },
@@ -450,13 +582,11 @@ initShare({
     seedsEl.value = d.f?.seeds || '';
     if (d.f?.lang) langEl.value = d.f.lang;
     if (REGIONS[d.f?.region]) regionEl.value = d.f.region;
-    data = {
+    setData({
       rows: (d.r || []).map(unpackRow),
       words: (d.w || []).map(([word, count, volume]) => ({ word, count, volume })),
       stats: { requests: 0, yandexRequests: 0, failures: 0, seconds: 0, ...(d.st || {}) },
-    };
-    page = 0;
-    color = cls = null;
+    });
     renderAll();
   },
 });
