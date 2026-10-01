@@ -11,6 +11,7 @@
 // и идёт буква за буквой до нужной фразы. Частота пункта на позиции r: лидер списка · r^-gamma.
 // Уточнение не может быть чаще своей основы, умноженной на kappa за каждое добавленное слово.
 // Итог — порядок величины; калибровка по цифрам из Вордстата: log10 V = a + b · log10 V_est.
+import { storage } from '../../core/storage.js';
 import { analyze } from './intent.js';
 
 const log10 = Math.log10;
@@ -250,6 +251,68 @@ const cache = new Map();
 const limits = {};
 let seq = 0;
 
+/** Счётчики одного поиска. blocked — источники, которые перестали отвечать (см. «Пауза источника»). */
+const newStats = () => ({ requests: 0, failures: 0, cached: 0, yandexRequests: 0, yandex: null, yandexStatus: 0, blocked: new Set() });
+
+// ---------- Память подсказок ----------
+// Полученные подсказки хранятся в браузере сутки: повторный или похожий поиск не тратит запросы
+// к поисковикам и не приближает ограничение «слишком много запросов».
+const SAVED_KEY = 'kf:suggest-cache';
+const SAVED_TTL = 24 * 3600 * 1000;
+const SAVED_MAX = 1_500_000; // символов JSON — с запасом до лимита localStorage
+const savedAt = new Map(); // ключ кэша → когда получены подсказки
+let savedLoaded = false;
+
+function loadSaved() {
+  if (savedLoaded) return;
+  savedLoaded = true;
+  const now = Date.now();
+  for (const [key, t, items] of storage.get(SAVED_KEY, null)?.e || []) {
+    if (now - t < SAVED_TTL && !cache.has(key)) {
+      cache.set(key, items);
+      savedAt.set(key, t);
+    }
+  }
+}
+
+function remember(key, items) {
+  cache.set(key, items);
+  savedAt.set(key, Date.now());
+}
+
+function saveCache() {
+  const now = Date.now();
+  const e = [...savedAt].filter(([, t]) => now - t < SAVED_TTL).sort((a, b) => b[1] - a[1]).map(([key, t]) => [key, t, cache.get(key)]);
+  // Если не помещается — отбрасываем самые старые.
+  while (e.length && JSON.stringify(e).length > SAVED_MAX) e.length = Math.floor(e.length * 0.8);
+  storage.set(SAVED_KEY, { v: 1, e });
+}
+
+// ---------- Пауза источника ----------
+// Если источник подряд не отвечает на много запросов, он, скорее всего, временно ограничил этот браузер
+// («слишком много запросов»). Продолжать — значит продлить блокировку, поэтому источник встаёт на паузу:
+// запросы к нему не отправляются, а в начале следующего поиска проверяем его одним запросом.
+/** Текст для пользователя, когда источники на паузе. */
+export function blockedText(blocked) {
+  const names = [...blocked].map((s) => SOURCES[s]?.label || s).join(', ');
+  return `${names} временно не отвечает этому браузеру — обычно так бывает после множества поисков подряд, особенно с «Глубже». ` +
+    'Подождите 10–30 минут и повторите. Если поисков было немного, проверьте интернет и блокировщик рекламы.';
+}
+
+const BLOCK_AFTER = 12; // отказов подряд
+const BLOCK_PAUSE = 10 * 60 * 1000;
+const fails = {};
+const PAUSE_KEY = 'kf:paused';
+const pausedUntil = (source) => storage.get(PAUSE_KEY, {})[source] || 0;
+const isPaused = (source) => pausedUntil(source) > Date.now();
+
+function setPause(source, until) {
+  const all = storage.get(PAUSE_KEY, {});
+  if (until) all[source] = until;
+  else delete all[source];
+  storage.set(PAUSE_KEY, all);
+}
+
 function limiter(n) {
   let active = 0;
   const queue = [];
@@ -294,23 +357,36 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const clean = (list) => [...new Set((list || []).filter((x) => typeof x === 'string').map(normalize).filter(Boolean))];
 
 /** Список подсказок (нормализованных, без дублей) или null, если источник не ответил. */
-async function fetchSuggest(source, query, lang, gl, stats) {
+async function fetchSuggest(source, query, lang, gl, stats, attempts = 2) {
   const key = `${source}|${lang}|${gl}|${query}`;
-  if (cache.has(key)) return cache.get(key);
+  if (cache.has(key)) {
+    stats.cached++;
+    return cache.get(key);
+  }
   const src = SOURCES[source];
   limits[source] ||= limiter(6);
   return limits[source](async () => {
-    for (let attempt = 0; attempt < 2; attempt++) {
+    // Пробный запрос (attempts = 1) идёт и во время паузы — им её и снимаем.
+    if (attempts > 1 && isPaused(source)) {
+      stats.blocked.add(source);
+      stats.failures++;
+      return null;
+    }
+    for (let attempt = 0; attempt < attempts; attempt++) {
       stats.requests++;
       try {
         const items = clean(src.parse(await jsonp(src.url(query, lang, gl), src.param)));
-        cache.set(key, items);
+        remember(key, items);
+        fails[source] = 0;
         return items;
       } catch {
-        await sleep(600 * (attempt + 1));
+        if (attempt < attempts - 1) await sleep(600 * (attempt + 1));
       }
     }
     stats.failures++;
+    fails[source] = (fails[source] || 0) + 1;
+    if (fails[source] >= BLOCK_AFTER && !isPaused(source)) setPause(source, Date.now() + BLOCK_PAUSE);
+    if (isPaused(source)) stats.blocked.add(source);
     return null;
   });
 }
@@ -323,6 +399,7 @@ async function fetchYandex(queries, lang, lr, stats) {
   const out = new Map();
   const key = (q) => `yandex|${lang}|${lr}|${q}`;
   const need = queries.filter((q) => (cache.has(key(q)) ? (out.set(q, cache.get(key(q))), false) : true));
+  stats.cached += queries.length - need.length;
   for (let i = 0; i < need.length && stats.yandex !== 'error'; i += YANDEX_BATCH) {
     const part = need.slice(i, i + YANDEX_BATCH);
     try {
@@ -332,12 +409,13 @@ async function fetchYandex(queries, lang, lr, stats) {
         body: JSON.stringify({ queries: part, lr, lang }),
         signal: AbortSignal.timeout(YANDEX_TIMEOUT),
       });
+      stats.yandexStatus = res.status; // 429 — лимит на посетителя, 503 — сервер перегружен
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const { results } = await res.json();
       stats.yandexRequests += part.length;
       for (const q of part) {
         if (!Array.isArray(results?.[q])) continue;
-        cache.set(key(q), clean(results[q]));
+        remember(key(q), clean(results[q]));
         out.set(q, cache.get(key(q)));
       }
       stats.yandex = 'ok';
@@ -351,6 +429,13 @@ async function fetchYandex(queries, lang, lr, stats) {
 
 /** onProgress(готово, всего, ждём ли Яндекс). */
 async function fetchPlan(plan, lang, region, into, stats, onProgress) {
+  loadSaved();
+  // Источник на паузе: один пробный запрос — вдруг ограничение уже сняли.
+  for (const [s, queries] of Object.entries(plan)) {
+    if (s === 'yandex' || !isPaused(s)) continue;
+    const first = [...queries].find((q) => !cache.has(`${s}|${lang}|${region.gl}|${q}`));
+    if (first && (await fetchSuggest(s, first, lang, region.gl, stats, 1))) setPause(s, 0);
+  }
   const jobs = [];
   for (const [s, queries] of Object.entries(plan)) for (const q of queries) if (!into[s]?.has(q)) jobs.push([s, q]);
   const yandex = jobs.filter(([s]) => s === 'yandex').map(([, q]) => q);
@@ -371,6 +456,7 @@ async function fetchPlan(plan, lang, region, into, stats, onProgress) {
         tick(yandex.length);
       }),
   ]);
+  saveCache();
 }
 
 /** Источники для запросов: Google всегда, Яндекс — если выбран и посредник настроен. */
@@ -388,7 +474,7 @@ function usableSources(sources, stats) {
 /** calibrations: { g?, gy? } — калибровки шкалы для каждого набора источников (см. scaleKey). */
 export async function findKeywords({ seeds, lang, region, sources, questions, deep, calibrations = {}, thresholds = [10000, 1000, 100], onProgress }) {
   const t0 = performance.now();
-  const stats = { requests: 0, failures: 0, yandexRequests: 0, yandex: null };
+  const stats = newStats();
   const reg = REGIONS[region] || REGIONS.ru;
   seeds = [...new Set(seeds.map(normalize).filter(Boolean))].slice(0, 5);
   const disc = usableSources(sources, stats);
@@ -470,7 +556,7 @@ export async function findKeywords({ seeds, lang, region, sources, questions, de
 
 /** Подгонка шкалы под реальные цифры (например, из Вордстата). rows: [{ phrase, volume }]. */
 export async function calibrate(rows, lang, region, sources, onProgress) {
-  const stats = { requests: 0, failures: 0, yandexRequests: 0, yandex: null };
+  const stats = newStats();
   rows = rows.map((r) => ({ phrase: normalize(r.phrase), volume: r.volume })).filter((r) => r.phrase && r.volume > 0).slice(0, 30);
   const chain = new Set(rows.flatMap((r) => prefixes(r.phrase)));
   const plan = Object.fromEntries(usableSources(sources, stats).filter((s) => VOLUME_SOURCES.includes(s)).map((s) => [s, chain]));
@@ -478,7 +564,9 @@ export async function calibrate(rows, lang, region, sources, onProgress) {
   await fetchPlan(plan, lang, REGIONS[region] || REGIONS.ru, lists, stats, onProgress);
   const raw = estimate(lists, lang, { ...MODEL });
   const pairs = rows.filter((r) => raw.has(r.phrase)).map((r) => ({ x: raw.get(r.phrase), y: log10(r.volume), ...r }));
-  if (pairs.length < 3) return { error: 'Нужно минимум 3 фразы, для которых удалось получить подсказки.' };
+  if (pairs.length < 3) {
+    return { error: stats.blocked.size ? blockedText(stats.blocked) : 'Нужно минимум 3 фразы, для которых удалось получить подсказки.' };
+  }
 
   const fit = (pts) => {
     const mx = mean(pts.map((p) => p.x));

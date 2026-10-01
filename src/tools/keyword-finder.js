@@ -4,13 +4,14 @@ import { initSortHeaders } from '../components/controls.js';
 import { copyText } from '../core/clipboard.js';
 import { downloadCsv, toTsv } from '../core/csv.js';
 import { $, $$, debounce, fill, fmt, h, lines, plural } from '../core/dom.js';
+import { reachGoal } from '../core/goals.js';
 import { sendTo } from '../core/handoff.js';
 import { initShare } from '../core/share.js';
 import { storage } from '../core/storage.js';
 import { toast } from '../core/toast.js';
 import { buildAdvice } from './keywords/advice.js';
 import { FROM_KEYWORD_FINDER } from './cluster/cluster.js';
-import { REGIONS, SOURCES, SUGGEST_API, calibrate, contentStems, findKeywords } from './keywords/engine.js';
+import { REGIONS, SOURCES, SUGGEST_API, blockedText, calibrate, contentStems, findKeywords } from './keywords/engine.js';
 import { analyze } from './keywords/intent.js';
 
 const PAGE = 100;
@@ -84,6 +85,12 @@ function saveForm() {
   });
 }
 
+function yandexErrorText(status) {
+  if (status === 429) return 'Яндекс: слишком много поисков с вашего адреса — частотность посчитана только по Google. Повторите через 10 минут.';
+  if (status === 503) return 'Сервер подсказок Яндекса сейчас перегружен — частотность посчитана только по Google. Повторите позже.';
+  return 'Яндекс не ответил — частотность посчитана только по Google';
+}
+
 function setProgress(done, total, stage, waitingYandex) {
   const bar = $('[data-progress-bar]');
   const text = $('[data-progress]');
@@ -108,6 +115,7 @@ async function run() {
   }
   saveForm();
   closeAdvice();
+  reachGoal('kf_search');
   running = true;
   const btn = $('[data-action="run"]');
   btn.disabled = true;
@@ -122,10 +130,16 @@ async function run() {
       calibrations: { g: storage.get(calibKey('g'), null), gy: storage.get(calibKey('gy'), null) },
       onProgress: setProgress,
     }));
+    const s = data.stats;
+    // Цель в Метрике: посетитель упёрся в ограничение поисковика или нашего сервера Яндекса.
+    if (s.blocked.size || [429, 503].includes(s.yandexStatus)) reachGoal('kf_limit');
     if (!data.rows.length) {
-      toast(data.stats.failures ? 'Поисковики не ответили. Проверьте интернет или блокировщик рекламы и повторите.' : 'Подсказок не нашлось — попробуйте другую фразу', 'error');
-    } else if (data.stats.yandex === 'error') {
-      toast('Яндекс не ответил — частотность посчитана только по Google', 'info', 5000);
+      const why = s.failures ? 'Поисковики не ответили. Проверьте интернет или блокировщик рекламы и повторите.' : 'Подсказок не нашлось — попробуйте другую фразу';
+      toast(s.blocked.size ? blockedText(s.blocked) : why, 'error', s.blocked.size ? 10000 : undefined);
+    } else if (s.blocked.size) {
+      toast(`Результаты неполные. ${blockedText(s.blocked)}`, 'info', 10000);
+    } else if (s.yandex === 'error') {
+      toast(yandexErrorText(s.yandexStatus), 'info', 6000);
     } else {
       toast(`Найдено ${fmt(data.rows.length)} ${plural(data.rows.length, 'фраза', 'фразы', 'фраз')}`);
     }
@@ -342,8 +356,10 @@ function renderAll() {
   renderWords();
   const s = data.stats;
   const yandex = { ok: `, к Яндексу: ${fmt(s.yandexRequests)}`, error: ' (Яндекс не ответил — оценка только по Google)' }[s.yandex] || '';
+  const cached = s.cached ? `, из памяти браузера: ${fmt(s.cached)}` : '';
+  const paused = s.blocked?.size ? ` ${[...s.blocked].map((x) => SOURCES[x]?.label || x).join(', ')} временно ограничил запросы.` : '';
   $('[data-meta]').textContent =
-    `Запросов к подсказкам: ${fmt(s.requests)}${yandex}${s.failures ? `, без ответа: ${fmt(s.failures)}` : ''}, время: ${String(s.seconds).replace('.', ',')} с. ` +
+    `Запросов к подсказкам: ${fmt(s.requests)}${yandex}${cached}${s.failures ? `, без ответа: ${fmt(s.failures)}` : ''}, время: ${String(s.seconds).replace('.', ',')} с.${paused} ` +
     (s.calibrated ? 'Шкала откалибрована по вашим данным.' : 'Шкала не откалибрована — цифры ориентировочные.');
 }
 
