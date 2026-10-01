@@ -9,8 +9,13 @@ test('оформление по оценке — те же пороги, что 
 });
 
 test('для каждой темы, оценки и размера есть картинка', () => {
-  assert.equal(badgePath('dark', 'banner', 87), '/badge/banner/87.svg'); // старые коды продолжают работать
-  assert.equal(badgePath('light', 'banner', 87), '/badge/light/banner/87.svg');
+  assert.equal(badgePath('dark', 'wide', 87), '/badge/wide/87.svg'); // тёмные — без префикса темы
+  assert.equal(badgePath('light', 'wide', 87), '/badge/light/wide/87.svg');
+  // Рекламный размер 468×60 и слово «banner» в адресе прячут блокировщики (RU AdList).
+  for (const s of BADGE_SIZES) {
+    assert.ok(!(s.w === 468 && s.h === 60) && !(s.w === 728 && s.h === 90) && !(s.w === 160 && s.h === 600) && !(s.w === 120 && s.h === 600), s.id);
+    assert.doesNotMatch(badgePath('dark', s.id, 1), /banner/);
+  }
   for (const theme of BADGE_THEMES) {
     for (const size of BADGE_SIZES) {
       for (let s = 0; s <= 100; s++) {
@@ -19,8 +24,8 @@ test('для каждой темы, оценки и размера есть ка
       }
     }
   }
-  const svg = fs.readFileSync('public/badge/banner/87.svg', 'utf8');
-  assert.match(svg, /^<svg[^>]+width="468" height="60"/);
+  const svg = fs.readFileSync('public/badge/wide/87.svg', 'utf8');
+  assert.match(svg, /^<svg[^>]+width="460" height="64"/);
   assert.match(svg, />87</);
 });
 

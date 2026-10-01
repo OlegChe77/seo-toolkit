@@ -231,9 +231,9 @@ function renderGroups() {
 
 // ---------- Значок для сайта ----------
 // Выбор размера и цвета запоминается в браузере.
-const savedSize = storage.get('audit:badge-size', 'banner');
+const savedSize = storage.get('audit:badge-size', 'wide');
 const badgeState = {
-  size: BADGE_SIZES.some((s) => s.id === savedSize) ? savedSize : 'banner',
+  size: BADGE_SIZES.some((s) => s.id === savedSize) ? savedSize : 'wide',
   theme: storage.get('audit:badge-theme', 'dark') === 'light' ? 'light' : 'dark',
   format: 'html',
 };

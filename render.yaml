@@ -195,3 +195,9 @@ services:
       - type: rewrite
         source: /guides/aktualizaciya-kontenta
         destination: /guides/aktualizaciya-kontenta.html
+      - type: rewrite
+        source: /guides/znachok-seo-ocenki/
+        destination: /guides/znachok-seo-ocenki.html
+      - type: rewrite
+        source: /guides/znachok-seo-ocenki
+        destination: /guides/znachok-seo-ocenki.html

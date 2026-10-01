@@ -89,17 +89,18 @@ const DESIGNS = {
     ${text(75, 125, 13, 'url(#accent)', g.label, 'font-weight="700" text-anchor="middle"')}
     ${text(75, 140, 8.5, t.faint, 'SEO-ОЦЕНКА · SEO TOOLKIT', 'text-anchor="middle" letter-spacing="0.4"')}`),
 
-  // Баннер 468×60: оценка слева, словесная оценка пилюлей по центру, шкала и подпись справа.
-  banner: (t, s, g) => frame(t, g, 468, 60, 12, `
-    ${img(g, 10, 7, 46)}
-    ${text(66, 24, 11, t.muted, 'SEO-ОЦЕНКА САЙТА', 'font-weight="700" letter-spacing="0.6"')}
-    ${text(66, 48, 24, t.text, `${s}<tspan font-size="12" fill="${t.muted}" dx="3">из 100</tspan>`, 'font-weight="700"')}
-    <rect x="192" y="17" width="96" height="26" rx="13" fill="url(#accent)" fill-opacity="${t.pill}"/>
-    <rect x="192.5" y="17.5" width="95" height="25" rx="12.5" fill="none" stroke="url(#accent)" stroke-opacity="0.55"/>
-    ${text(240, 35, 13, 'url(#accent)', g.label, 'font-weight="700" text-anchor="middle"')}
-    <rect x="306" y="19" width="148" height="8" rx="4" fill="${t.track[0]}" fill-opacity="${t.track[1]}"/>
-    ${s > 0 ? `<rect x="306" y="19" width="${Math.max(8, (148 * s) / 100)}" height="8" rx="4" fill="url(#accent)"/>` : ''}
-    ${text(454, 45, 10.5, t.muted, `Проверено в <tspan font-weight="700" fill="${t.text}">SEO Toolkit</tspan> ›`, 'text-anchor="end"')}`),
+  // Баннер 460×64 (не 468×60 — этот рекламный размер прячут блокировщики): оценка слева,
+  // словесная оценка пилюлей по центру, шкала и подпись справа.
+  wide: (t, s, g) => frame(t, g, 460, 64, 12, `
+    ${img(g, 10, 8, 48)}
+    ${text(68, 26, 10.5, t.muted, 'SEO-ОЦЕНКА САЙТА', 'font-weight="700" letter-spacing="0.4"')}
+    ${text(68, 51, 24, t.text, `${s}<tspan font-size="12" fill="${t.muted}" dx="3">из 100</tspan>`, 'font-weight="700"')}
+    <rect x="198" y="19" width="94" height="26" rx="13" fill="url(#accent)" fill-opacity="${t.pill}"/>
+    <rect x="198.5" y="19.5" width="93" height="25" rx="12.5" fill="none" stroke="url(#accent)" stroke-opacity="0.55"/>
+    ${text(245, 37, 13, 'url(#accent)', g.label, 'font-weight="700" text-anchor="middle"')}
+    <rect x="308" y="21" width="138" height="8" rx="4" fill="${t.track[0]}" fill-opacity="${t.track[1]}"/>
+    ${s > 0 ? `<rect x="308" y="21" width="${Math.max(8, (138 * s) / 100)}" height="8" rx="4" fill="url(#accent)"/>` : ''}
+    ${text(446, 48, 10.5, t.muted, `Проверено в <tspan font-weight="700" fill="${t.text}">SEO Toolkit</tspan> ›`, 'text-anchor="end"')}`),
 };
 
 const args = process.argv.slice(2);

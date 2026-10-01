@@ -1,11 +1,13 @@
 // Значки «SEO-оценка» для вставки на сайт: размеры, темы, оформление по оценке и код вставки.
 // Картинки генерирует scripts/generate-badges.mjs в public/badge/.
 
+// Не используйте рекламные размеры и слово «banner» в адресе: блокировщики прячут такие картинки на любом
+// сайте (в RU AdList есть общее правило ##img[width="468"][height="60"]), поэтому баннер — 460×64 в папке wide.
 export const BADGE_SIZES = [
   { id: 'button', name: 'Кнопка', w: 88, h: 31 },
   { id: 'plate', name: 'Плашка', w: 180, h: 50 },
   { id: 'medal', name: 'Медаль', w: 150, h: 150 },
-  { id: 'banner', name: 'Баннер', w: 468, h: 60 },
+  { id: 'wide', name: 'Баннер', w: 460, h: 64 },
 ];
 
 export const BADGE_THEMES = [
