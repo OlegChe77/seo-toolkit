@@ -115,11 +115,16 @@ async function run(raw, { fresh = false } = {}) {
 function animateScore(score) {
   const ring = $('[data-ring]');
   const c = 2 * Math.PI * 52;
+  const num = $('[data-score-num]');
   ring.style.strokeDasharray = `${c}`;
+  // В фоновой вкладке анимация не идёт — сразу ставим итог.
+  if (document.hidden || matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    ring.style.strokeDashoffset = `${c * (1 - score / 100)}`;
+    num.textContent = score;
+    return;
+  }
   ring.style.strokeDashoffset = `${c}`;
   requestAnimationFrame(() => (ring.style.strokeDashoffset = `${c * (1 - score / 100)}`));
-  const num = $('[data-score-num]');
-  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return (num.textContent = score);
   const t0 = performance.now();
   const step = (t) => {
     const k = Math.min(1, (t - t0) / 900);
@@ -127,6 +132,7 @@ function animateScore(score) {
     if (k < 1) requestAnimationFrame(step);
   };
   requestAnimationFrame(step);
+  setTimeout(() => (num.textContent = score), 1000); // если вкладку свернули посреди анимации
 }
 
 const badge = (status) => h('span', { class: `sa-badge sa-badge--${status}`, text: STATUS[status] });
