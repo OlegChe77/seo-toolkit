@@ -2,7 +2,7 @@
   "name": "seo-toolkit",
   "version": "1.0.0",
   "private": true,
-  "description": "SEO Toolkit — 11 бесплатных SEO-инструментов, работающих прямо в браузере",
+  "description": "SEO Toolkit — SEO-анализ сайта с оценкой из 100 и 12 бесплатных SEO-инструментов в браузере",
   "type": "module",
   "scripts": {
     "dev": "vite",

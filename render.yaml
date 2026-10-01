@@ -1,7 +1,7 @@
 # Blueprint для Render Static Site.
 # Render применяет правила, только если по запрошенному пути нет файла.
 services:
-  # Посредник подсказок Яндекса для Keyword Finder (server/, без зависимостей).
+  # Сервер SEO Toolkit (server/, без зависимостей): подсказки Яндекса для Keyword Finder и загрузка страниц для SEO-анализа.
   # Бесплатный тариф засыпает после 15 минут простоя: днём его будит .github/workflows/keep-api-awake.yml,
   # а любая страница сайта — запросом /healthz при открытии.
   - type: web
@@ -53,6 +53,12 @@ services:
       - type: rewrite
         source: /keyword-finder
         destination: /keyword-finder.html
+      - type: rewrite
+        source: /seo-audit/
+        destination: /seo-audit.html
+      - type: rewrite
+        source: /seo-audit
+        destination: /seo-audit.html
       - type: rewrite
         source: /serp-preview/
         destination: /serp-preview.html

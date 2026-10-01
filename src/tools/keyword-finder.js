@@ -586,6 +586,16 @@ function unpackRow([phrase, volume, low, high, rowCls, src, seed, difficulty, ro
 
 restoreForm();
 showCalibState();
+// Фраза из SEO-анализа сайта: /keyword-finder#q=…
+const fromAudit = location.hash.match(/^#q=(.+)$/);
+if (fromAudit) {
+  try {
+    seedsEl.value = decodeURIComponent(fromAudit[1]).slice(0, 200);
+  } catch {
+    /* битая ссылка — оставляем форму как есть */
+  }
+  history.replaceState(null, '', location.pathname);
+}
 initShare({
   tool: 'keyword-finder',
   getState: () => {

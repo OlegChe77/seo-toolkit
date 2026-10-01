@@ -1,8 +1,10 @@
-// HTTP-сервер посредника подсказок Яндекса для Keyword Finder (без зависимостей, Node.js 20+).
+// HTTP-сервер SEO Toolkit (без зависимостей, Node.js 20+).
 //   GET  /healthz — проверка и «пробуждение» бесплатного сервиса Render
-//   POST /yandex  — пачка подсказок, см. proxy.js
+//   POST /yandex  — пачка подсказок Яндекса для Keyword Finder, см. proxy.js
+//   POST /audit   — загрузка страницы, robots.txt и sitemap.xml для SEO-анализа, см. audit.js
 // Разрешённые сайты — переменная ALLOWED_ORIGINS (через запятую).
 import http from 'node:http';
+import { createAuditor } from './audit.js';
 import { HttpError, LIMITS, createProxy, validate } from './proxy.js';
 
 const PORT = Number(process.env.PORT) || 8787;
@@ -13,6 +15,7 @@ const ORIGINS = new Set(
     .filter(Boolean),
 );
 const proxy = createProxy();
+const audit = createAuditor();
 
 function send(res, status, body, origin) {
   const headers = { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store', Vary: 'Origin' };
@@ -47,7 +50,7 @@ const server = http.createServer(async (req, res) => {
   const path = new URL(req.url, 'http://x').pathname;
   try {
     if (req.method === 'GET' && (path === '/healthz' || path === '/')) return send(res, 200, { ok: true }, origin);
-    if (path !== '/yandex') throw new HttpError(404, 'Не найдено');
+    if (path !== '/yandex' && path !== '/audit') throw new HttpError(404, 'Не найдено');
     if (!origin) throw new HttpError(403, 'Запросы принимаются только с сайта SEO Toolkit');
     if (req.method === 'OPTIONS') return send(res, 204, null, origin);
     if (req.method !== 'POST') throw new HttpError(405, 'Нужен POST');
@@ -59,6 +62,7 @@ const server = http.createServer(async (req, res) => {
     }
     // IP клиента за прокси Render — первый адрес в X-Forwarded-For.
     const ip = String(req.headers['x-forwarded-for'] || req.socket.remoteAddress || '').split(',')[0].trim();
+    if (path === '/audit') return send(res, 200, await audit(body, ip), origin);
     send(res, 200, { results: await proxy.batch(validate(body), ip) }, origin);
   } catch (e) {
     const status = e instanceof HttpError ? e.status : 500;

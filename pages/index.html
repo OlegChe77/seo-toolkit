@@ -9,12 +9,20 @@
       <section class="home-hero">
         <div class="container home-hero-grid">
           <div>
-            <p class="eyebrow">{{icon:sparkle}}12 инструментов и гайды · бесплатно</p>
+            <p class="eyebrow">{{icon:sparkle}}13 инструментов и гайды · бесплатно</p>
             <h1>SEO Toolkit</h1>
             <p class="lead">
-              Набор SEO-инструментов, которые работают прямо в браузере: подбор ключевых слов с частотностью, сниппеты
-              и метатеги, robots.txt, анализ текста и заголовков, JSON-LD, ЧПУ, интент запросов и актуальность контента.
+              Проверьте свой сайт и получите оценку из 100 с планом исправлений — или сразу возьмите нужный инструмент: подбор
+              ключевых слов, сниппеты и метатеги, robots.txt, анализ текста, JSON-LD, ЧПУ и другие.
             </p>
+            <form class="audit-form home-audit" action="/seo-audit" method="get" data-audit-form>
+              <label class="audit-form-label" for="home-audit-url">{{icon:search}}SEO-анализ сайта — бесплатно, за 30 секунд</label>
+              <div class="audit-form-row">
+                <input class="input input--lg" id="home-audit-url" name="url" type="text" inputmode="url" autocomplete="url" spellcheck="false" placeholder="example.ru" maxlength="2000" required />
+                <button class="btn btn-primary btn-lg" type="submit">Проверить сайт</button>
+              </div>
+              <p class="hint">Индексация, метатеги, контент, скорость, HTTPS и разметка — и какие инструменты помогут исправить ошибки.</p>
+            </form>
             <ul class="trust">
               <li>{{icon:check}}Без регистрации</li>
               <li>{{icon:check}}Без API-ключей</li>

@@ -47,3 +47,10 @@ function fromHash() {
 }
 window.addEventListener('hashchange', fromHash);
 fromHash();
+
+// Форма SEO-анализа: адрес передаём после # — он не уходит в статистику посещений.
+$('[data-audit-form]')?.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const url = e.target.elements.url.value.trim();
+  if (url) location.href = `/seo-audit#url=${encodeURIComponent(url)}`;
+});

@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <!--@head-->
+  </head>
+  <body>
+    <!--@header-->
+    <main id="main">
+      <!--@hero-->
+      <div class="container tool ym-hide-content ym-disable-keys">
+        <section class="panel" aria-labelledby="sa-form-title">
+          <h2 id="sa-form-title" class="visually-hidden">Адрес сайта</h2>
+          <form class="audit-form audit-form--page" data-audit-form novalidate>
+            <label class="audit-form-label" for="sa-url">Адрес страницы — главной или любой другой</label>
+            <div class="audit-form-row">
+              <input class="input input--lg" id="sa-url" name="url" type="text" inputmode="url" autocomplete="url" spellcheck="false" placeholder="example.ru" maxlength="2000" />
+              <button class="btn btn-primary btn-lg" type="submit" data-action="run">{{icon:search}}Проверить</button>
+            </div>
+            <p class="hint">
+              Проверка займёт 10–40 секунд. Страницу, robots.txt и sitemap.xml загружает наш сервер, разбор и оценка — в вашем
+              браузере. Адреса и результаты не сохраняются.
+            </p>
+          </form>
+          <div class="sa-progress" data-progress hidden aria-live="polite">
+            <span class="sa-spinner" aria-hidden="true"></span>
+            <span data-progress-text>Проверяем…</span>
+          </div>
+          <div class="sa-error" data-error hidden role="alert"></div>
+        </section>
+
+        <div data-results hidden>
+          <section class="panel sa-summary" aria-labelledby="sa-score-title">
+            <div class="sa-score" data-score>
+              <svg class="sa-ring" viewBox="0 0 120 120" aria-hidden="true">
+                <circle class="sa-ring-bg" cx="60" cy="60" r="52" />
+                <circle class="sa-ring-fg" cx="60" cy="60" r="52" data-ring />
+              </svg>
+              <div class="sa-score-num"><b data-score-num>0</b><span>из 100</span></div>
+            </div>
+            <div class="sa-summary-main">
+              <h2 id="sa-score-title" data-grade>Оценка</h2>
+              <p class="sa-checked" data-checked></p>
+              <ul class="sa-counts" data-counts></ul>
+              <p class="sa-critical" data-critical hidden></p>
+              <div class="row">
+                <button type="button" class="btn btn-sm" data-action="share">{{icon:share}}Поделиться</button>
+                <button type="button" class="btn btn-sm" data-action="csv">{{icon:download}}Отчёт CSV</button>
+                <button type="button" class="btn btn-sm btn-ghost" data-action="again">{{icon:reset}}Проверить заново</button>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel" aria-labelledby="sa-facts-title">
+            <h2 id="sa-facts-title">Страница в поиске</h2>
+            <dl class="sa-facts" data-facts></dl>
+          </section>
+
+          <section class="panel" aria-labelledby="sa-issues-title" data-issues-panel>
+            <div class="panel-head">
+              <h2 id="sa-issues-title">Что исправить в первую очередь</h2>
+            </div>
+            <ol class="sa-issues" data-issues></ol>
+          </section>
+
+          <section class="panel" aria-labelledby="sa-tools-title">
+            <div class="panel-head">
+              <div>
+                <h2 id="sa-tools-title">Чем поможет SEO Toolkit</h2>
+                <p class="panel-sub">Инструменты откроются с данными вашей страницы</p>
+              </div>
+            </div>
+            <div class="sa-tools" data-tools></div>
+          </section>
+
+          <section class="panel" aria-labelledby="sa-all-title">
+            <h2 id="sa-all-title">Все проверки</h2>
+            <div class="sa-groups" data-groups></div>
+          </section>
+        </div>
+
+        <section class="panel help" aria-labelledby="sa-help">
+          <h2 id="sa-help">Как считается оценка</h2>
+          <div class="help-grid">
+            <div>
+              <h3>Что проверяется</h3>
+              <ul>
+                <li>Индексация: код ответа, редиректы, noindex, robots.txt, sitemap.xml, canonical.</li>
+                <li>Сниппет: Title, Description, совпадение Title и H1.</li>
+                <li>Контент: H1 и структура заголовков, объём текста, переспам, alt у картинок, дата обновления.</li>
+                <li>Техника: HTTPS и сертификат, редирект с http, зеркало www, мобильная версия, скорость ответа, сжатие.</li>
+                <li>Адрес и ссылки, микроразметка Schema.org и Open Graph.</li>
+              </ul>
+            </div>
+            <div>
+              <h3>Как читать результат</h3>
+              <ul>
+                <li>У каждой проверки свой вес: «ошибка» не даёт баллов, «внимание» — половину. 100 — всё в порядке.</li>
+                <li>Если страница не может попасть в поиск (ошибка сервера, noindex, запрет в robots.txt), оценка не выше 35.</li>
+                <li>Проверяется одна страница так, как её видит робот: без выполнения JavaScript и без данных Вебмастера и Search Console.</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+        <!--@seo-content-->
+      </div>
+      <!--@related-->
+    </main>
+    <!--@footer-->
+    <script type="module" src="/src/tools/seo-audit.js"></script>
+  </body>
+</html>

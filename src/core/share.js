@@ -3,6 +3,7 @@
 // поэтому данные из ссылки видит только тот, у кого есть сама ссылка.
 import { copyText } from './clipboard.js';
 import { reachGoal } from './goals.js';
+import { receiveState } from './handoff.js';
 import { toast } from './toast.js';
 
 const LONG_LINK = 8000; // длиннее — некоторые мессенджеры могут обрезать ссылку
@@ -68,7 +69,18 @@ export function initShare({ tool, getState, setState }) {
 
   return (async () => {
     const m = location.hash.match(/^#s=([A-Za-z0-9_-]+)$/);
-    if (!m) return false;
+    if (!m) {
+      // Данные, переданные из SEO-анализа сайта (openWithState в handoff.js).
+      const state = receiveState(tool);
+      if (state == null) return false;
+      try {
+        await setState(state);
+        toast('Данные из SEO-анализа сайта', 'info');
+        return true;
+      } catch {
+        return false;
+      }
+    }
     try {
       const payload = await decodeState(m[1]);
       if (payload?.t !== tool || payload.d == null) throw new Error('Ссылка от другого инструмента');

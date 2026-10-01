@@ -2,7 +2,7 @@
   "name": "seo-toolkit-suggest-api",
   "version": "1.0.0",
   "private": true,
-  "description": "Посредник подсказок Яндекса для Keyword Finder (SEO Toolkit)",
+  "description": "Сервер SEO Toolkit: подсказки Яндекса для Keyword Finder и загрузка страниц для SEO-анализа",
   "type": "module",
   "main": "index.js",
   "scripts": {

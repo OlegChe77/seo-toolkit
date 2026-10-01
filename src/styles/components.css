@@ -177,6 +177,61 @@
   padding: 0;
 }
 
+.btn-lg {
+  height: 52px;
+  padding: 0 22px;
+  font-size: 16px;
+  border-radius: 12px;
+}
+
+/* ---------- Форма SEO-анализа (главная и /seo-audit) ---------- */
+.audit-form {
+  display: grid;
+  gap: 10px;
+}
+
+.audit-form-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.audit-form-label .icon {
+  width: 18px;
+  height: 18px;
+  color: var(--accent);
+}
+
+.audit-form-row {
+  display: flex;
+  gap: 8px;
+}
+
+.audit-form-row .input {
+  flex: 1;
+}
+
+.audit-form .hint {
+  margin: 0;
+}
+
+@media (max-width: 479px) {
+  .audit-form-row {
+    flex-direction: column;
+  }
+}
+
+.home-audit {
+  margin-top: 22px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.06));
+}
+
 /* ---------- Поля ---------- */
 .field {
   display: grid;
@@ -269,6 +324,13 @@
   height: 34px;
   font-size: 14px;
   border-radius: 8px;
+}
+
+.input--lg {
+  height: 52px;
+  padding: 0 16px;
+  font-size: 17px;
+  border-radius: 12px;
 }
 
 .field-meta {
