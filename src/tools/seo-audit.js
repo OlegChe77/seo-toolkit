@@ -9,6 +9,8 @@ import { $, fill, fmt, h, plural } from '../core/dom.js';
 import { reachGoal } from '../core/goals.js';
 import { openWithState } from '../core/handoff.js';
 import { toast } from '../core/toast.js';
+import { initSegmented } from '../components/controls.js';
+import { BADGE_SIZES, badgeCode } from './audit/badge.js';
 import { GROUPS, analyze } from './audit/checks.js';
 
 const API = typeof __SUGGEST_API__ === 'string' ? __SUGGEST_API__.replace(/\/+$/, '') : '';
@@ -226,12 +228,63 @@ function renderGroups() {
   }));
 }
 
+// ---------- Значок для сайта ----------
+let badgeSize = BADGE_SIZES[3];
+let badgeFormat = 'html';
+
+function badgeParams() {
+  return {
+    origin: location.origin,
+    size: badgeSize,
+    score: report.score,
+    site: new URL(data.url).hostname,
+    date: new Date(data.checkedAt).toLocaleDateString('ru-RU'),
+    format: badgeFormat,
+  };
+}
+
+function renderBadgeCode() {
+  if (!report) return;
+  $('[data-badge-code]').value = badgeCode(badgeParams());
+  $('[data-badge-size]').textContent = `${badgeSize.name}: ${badgeSize.w}×${badgeSize.h}`;
+  const link = $('[data-badge-download]');
+  link.href = `/badge/${badgeSize.id}/${report.score}.svg`;
+  link.setAttribute('download', `seo-ocenka-${report.score}-${badgeSize.id}.svg`);
+}
+
+function renderBadges() {
+  fill($('[data-badges]'), BADGE_SIZES.map((s) =>
+    h('button', { type: 'button', class: `sa-badge-pick${s === badgeSize ? ' is-active' : ''}`, role: 'radio', 'aria-checked': String(s === badgeSize), dataset: { size: s.id } },
+      h('img', { src: `/badge/${s.id}/${report.score}.svg`, width: s.w, height: s.h, alt: '' }),
+      h('span', { text: `${s.name} ${s.w}×${s.h}` }),
+    ),
+  ));
+  renderBadgeCode();
+}
+
+$('[data-badges]').addEventListener('click', (e) => {
+  const b = e.target.closest('[data-size]');
+  if (!b) return;
+  badgeSize = BADGE_SIZES.find((s) => s.id === b.dataset.size);
+  renderBadges();
+});
+initSegmented($('[data-badge-format]'), (value) => {
+  badgeFormat = value;
+  renderBadgeCode();
+}, 'html');
+$('[data-action="badge-copy"]').addEventListener('click', async () => {
+  if (!report) return;
+  if (await copyText($('[data-badge-code]').value, 'Код значка скопирован')) reachGoal('badge_copy');
+});
+$('[data-badge-code]').addEventListener('focus', (e) => e.target.select());
+
 function render() {
   actions.clear();
   renderSummary();
   renderFacts();
   renderIssues();
   renderTools();
+  renderBadges();
   renderGroups();
 }
 

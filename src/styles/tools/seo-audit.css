@@ -1,4 +1,4 @@
-/* ---------- SEO-Р°РЅР°Р»РёР· СЃР°Р№С‚Р° ---------- */
+/* ---------- SEO-анализ сайта ---------- */
 .sa-progress {
   display: flex;
   align-items: center;
@@ -32,7 +32,7 @@
   font-weight: 600;
 }
 
-/* РС‚РѕРі: РєРѕР»СЊС†Рѕ СЃ РѕС†РµРЅРєРѕР№ */
+/* Итог: кольцо с оценкой */
 .sa-summary {
   display: grid;
   gap: 20px 28px;
@@ -165,7 +165,7 @@
   font-size: 14px;
 }
 
-/* Р¤Р°РєС‚С‹ */
+/* Факты */
 .sa-facts {
   display: grid;
   grid-template-columns: minmax(110px, auto) 1fr;
@@ -200,7 +200,7 @@
   }
 }
 
-/* РЎС‚Р°С‚СѓСЃС‹ */
+/* Статусы */
 .sa-badge {
   display: inline-flex;
   align-items: center;
@@ -232,7 +232,7 @@
   background: var(--surface-2);
 }
 
-/* Р§С‚Рѕ РёСЃРїСЂР°РІРёС‚СЊ */
+/* Что исправить */
 .sa-issues {
   display: grid;
   gap: 12px;
@@ -276,7 +276,7 @@
   overflow-wrap: anywhere;
 }
 
-/* РРЅСЃС‚СЂСѓРјРµРЅС‚С‹ */
+/* Инструменты */
 .sa-tools {
   display: grid;
   gap: 12px;
@@ -318,7 +318,69 @@
   justify-self: start;
 }
 
-/* Р’СЃРµ РїСЂРѕРІРµСЂРєРё */
+/* Значок для сайта */
+.sa-badges {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.sa-badge-pick {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  max-width: 100%;
+  padding: 12px;
+  border: 2px solid var(--border);
+  border-radius: var(--r);
+  background: var(--surface-2);
+  color: var(--text-2);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.sa-badge-pick img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+.sa-badge-pick:hover {
+  border-color: var(--border-strong);
+}
+
+.sa-badge-pick.is-active {
+  border-color: var(--accent);
+  box-shadow: var(--ring);
+  color: var(--text);
+}
+
+.sa-badge-pick:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.sa-code {
+  display: grid;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.sa-code-text {
+  min-height: 0;
+  font-size: 12.5px;
+  word-break: break-all;
+}
+
+.sa-code .hint {
+  margin: 0;
+}
+
+/* Все проверки */
 .sa-groups {
   display: grid;
   gap: 10px;
