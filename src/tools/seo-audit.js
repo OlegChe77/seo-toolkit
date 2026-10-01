@@ -10,7 +10,8 @@ import { reachGoal } from '../core/goals.js';
 import { openWithState } from '../core/handoff.js';
 import { toast } from '../core/toast.js';
 import { initSegmented } from '../components/controls.js';
-import { BADGE_SIZES, badgeCode } from './audit/badge.js';
+import { storage } from '../core/storage.js';
+import { BADGE_SIZES, badgeCode, badgePath } from './audit/badge.js';
 import { GROUPS, analyze } from './audit/checks.js';
 
 const API = typeof __SUGGEST_API__ === 'string' ? __SUGGEST_API__.replace(/\/+$/, '') : '';
@@ -229,49 +230,46 @@ function renderGroups() {
 }
 
 // ---------- Значок для сайта ----------
-let badgeSize = BADGE_SIZES[3];
-let badgeFormat = 'html';
+// Выбор размера и цвета запоминается в браузере.
+const savedSize = storage.get('audit:badge-size', 'banner');
+const badgeState = {
+  size: BADGE_SIZES.some((s) => s.id === savedSize) ? savedSize : 'banner',
+  theme: storage.get('audit:badge-theme', 'dark') === 'light' ? 'light' : 'dark',
+  format: 'html',
+};
 
-function badgeParams() {
-  return {
+function renderBadges() {
+  if (!report) return;
+  const size = BADGE_SIZES.find((s) => s.id === badgeState.size) || BADGE_SIZES[3];
+  const src = badgePath(badgeState.theme, size.id, report.score);
+  const img = $('[data-badge-img]');
+  img.src = src;
+  img.width = size.w;
+  img.height = size.h;
+  $('[data-badge-preview]').dataset.theme = badgeState.theme;
+  $('[data-badge-code]').value = badgeCode({
     origin: location.origin,
-    size: badgeSize,
+    size,
+    theme: badgeState.theme,
     score: report.score,
     site: new URL(data.url).hostname,
     date: new Date(data.checkedAt).toLocaleDateString('ru-RU'),
-    format: badgeFormat,
-  };
-}
-
-function renderBadgeCode() {
-  if (!report) return;
-  $('[data-badge-code]').value = badgeCode(badgeParams());
-  $('[data-badge-size]').textContent = `${badgeSize.name}: ${badgeSize.w}×${badgeSize.h}`;
+    format: badgeState.format,
+  });
+  $('[data-badge-size]').textContent = `${size.name} ${size.w}×${size.h}.`;
   const link = $('[data-badge-download]');
-  link.href = `/badge/${badgeSize.id}/${report.score}.svg`;
-  link.setAttribute('download', `seo-ocenka-${report.score}-${badgeSize.id}.svg`);
+  link.href = src;
+  link.setAttribute('download', `seo-ocenka-${report.score}-${size.id}-${badgeState.theme}.svg`);
 }
 
-function renderBadges() {
-  fill($('[data-badges]'), BADGE_SIZES.map((s) =>
-    h('button', { type: 'button', class: `sa-badge-pick${s === badgeSize ? ' is-active' : ''}`, role: 'radio', 'aria-checked': String(s === badgeSize), dataset: { size: s.id } },
-      h('img', { src: `/badge/${s.id}/${report.score}.svg`, width: s.w, height: s.h, alt: '' }),
-      h('span', { text: `${s.name} ${s.w}×${s.h}` }),
-    ),
-  ));
-  renderBadgeCode();
-}
-
-$('[data-badges]').addEventListener('click', (e) => {
-  const b = e.target.closest('[data-size]');
-  if (!b) return;
-  badgeSize = BADGE_SIZES.find((s) => s.id === b.dataset.size);
+const pick = (key) => (value) => {
+  badgeState[key] = value;
+  if (key !== 'format') storage.set(`audit:badge-${key}`, value);
   renderBadges();
-});
-initSegmented($('[data-badge-format]'), (value) => {
-  badgeFormat = value;
-  renderBadgeCode();
-}, 'html');
+};
+initSegmented($('[data-badge-sizes]'), pick('size'), badgeState.size);
+initSegmented($('[data-badge-theme]'), pick('theme'), badgeState.theme);
+initSegmented($('[data-badge-format]'), pick('format'), 'html');
 $('[data-action="badge-copy"]').addEventListener('click', async () => {
   if (!report) return;
   if (await copyText($('[data-badge-code]').value, 'Код значка скопирован')) reachGoal('badge_copy');

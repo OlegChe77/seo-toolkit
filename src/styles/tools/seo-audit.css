@@ -43,6 +43,21 @@
   .sa-summary {
     grid-template-columns: auto 1fr;
   }
+
+  .sa-badge-box {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Значок для сайта — справа от оценки на широком экране */
+@media (min-width: 1100px) {
+  .sa-summary {
+    grid-template-columns: auto minmax(0, 1fr) minmax(360px, 500px);
+  }
+
+  .sa-badge-box {
+    grid-column: auto;
+  }
 }
 
 .sa-score {
@@ -319,65 +334,62 @@
 }
 
 /* Значок для сайта */
-.sa-badges {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  gap: 12px;
-}
-
-.sa-badge-pick {
+.sa-badge-box {
   display: grid;
-  justify-items: center;
-  gap: 8px;
-  max-width: 100%;
-  padding: 12px;
-  border: 2px solid var(--border);
+  gap: 10px;
+  align-self: stretch;
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid var(--border);
   border-radius: var(--r);
   background: var(--surface-2);
-  color: var(--text-2);
-  font: inherit;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: border-color 0.15s, box-shadow 0.15s;
 }
 
-.sa-badge-pick img {
+.sa-badge-box h3 {
+  font-size: 1rem;
+}
+
+.sa-badge-opts,
+.sa-badge-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.sa-badge-opts .seg button,
+.sa-badge-actions .seg button {
+  height: 28px;
+  padding: 0 10px;
+  font-size: 13px;
+}
+
+/* Шахматка, как у прозрачного фона: видно и тёмный, и светлый значок */
+.sa-badge-preview {
+  display: grid;
+  place-items: center;
+  min-height: 172px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  background: repeating-conic-gradient(var(--surface) 0 25%, var(--bg) 0 50%) 0 0 / 18px 18px;
+}
+
+.sa-badge-preview img {
   display: block;
   max-width: 100%;
   height: auto;
 }
 
-.sa-badge-pick:hover {
-  border-color: var(--border-strong);
-}
-
-.sa-badge-pick.is-active {
-  border-color: var(--accent);
-  box-shadow: var(--ring);
-  color: var(--text);
-}
-
-.sa-badge-pick:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-}
-
-.sa-code {
-  display: grid;
-  gap: 10px;
-  margin-top: 16px;
-}
-
 .sa-code-text {
   min-height: 0;
-  font-size: 12.5px;
+  font-size: 12px;
   word-break: break-all;
 }
 
-.sa-code .hint {
+.sa-badge-box .hint {
   margin: 0;
+  font-size: 12.5px;
 }
 
 /* Все проверки */

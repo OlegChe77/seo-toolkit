@@ -1,5 +1,5 @@
-// Значки «SEO-оценка» для вставки на сайт: размеры, оформление по оценке и код вставки.
-// Картинки генерирует scripts/generate-badges.mjs в public/badge/<размер>/<оценка>.svg.
+// Значки «SEO-оценка» для вставки на сайт: размеры, темы, оформление по оценке и код вставки.
+// Картинки генерирует scripts/generate-badges.mjs в public/badge/.
 
 export const BADGE_SIZES = [
   { id: 'button', name: 'Кнопка', w: 88, h: 31 },
@@ -7,6 +7,14 @@ export const BADGE_SIZES = [
   { id: 'medal', name: 'Медаль', w: 150, h: 150 },
   { id: 'banner', name: 'Баннер', w: 468, h: 60 },
 ];
+
+export const BADGE_THEMES = [
+  { id: 'dark', name: 'Тёмный' },
+  { id: 'light', name: 'Светлый' },
+];
+
+/** Путь к картинке. Тёмные лежат без префикса темы: так работают коды, вставленные до появления светлых. */
+export const badgePath = (theme, size, score) => `/badge/${theme === 'light' ? 'light/' : ''}${size}/${score}.svg`;
 
 /** Оформление по оценке — те же пороги, что у оценки в отчёте (checks.js → grade). */
 export const badgeGrade = (score) =>
@@ -18,8 +26,8 @@ export const badgeGrade = (score) =>
 const escAttr = (s) => String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
 
 /** Код вставки: HTML или Markdown. Значок ведёт на живую проверку этого сайта. */
-export function badgeCode({ origin, size, score, site, date, format = 'html' }) {
-  const img = `${origin}/badge/${size.id}/${score}.svg`;
+export function badgeCode({ origin, size, theme = 'dark', score, site, date, format = 'html' }) {
+  const img = `${origin}${badgePath(theme, size.id, score)}`;
   const link = `${origin}/seo-audit#url=${encodeURIComponent(site)}`;
   const alt = `SEO-оценка ${score} из 100 — SEO Toolkit`;
   if (format === 'md') return `[![${alt}](${img})](${link})`;

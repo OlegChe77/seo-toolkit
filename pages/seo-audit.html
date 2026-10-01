@@ -48,6 +48,39 @@
                 <button type="button" class="btn btn-sm btn-ghost" data-action="again">{{icon:reset}}Проверить заново</button>
               </div>
             </div>
+            <aside class="sa-badge-box" aria-labelledby="sa-badge-title">
+              <h3 id="sa-badge-title">Значок для вашего сайта</h3>
+              <div class="sa-badge-opts">
+                <div class="seg" data-badge-sizes role="group" aria-label="Размер значка">
+                  <button type="button" data-value="button">Кнопка</button>
+                  <button type="button" data-value="plate">Плашка</button>
+                  <button type="button" data-value="medal">Медаль</button>
+                  <button type="button" data-value="banner">Баннер</button>
+                </div>
+                <div class="seg" data-badge-theme role="group" aria-label="Цвет значка">
+                  <button type="button" data-value="dark">Тёмный</button>
+                  <button type="button" data-value="light">Светлый</button>
+                </div>
+              </div>
+              <div class="sa-badge-preview" data-badge-preview>
+                <img data-badge-img alt="Предпросмотр значка" />
+              </div>
+              <label class="visually-hidden" for="sa-badge-code">Код значка</label>
+              <textarea class="textarea textarea--mono sa-code-text" id="sa-badge-code" data-badge-code readonly rows="3" spellcheck="false"></textarea>
+              <div class="sa-badge-actions">
+                <div class="seg" data-badge-format role="group" aria-label="Формат кода">
+                  <button type="button" data-value="html">HTML</button>
+                  <button type="button" data-value="md">Markdown</button>
+                </div>
+                <button type="button" class="btn btn-sm btn-primary" data-action="badge-copy">{{icon:copy}}Скопировать код</button>
+                <a class="btn btn-sm btn-ghost" data-badge-download download>{{icon:download}}Скачать</a>
+              </div>
+              <p class="hint">
+                <span data-badge-size></span> Вставьте код в подвал сайта — значок ведёт на живую проверку. Улучшили сайт —
+                проверьте снова и замените код. Картинки —
+                <a href="https://github.com/microsoft/fluentui-emoji" target="_blank" rel="noopener">Microsoft Fluent Emoji</a> (MIT).
+              </p>
+            </aside>
           </section>
 
           <section class="panel" aria-labelledby="sa-facts-title">
@@ -70,36 +103,6 @@
               </div>
             </div>
             <div class="sa-tools" data-tools></div>
-          </section>
-
-          <section class="panel" aria-labelledby="sa-badge-title">
-            <div class="panel-head">
-              <div>
-                <h2 id="sa-badge-title">Значок для вашего сайта</h2>
-                <p class="panel-sub">Покажите посетителям оценку — значок ведёт на живую проверку вашего сайта</p>
-              </div>
-            </div>
-            <div class="sa-badges" data-badges role="radiogroup" aria-label="Вид значка"></div>
-            <div class="sa-code">
-              <div class="row row--between">
-                <div class="seg" data-badge-format role="group" aria-label="Формат кода">
-                  <button type="button" data-value="html">HTML</button>
-                  <button type="button" data-value="md">Markdown</button>
-                </div>
-                <span class="hint" data-badge-size></span>
-              </div>
-              <label class="visually-hidden" for="sa-badge-code">Код значка</label>
-              <textarea class="textarea textarea--mono sa-code-text" id="sa-badge-code" data-badge-code readonly rows="4" spellcheck="false"></textarea>
-              <div class="row">
-                <button type="button" class="btn btn-sm btn-primary" data-action="badge-copy">{{icon:copy}}Скопировать код</button>
-                <a class="btn btn-sm" data-badge-download download>{{icon:download}}Скачать картинку</a>
-              </div>
-              <p class="hint">
-                Вставьте код в HTML сайта — например, в подвал. На значке оценка этой проверки: исправили ошибки — проверьте
-                сайт снова и замените код. Картинки значков — 3D-эмодзи
-                <a href="https://github.com/microsoft/fluentui-emoji" target="_blank" rel="noopener">Microsoft Fluent Emoji</a> (лицензия MIT).
-              </p>
-            </div>
           </section>
 
           <section class="panel" aria-labelledby="sa-all-title">

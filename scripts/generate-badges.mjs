@@ -1,18 +1,31 @@
-// Значки «SEO-оценка» для сайтов, проверенных в SEO-анализе: 4 размера × оценки 0–100.
+// Значки «SEO-оценка» для сайтов, проверенных в SEO-анализе: 2 темы × 4 размера × оценки 0–100.
 // Картинки — 3D-эмодзи Microsoft Fluent Emoji (MIT, assets/fluent-emoji/LICENSE): кубок, медаль, график, инструменты.
 // Значок — SVG: фон, шкала и текст векторные (чёткие на любом экране), а 3D-картинка вставлена PNG ровно
-// двойного размера — так файл весит единицы килобайт. Запуск: npm run badges (результат в public/badge/
-// коммитится). Только часть оценок: npm run badges -- 96 82 63 31 (плюс PNG-превью в scratch/, см. --preview).
+// двойного размера — так файл весит единицы килобайт. Тёмные — public/badge/<размер>/<оценка>.svg,
+// светлые — public/badge/light/<размер>/<оценка>.svg (пути см. badgeUrl в src/tools/audit/badge.js).
+// Запуск: npm run badges (результат коммитится). Часть оценок с PNG-превью: npm run badges -- 96 63 --preview <папка>
 import fs from 'node:fs';
 import path from 'node:path';
 import { Resvg } from '@resvg/resvg-js';
-import { BADGE_SIZES, badgeGrade } from '../src/tools/audit/badge.js';
+import { BADGE_SIZES, BADGE_THEMES, badgeGrade, badgePath } from '../src/tools/audit/badge.js';
 
-const out = path.resolve('public/badge');
 const art = path.resolve('assets/fluent-emoji');
 const FONT = "'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
 
-// 3D-картинка, уменьшенная до двойного размера показа: { 'trophy:46': dataURI }.
+const THEMES = {
+  dark: {
+    bg: ['#1e2a4a', '#0b1222'], border: ['#ffffff', 0.16], text: '#ffffff', muted: '#a9b4cc', faint: '#7d89a6',
+    glow: 0.38, shine: 0.16, track: ['#ffffff', 0.12], pill: 0.16,
+    accent: { great: ['#ffe27a', '#f5a524'], good: ['#6ee7b7', '#10b981'], mid: ['#fde68a', '#f59e0b'], bad: ['#fca5a5', '#ef4444'] },
+  },
+  light: {
+    bg: ['#ffffff', '#eef2f9'], border: ['#0f172a', 0.12], text: '#0f172a', muted: '#55607a', faint: '#7a849b',
+    glow: 0.2, shine: 0.6, track: ['#0f172a', 0.08], pill: 0.12,
+    accent: { great: ['#f2a20c', '#b86e00'], good: ['#10b981', '#047857'], mid: ['#f59e0b', '#b45309'], bad: ['#ef4444', '#b91c1c'] },
+  },
+};
+
+// 3D-картинка, уменьшенная до двойного размера показа.
 const iconCache = new Map();
 function iconData(name, size) {
   const key = `${name}:${size}`;
@@ -25,91 +38,93 @@ function iconData(name, size) {
   return iconCache.get(key);
 }
 
-const COLORS = {
-  great: ['#ffe27a', '#f5a524'],
-  good: ['#6ee7b7', '#10b981'],
-  mid: ['#fde68a', '#f59e0b'],
-  bad: ['#fca5a5', '#ef4444'],
-};
-
-function defs(g, w, h) {
-  const [c1, c2] = COLORS[g.id];
-  return `<defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1e2a4a"/><stop offset="1" stop-color="#0b1222"/></linearGradient>
-    <radialGradient id="glow" cx="0.12" cy="0.2" r="${Math.max(w, h) > 200 ? 0.35 : 0.8}"><stop offset="0" stop-color="${c2}" stop-opacity="0.38"/><stop offset="1" stop-color="${c2}" stop-opacity="0"/></radialGradient>
+function frame(t, g, w, h, r, body) {
+  const [c1, c2] = t.accent[g.id];
+  return `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${t.bg[0]}"/><stop offset="1" stop-color="${t.bg[1]}"/></linearGradient>
+    <radialGradient id="glow" cx="0.12" cy="0.2" r="${Math.max(w, h) > 200 ? 0.35 : 0.8}"><stop offset="0" stop-color="${c2}" stop-opacity="${t.glow}"/><stop offset="1" stop-color="${c2}" stop-opacity="0"/></radialGradient>
     <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${c1}"/><stop offset="1" stop-color="${c2}"/></linearGradient>
-    <linearGradient id="shine" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff" stop-opacity="0.16"/><stop offset="0.5" stop-color="#ffffff" stop-opacity="0"/></linearGradient>
-  </defs>`;
-}
-
-const card = (w, h, r) => `
+    <linearGradient id="shine" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff" stop-opacity="${t.shine}"/><stop offset="0.5" stop-color="#ffffff" stop-opacity="0"/></linearGradient>
+  </defs>
   <rect width="${w}" height="${h}" rx="${r}" fill="url(#bg)"/>
   <rect width="${w}" height="${h}" rx="${r}" fill="url(#glow)"/>
   <rect width="${w}" height="${h / 2}" rx="${r}" fill="url(#shine)"/>
-  <rect x="0.5" y="0.5" width="${w - 1}" height="${h - 1}" rx="${r - 0.5}" fill="none" stroke="#ffffff" stroke-opacity="0.16"/>`;
+  <rect x="0.5" y="0.5" width="${w - 1}" height="${h - 1}" rx="${r - 0.5}" fill="none" stroke="${t.border[0]}" stroke-opacity="${t.border[1]}"/>
+  ${body}</svg>`;
+}
 
 const img = (g, x, y, size) => `<image x="${x}" y="${y}" width="${size}" height="${size}" xlink:href="${iconData(g.icon, size)}"/>`;
-const svg = (w, h, body) => `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">${body}</svg>`;
+const text = (x, y, size, fill, content, extra = '') => `<text x="${x}" y="${y}" font-family="${FONT}" font-size="${size}" fill="${fill}" ${extra}>${content}</text>`;
 
-function ring(cx, cy, r, width, score) {
+function ring(t, cx, cy, r, width, score) {
   const c = 2 * Math.PI * r;
   const arc = score > 0
     ? `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="url(#accent)" stroke-width="${width}" stroke-linecap="round" stroke-dasharray="${(c * score) / 100} ${c}" transform="rotate(-90 ${cx} ${cy})"/>`
     : '';
-  return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#ffffff" stroke-opacity="0.12" stroke-width="${width}"/>${arc}`;
+  return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${t.track[0]}" stroke-opacity="${t.track[1]}" stroke-width="${width}"/>${arc}`;
 }
 
 const DESIGNS = {
   // Кнопка 88×31, как счётчики Рунета.
-  button: (s, g) => svg(88, 31, `${defs(g, 88, 31)}${card(88, 31, 6)}
+  button: (t, s, g) => frame(t, g, 88, 31, 6, `
     ${img(g, 4, 4, 23)}
-    <text x="30" y="12.5" font-family="${FONT}" font-size="7.5" font-weight="700" letter-spacing="0.6" fill="#a9b4cc">SEO-ОЦЕНКА</text>
-    <text x="30" y="26" font-family="${FONT}" font-weight="700" fill="#ffffff"><tspan font-size="13.5">${s}</tspan><tspan font-size="8" fill="#a9b4cc" dx="1">/100</tspan></text>`),
+    ${text(30, 12.5, 7.5, t.muted, 'SEO-ОЦЕНКА', 'font-weight="700" letter-spacing="0.6"')}
+    ${text(30, 26, 13.5, t.text, `${s}<tspan font-size="8" fill="${t.muted}" dx="1">/100</tspan>`, 'font-weight="700"')}`),
 
   // Плашка 180×50.
-  plate: (s, g) => svg(180, 50, `${defs(g, 180, 50)}${card(180, 50, 10)}
+  plate: (t, s, g) => frame(t, g, 180, 50, 10, `
     ${img(g, 7, 6, 38)}
-    <text x="51" y="19" font-family="${FONT}" font-size="10" font-weight="700" letter-spacing="0.5" fill="#a9b4cc">SEO-ОЦЕНКА</text>
-    <text x="51" y="41" font-family="${FONT}" font-weight="700" fill="#ffffff"><tspan font-size="22">${s}</tspan><tspan font-size="11" fill="#a9b4cc" dx="2">из 100</tspan></text>
-    <text x="171" y="19" text-anchor="end" font-family="${FONT}" font-size="11" font-weight="700" fill="url(#accent)">${g.label}</text>
-    <text x="171" y="40" text-anchor="end" font-family="${FONT}" font-size="8.5" fill="#7d89a6">SEO Toolkit</text>`),
+    ${text(51, 19, 10, t.muted, 'SEO-ОЦЕНКА', 'font-weight="700" letter-spacing="0.5"')}
+    ${text(51, 41, 22, t.text, `${s}<tspan font-size="11" fill="${t.muted}" dx="1">/100</tspan>`, 'font-weight="700"')}
+    ${text(171, 19, 11, 'url(#accent)', g.label, 'font-weight="700" text-anchor="end"')}
+    ${text(171, 40, 8.5, t.faint, 'SEO Toolkit', 'text-anchor="end"')}`),
 
   // Медаль 150×150.
-  medal: (s, g) => svg(150, 150, `${defs(g, 150, 150)}${card(150, 150, 22)}
-    ${ring(75, 62, 42, 8, s)}
-    <text x="75" y="70" text-anchor="middle" font-family="${FONT}" font-size="30" font-weight="700" fill="#ffffff">${s}</text>
-    <text x="75" y="84" text-anchor="middle" font-family="${FONT}" font-size="9.5" fill="#a9b4cc">из 100</text>
+  medal: (t, s, g) => frame(t, g, 150, 150, 22, `
+    ${ring(t, 75, 62, 42, 8, s)}
+    ${text(75, 70, 30, t.text, s, 'font-weight="700" text-anchor="middle"')}
+    ${text(75, 84, 9.5, t.muted, 'из 100', 'text-anchor="middle"')}
     ${img(g, 100, 78, 34)}
-    <text x="75" y="125" text-anchor="middle" font-family="${FONT}" font-size="13" font-weight="700" fill="url(#accent)">${g.label}</text>
-    <text x="75" y="140" text-anchor="middle" font-family="${FONT}" font-size="8.5" letter-spacing="0.4" fill="#7d89a6">SEO-ОЦЕНКА · SEO TOOLKIT</text>`),
+    ${text(75, 125, 13, 'url(#accent)', g.label, 'font-weight="700" text-anchor="middle"')}
+    ${text(75, 140, 8.5, t.faint, 'SEO-ОЦЕНКА · SEO TOOLKIT', 'text-anchor="middle" letter-spacing="0.4"')}`),
 
-  // Баннер 468×60.
-  banner: (s, g) => svg(468, 60, `${defs(g, 468, 60)}${card(468, 60, 12)}
-    ${img(g, 9, 7, 46)}
-    <text x="64" y="24" font-family="${FONT}" font-size="11" font-weight="700" letter-spacing="0.6" fill="#a9b4cc">SEO-ОЦЕНКА САЙТА</text>
-    <text x="64" y="47" font-family="${FONT}" font-weight="700" fill="#ffffff"><tspan font-size="22">${s}</tspan><tspan font-size="12" fill="#a9b4cc" dx="3">из 100</tspan><tspan font-size="14" fill="url(#accent)" dx="10">${g.label}</tspan></text>
-    <rect x="296" y="20" width="156" height="8" rx="4" fill="#ffffff" fill-opacity="0.12"/>
-    ${s > 0 ? `<rect x="296" y="20" width="${Math.max(8, (156 * s) / 100)}" height="8" rx="4" fill="url(#accent)"/>` : ''}
-    <text x="452" y="45" text-anchor="end" font-family="${FONT}" font-size="10.5" fill="#a9b4cc">Проверено в <tspan font-weight="700" fill="#ffffff">SEO Toolkit</tspan> ›</text>`),
+  // Баннер 468×60: оценка слева, словесная оценка пилюлей по центру, шкала и подпись справа.
+  banner: (t, s, g) => frame(t, g, 468, 60, 12, `
+    ${img(g, 10, 7, 46)}
+    ${text(66, 24, 11, t.muted, 'SEO-ОЦЕНКА САЙТА', 'font-weight="700" letter-spacing="0.6"')}
+    ${text(66, 48, 24, t.text, `${s}<tspan font-size="12" fill="${t.muted}" dx="3">из 100</tspan>`, 'font-weight="700"')}
+    <rect x="192" y="17" width="96" height="26" rx="13" fill="url(#accent)" fill-opacity="${t.pill}"/>
+    <rect x="192.5" y="17.5" width="95" height="25" rx="12.5" fill="none" stroke="url(#accent)" stroke-opacity="0.55"/>
+    ${text(240, 35, 13, 'url(#accent)', g.label, 'font-weight="700" text-anchor="middle"')}
+    <rect x="306" y="19" width="148" height="8" rx="4" fill="${t.track[0]}" fill-opacity="${t.track[1]}"/>
+    ${s > 0 ? `<rect x="306" y="19" width="${Math.max(8, (148 * s) / 100)}" height="8" rx="4" fill="url(#accent)"/>` : ''}
+    ${text(454, 45, 10.5, t.muted, `Проверено в <tspan font-weight="700" fill="${t.text}">SEO Toolkit</tspan> ›`, 'text-anchor="end"')}`),
 };
 
 const args = process.argv.slice(2);
-const preview = args.includes('--preview') ? path.resolve(args[args.indexOf('--preview') + 1] || 'badge-preview') : null;
-const scores = args.map(Number).filter((n) => Number.isInteger(n) && n >= 0 && n <= 100);
+const previewAt = args.indexOf('--preview');
+const preview = previewAt >= 0 ? path.resolve(args[previewAt + 1] || 'badge-preview') : null;
+const scores = args.filter((a, i) => i !== previewAt + 1 || previewAt < 0).map(Number).filter((n) => Number.isInteger(n) && n >= 0 && n <= 100);
 const list = scores.length ? scores : Array.from({ length: 101 }, (_, i) => i);
 let bytes = 0;
-for (const size of BADGE_SIZES) {
-  fs.mkdirSync(path.join(out, size.id), { recursive: true });
-  for (const s of list) {
-    // Пробелы между тегами не нужны — значок грузится на чужих сайтах, каждый байт на счету.
-    const code = DESIGNS[size.id](s, badgeGrade(s)).replace(/>\s+</g, '><').trim();
-    fs.writeFileSync(path.join(out, size.id, `${s}.svg`), code);
-    bytes += code.length;
-    if (preview) {
-      fs.mkdirSync(preview, { recursive: true });
-      const pngData = new Resvg(code, { fitTo: { mode: 'width', value: size.w * 2 }, font: { loadSystemFonts: true, defaultFontFamily: 'Segoe UI' } }).render().asPng();
-      fs.writeFileSync(path.join(preview, `${size.id}-${s}.png`), pngData);
+let files = 0;
+for (const theme of BADGE_THEMES) {
+  for (const size of BADGE_SIZES) {
+    for (const s of list) {
+      // Пробелы между тегами не нужны — значок грузится на чужих сайтах, каждый байт на счету.
+      const code = DESIGNS[size.id](THEMES[theme.id], s, badgeGrade(s)).replace(/>\s+</g, '><').trim();
+      const file = path.resolve('public', badgePath(theme.id, size.id, s).slice(1));
+      fs.mkdirSync(path.dirname(file), { recursive: true });
+      fs.writeFileSync(file, code);
+      bytes += code.length;
+      files++;
+      if (preview) {
+        fs.mkdirSync(preview, { recursive: true });
+        const pngData = new Resvg(code, { fitTo: { mode: 'width', value: size.w * 2 }, font: { loadSystemFonts: true, defaultFontFamily: 'Segoe UI' } }).render().asPng();
+        fs.writeFileSync(path.join(preview, `${theme.id}-${size.id}-${s}.png`), pngData);
+      }
     }
   }
 }
-console.log(`Готово: ${list.length * BADGE_SIZES.length} значков, ${Math.round(bytes / 1024)} КБ`);
+console.log(`Готово: ${files} значков, ${Math.round(bytes / 1024)} КБ`);
