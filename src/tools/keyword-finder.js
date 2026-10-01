@@ -32,6 +32,7 @@ const langEl = $('#kf-lang');
 const regionEl = $('#kf-region');
 const questionsEl = $('#kf-questions');
 const deepEl = $('#kf-deep');
+const exactEl = $('#kf-exact');
 const searchEl = $('#kf-search');
 const sourceEls = $$('[data-source]');
 const drawer = $('[data-drawer]');
@@ -68,6 +69,7 @@ function restoreForm() {
   regionEl.value = REGIONS[f.region] ? f.region : 'ru';
   questionsEl.checked = !!f.questions;
   deepEl.checked = !!f.deep;
+  exactEl.checked = f.exact !== false; // по умолчанию — точное слово
   for (const el of sourceEls) if (!el.disabled) el.checked = (f.sources || []).includes(el.dataset.source);
   // Настройки до появления Яндекса (без v: 2): включаем его по умолчанию для русского.
   if (f.v !== 2 && !yandexEl.disabled) yandexEl.checked = langEl.value === 'ru';
@@ -81,6 +83,7 @@ function saveForm() {
     region: regionEl.value,
     questions: questionsEl.checked,
     deep: deepEl.checked,
+    exact: exactEl.checked,
     sources: selectedSources(),
   });
 }
@@ -127,6 +130,7 @@ async function run() {
       sources: ['google', ...selectedSources()],
       questions: questionsEl.checked,
       deep: deepEl.checked,
+      exact: exactEl.checked,
       calibrations: { g: storage.get(calibKey('g'), null), gy: storage.get(calibKey('gy'), null) },
       onProgress: setProgress,
     }));
@@ -167,6 +171,7 @@ function reset() {
   selected.clear();
   seedsEl.value = searchEl.value = '';
   questionsEl.checked = deepEl.checked = false;
+  exactEl.checked = true;
   color = cls = null;
   saveForm();
   renderAll();

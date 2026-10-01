@@ -240,9 +240,13 @@ export function classify(v, [hi, mid, lo]) {
   return v >= hi ? 'ВЧ' : v >= mid ? 'СЧ' : v >= lo ? 'НЧ' : 'микро';
 }
 
-export const relevant = (phrase, seedStems) => {
-  const words = phrase.split(' ');
-  return seedStems.some((stems) => stems.every((s) => words.some((w) => w.startsWith(s))));
+/**
+ * Фраза подходит, если в ней есть все значимые слова хотя бы одной исходной фразы.
+ * exact — слово целиком: «раст» не находит «растет» и «растения»; иначе — по основе: «диван» → «диваны», «диванчик».
+ */
+export const relevant = (phrase, seedWords, exact = false) => {
+  const words = phrase.split(exact ? /[\s-]+/ : ' ');
+  return seedWords.some((list) => list.every((s) => (exact ? words.includes(s) : words.some((w) => w.startsWith(s)))));
 };
 
 // ---------- Подсказки: JSONP из браузера ----------
@@ -472,7 +476,7 @@ function usableSources(sources, stats) {
 // ---------- Поиск ----------
 
 /** calibrations: { g?, gy? } — калибровки шкалы для каждого набора источников (см. scaleKey). */
-export async function findKeywords({ seeds, lang, region, sources, questions, deep, calibrations = {}, thresholds = [10000, 1000, 100], onProgress }) {
+export async function findKeywords({ seeds, lang, region, sources, questions, deep, exact = false, calibrations = {}, thresholds = [10000, 1000, 100], onProgress }) {
   const t0 = performance.now();
   const stats = newStats();
   const reg = REGIONS[region] || REGIONS.ru;
@@ -486,14 +490,15 @@ export async function findKeywords({ seeds, lang, region, sources, questions, de
   const lists = {};
   await fetchPlan(plan, lang, reg, lists, stats, (d, t, waiting) => onProgress?.(d, t, 1, waiting));
 
-  const seedStems = seeds.map((s) => {
-    const st = s.split(' ').filter((w) => !STOPWORDS.has(w)).map(stem);
-    return st.length ? st : s.split(' ');
+  const seedWords = seeds.map((s) => {
+    const content = s.split(' ').filter((w) => !STOPWORDS.has(w));
+    if (!content.length) return s.split(' ');
+    return exact ? content : content.map(stem);
   });
   if (deep) {
     const raw = estimate(lists, lang);
     const best = [...raw.keys()]
-      .filter((x) => !anchors.includes(x) && relevant(x, seedStems))
+      .filter((x) => !anchors.includes(x) && relevant(x, seedWords, exact))
       .sort((a, b) => raw.get(b) - raw.get(a))
       .slice(0, DEEP_LIMIT);
     const extra = new Set(best.map((x) => `${x} `));
@@ -507,7 +512,7 @@ export async function findKeywords({ seeds, lang, region, sources, questions, de
   const seenIn = new Map();
   for (const [s, byQuery] of Object.entries(lists)) {
     for (const items of byQuery.values()) {
-      for (const x of items) if (relevant(x, seedStems)) (seenIn.get(x) || seenIn.set(x, new Set()).get(x)).add(s);
+      for (const x of items) if (relevant(x, seedWords, exact)) (seenIn.get(x) || seenIn.set(x, new Set()).get(x)).add(s);
     }
   }
   for (const a of seeds) if (!seenIn.has(a)) seenIn.set(a, new Set());
